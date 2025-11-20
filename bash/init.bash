@@ -22,8 +22,6 @@ export HOSTNAME=$(hostname)
 # https://askubuntu.com/questions/1245285/bash-doesnt-expand-variables-when-pressing-tab-key
 shopt -s direxpand
 
-alias mybash="bash --rcfile ~/.bashrc_mlwp"
-
 export _GVIM=/home/utils/vim-9.1.1797 # February 27, 2024
 export PATH=$_GVIM/bin:$PATH
 
@@ -160,19 +158,19 @@ function cleanenv {
 # export GPG_TTY=$(tty)
 # gpg-connect-agent updatestartuptty /bye >/dev/null
 
-function gpg_sign {
-    echo "test" | gpg --clearsign > /dev/null 2>&1
-}
+# function gpg_sign {
+#     echo "test" | gpg --clearsign > /dev/null 2>&1
+# }
 
 # start gpg-agent
-mkdir -p "${HOME}/.gnupg/pg-agent-info"
-GPG_AGENT_FILE="${HOME}/.gnupg/pg-agent-info.`uname -n`"
-for a in . .; do . "${GPG_AGENT_FILE}"; gpg-connect-agent /bye && break; gpg-agent --daemon >"${GPG_AGENT_FILE}"; done
+# mkdir -p "${HOME}/.gnupg/pg-agent-info"
+# GPG_AGENT_FILE="${HOME}/.gnupg/pg-agent-info.`uname -n`"
+# for a in . .; do . "${GPG_AGENT_FILE}"; gpg-connect-agent /bye && break; gpg-agent --daemon >"${GPG_AGENT_FILE}"; done
 # ( test -f $GPG_AGENT_FILE && . "${GPG_AGENT_FILE}" && gpg-connect-agent /bye ) || \
 # (  gpg-agent --daemon --enable-ssh-support --write-env-file "${GPG_AGENT_FILE}" && . "${GPG_AGENT_FILE}" )
 
 if [ -z ${PATH_BASE+x} ]; then 
-    echo ".bashrc: defining PATH_BASE=$PATH"
+    # echo ".bashrc: defining PATH_BASE=$PATH"
     export PATH_BASE=$PATH
     export LD_LIBRARY_PATH_BASE=$LD_LIBRARY_PATH
 fi
@@ -307,20 +305,16 @@ xterm*|rxvt*)
     ;;
 esac
 
-# Alias definitions are in $DOTFILES/bash_aliases
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
-# sudo apt-get install bash-doc
-
-if [ -f $DOTFILES/bash/bash_aliases ]; then
-     source $DOTFILES/bash/bash_aliases
+if [ -f $DOTFILES/bash/aliases.bash ]; then
+     source $DOTFILES/bash/aliases.bash
 fi
 
-if [ -f $DOTFILES/bash/bash_fsa ]; then
-    source $DOTFILES/bash/bash_fsa
+if [ -f $DOTFILES/bash/fsa.bash ]; then
+    source $DOTFILES/bash/fsa.bash
 fi
 
-if [ -f $DOTFILES/bash/bash_fsa ]; then
-    source $DOTFILES/bash/bash_lsf
+if [ -f $DOTFILES/bash/lsf.bash ]; then
+    source $DOTFILES/bash/lsf.bash
 fi
 
 # xhost +
@@ -402,10 +396,6 @@ function wtc ()
 	export P4ROOT=$wt;
     # https://wiki.nvidia.com/gpuhwdept/index.php/GPU_Performance_Infrastructure_Group/PerfGen/Project_Name_Tagging
 	export LSB_DEFAULTPROJECT=$CHIP; # for project accounting
-
-# alias p4clhave="p4 changes -m 1 ...@$P4CLIENT"
-# p4 changes -m1  /home/scratch.mwoodpatrick/fsf/p4_crucible/hw/class/pascal/amod/...#have
-# p4 changes -m5  /home/scratch.mwoodpatrick/fsf/p4_crucible/hw/class/pascal/amod/...#have
 
     logmsg "bash = $BASH_VERSION"
     logmsg "chip = $CHIP"
@@ -566,18 +556,10 @@ function pzai ()
 # which vncserver
 
 # login keyring is here: ~/.local/share/keyrings/login.keyring is login
-function update_ubuntu ()
-{
-    sudo ntpdate time.windows.com;
-    sudo apt update;
-    sudo apt upgrade;
-    sudo apt full-upgrade
-}
+# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+# sudo apt-get install bash-doc
 
-alias ssh-dev-sc="ssh -o ForwardX11=yes mwoodpatrick-dev-sc"
-alias ssh-dev-sc-2="ssh -o ForwardX11=yes mwoodpatrick-dev-sc-2"
-
-function ubuntu-update {
+function apt-update {
     # https://help.ubuntu.com/community/AptGet/Howto
     # http://searchenterprisedesktop.techtarget.com/tip/What-non-Linux-admins-need-to-know-about-the-apt-get-tool
     #
@@ -597,16 +579,11 @@ function ubuntu-update {
     #   https://www.rabbitmq.com/install-debian.html
     #   
 
-    sudo apt-get update        # Fetches the list of available updates
-    sudo apt-get check         # Update of the package lists and checks for broken dependencies.
-    sudo apt-get dist-upgrade  # Installs updates
-    do-release-upgrade
+    sudo ntpdate time.windows.com;
+    sudo apt update;
+    sudo apt upgrade;
 
-    # for info on mouting volume r/w on Linux desktop see HR 827633 
-    #   https://ppm.nvidia.com/itg/web/knta/crt/RequestDetail.jsp?REQUEST_ID=827633
-    sudo mount.cifs -o dom=NVIDIA.com,user=mwoodpatrick,rw,uid=mwoodpatrick,forceuid,gid=30,forcegid //netapp39/linuxbuilds /home/linuxbuilds
-    sudo mount.cifs -o dom=NVIDIA.com,user=mwoodpatrick,rw,uid=mwoodpatrick,forceuid,gid=30,forcegid //sc-netapp1/scratch.mwoodpatrick /home/scratch.mwoodpatrick
-
+    # sudo apt full-upgrade
     # to determine what package contains program run
     sudo apt-file update
     sudo apt-file search makeinfo

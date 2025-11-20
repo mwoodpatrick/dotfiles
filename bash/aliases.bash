@@ -1,8 +1,3 @@
-echo "sourcing $BASH_SOURCE"
-# echo ".bash_mlwp_aliases is no longer being used"
-# don't know what replaces this need to figure that out
-# return 0
-# -*- mode: shell-script; -*-
 #   https://www.gnu.org/software/bash/manual/bashref.html#Shell-Parameters
 #   https://seankross.com/the-unix-workbench/bash-programming.html
 #   https://confluence.nvidia.com/pages/viewpage.action?spaceKey=CH&title=FModel+Setu

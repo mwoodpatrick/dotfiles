@@ -306,6 +306,10 @@ function fsa_build::launch_driver_tests {
 # Check automounter is running
 # (Running FSA on Colossus)[https://confluence.nvidia.com/display/HWINFCONTENT/Running+FSA+on+Colossus]
 function fsa_mount_all {
+    # for info on mouting volume r/w on Linux desktop see HR 827633 
+    #   https://ppm.nvidia.com/itg/web/knta/crt/RequestDetail.jsp?REQUEST_ID=827633
+    # sudo mount.cifs -o dom=NVIDIA.com,user=mwoodpatrick,rw,uid=mwoodpatrick,forceuid,gid=30,forcegid //netapp39/linuxbuilds /home/linuxbuilds
+    # sudo mount.cifs -o dom=NVIDIA.com,user=mwoodpatrick,rw,uid=mwoodpatrick,forceuid,gid=30,forcegid //sc-netapp1/scratch.mwoodpatrick /home/scratch.mwoodpatrick
     echo "Mounting all volumes"
     fsa_check_mounted dc2-cdot80-scr01-lif8a hwinf-fsa svc-hwinf-fsa
     fsa_check_mounted dc2-netapp86 scratch.mwoodpatrick_inf
