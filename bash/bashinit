@@ -13,6 +13,32 @@ case $- in
 esac
 
 export TZ=US/Pacific
+export DOTFILES=~/dotfiles
+
+function ssh-agent-check {
+    # Define the path to the SSH agent socket variable (optional, for clarity)
+    # SSH_AUTH_SOCK is the file path to the agent's control socket.
+    
+    # 1. Check if the necessary environment variables are set and the process is running.
+    if [ -n "$SSH_AGENT_PID" ] && ps -p "$SSH_AGENT_PID" > /dev/null; then
+        echo "SSH agent is already running (PID: $SSH_AGENT_PID)."
+    
+    # 2. Check if a socket exists but the PID is missing/dead.
+    elif [ -S "$SSH_AUTH_SOCK" ]; then
+        echo "SSH socket found but agent PID is missing/dead. Restarting agent..."
+        # Kill the dead socket connection if necessary (optional)
+        # find /tmp -maxdepth 2 -type s -name "agent.*" -delete
+    
+        # Start the agent and set the environment variables
+        eval "$(ssh-agent -s)"
+    
+    # 3. If no agent or socket is found, start a new one.
+    else
+        echo "No SSH agent found. Starting new agent..."
+        # The output of ssh-agent -s is shell commands to set the variables.
+        eval "$(ssh-agent -s)"
+    fi
+}
 
 function cleanenv {
     env -i HOME="$HOME" PATH="/usr/local/bin:/home/utils/Python-3.11.0/bin:/home/utils/bash-5.2.37/bin/:/home/mwoodpatrick/.cargo/bin:/home/mwoodpatrick/.local/bin:/bin" bash --noprofile --norc
@@ -177,14 +203,22 @@ xterm*|rxvt*)
     ;;
 esac
 
-# Alias definitions are in ~/.bash_mlwp_aliases
+# Alias definitions are in $DOTFILES/bash_aliases
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
 # sudo apt-get install bash-doc
 
-# if [ -f ~/.bash_mlwp_aliases ]; then
-#     echo "sourcing ~/.bash_mlwp_aliases"
-#     . ~/.bash_mlwp_aliases
-# fi
+if [ -f $DOTFILES/bash/bash_aliases ]; then
+     echo "sourcing ~/.bash_mlwp_aliases"
+     source $DOTFILES/bash/bash_aliases
+fi
+
+if [ -f $DOTFILES/bash/bash_fsa ]; then
+    source $DOTFILES/bash/bash_fsa
+fi
+
+if [ -f $DOTFILES/bash/bash_fsa ]; then
+    source $DOTFILES/bash/bash_lsf
+fi
 
 export DISPLAY=${DISPLAY:-"`uname -n`:0"}
 
@@ -681,18 +715,6 @@ function start_ssh_agent {
     fi
 }
 
-function fsa_user_init {
-    local userFSAConfig=$HOME/.bash_fsa
-
-    if [[ -e ${userFSAConfig} ]]; then
-        source ${userFSAConfig}
-    else
-        echo "${userFSAConfig} does not exist!"
-    fi
-}
-    
-fsa_user_init
-
 # http://stackoverflow.com/questions/6433241/can-the-perl-debugger-save-the-readline-history-to-a-file
 export PERLDB_OPTS=HistFile=$HOME/.perldb.history
 
@@ -826,12 +848,6 @@ export HOSTNAME=$(hostname)
 # umask 002 # better to provide access explicitly
 # echo "after $BASH_SOURCE hostname=$HOSTNAME myjobid=$LSB_JOBID DISPLAY=$DISPLAY"
 # uptime
-
-if [ -f ~/.bash_fsa ]; then
-    . ~/.bash_fsa
-fi
-
-source ~/.bash_lsf
 
 export _GVIM=/home/utils/vim-9.1.1797 # February 27, 2024
 export PATH=$_GVIM/bin:$PATH
