@@ -1,0 +1,182 @@
+# http://www.dirac.org/linux/gdb/
+# To run program with args use:
+#   gdb --args <program> <arg>...
+# info breakpoints
+# /develop/fsf/p4/sw/dev/gpu_drv/chips_a/drivers/vgpu/vmioplugin/test/test.c
+
+add-auto-load-safe-path /home/utils/gcc-11.2.0/lib64/libstdc++.so.6.0.29-gdb.py
+
+set breakpoint pending on
+set pagination on
+show pagination
+set height 20
+
+# https://www.fayewilliams.com/2014/02/24/gdb-auto-loading-has-been-declined-by-your-auto-load-safe-path/
+set auto-load safe-path /
+# set radix 16
+set input-radix 0xa
+set output-radix 16
+set logging on
+# set logging overwrite on
+set logging file gdb.log
+show logging
+set print elements 2000
+# set follow-fork-mode child # ask
+# set follow-fork-mode child
+# set directories /home/scratch.mwoodpatrick/fsf/p4_crucible/sw/dev/gpu_drv/chips_a/drivers/vgpu/tools/vmiop-simproc
+
+# Don't stop for the SIG32/33/etc crap that Flash produces
+handle SIG32 noprint nostop pass
+handle SIG33 noprint nostop pass
+handle SIGPIPE noprint nostop pass
+
+# Deal with nsICrap
+set print object on
+
+# run when using the auto-solib-add trick
+define prun
+    break main
+    run
+    set auto-solib-add 0
+    cont
+end
+
+# Define a "pu" command to display PRUnichar * strings (100 chars max)
+# Also allows an optional argument for how many chars to print as long as
+# it's less than 100.
+define pu
+  set $uni = $arg0
+  if $argc == 2
+    set $limit = $arg1
+    if $limit > 100
+      set $limit = 100
+    end
+  else
+    set $limit = 100
+  end
+  # scratch array with space for 100 chars plus null terminator.  Make
+  # sure to not use ' ' as the char so this copy/pastes well.
+  set $scratch = "____________________________________________________________________________________________________"
+  set $i = 0
+  set $scratch_idx = 0
+  while (*$uni && $i++ < $limit)
+    if (*$uni < 0x80)
+      set $scratch[$scratch_idx++] = *(char*)$uni++
+    else
+      if ($scratch_idx > 0)
+	set $scratch[$scratch_idx] = '\0'
+	print $scratch
+	set $scratch_idx = 0
+      end
+      print /x *(short*)$uni++
+    end
+  end
+  if ($scratch_idx > 0)
+    set $scratch[$scratch_idx] = '\0'
+    print $scratch
+  end
+end
+
+# Define a "ps" command to display subclasses of nsAC?String.  Note that
+# this assumes strings as of Gecko 1.9 (well, and probably a few
+# releases before that as well); going back far enough will get you
+# to string classes that this function doesn't work for.
+define ps
+  set $str = $arg0
+  if (sizeof(*$str.mData) == 1 && ($str.mFlags & 1) != 0)
+    print $str.mData
+  else
+    pu $str.mData $str.mLength
+  end
+end
+
+define whats
+   x/wa *(void**) $arg0
+end
+
+define jsstack
+   call DumpJSStack()
+end
+
+define frametree
+  set $r = ($arg0)->PresContext()->GetPresShell()->GetRootFrame()
+  if ($r)
+    call $r->List((FILE*)__stderrp, 2)
+  end
+end
+
+define frametreelimited
+  call $arg0->List((FILE*)__stderrp, 2)
+end
+
+define frametree192
+  set $r = ($arg0)->PresContext()->GetPresShell()->GetRootFrame()
+  if ($r)
+    call ((class nsIFrameDebug*)(class ViewportFrame*)$r)->List((FILE*)__stderrp, 2)
+  end
+end
+
+define frametree19
+  set $r = ($arg0)->GetPresContext()->GetPresShell()->GetRootFrame()
+  if ($r)
+    call ((class nsIFrameDebug*)(class ViewportFrame*)$r)->List($r->GetPresContext(), (FILE*)__stderrp, 2)
+  end
+end
+
+define frametree192-other
+  set $r = ($arg0)->GetPresShell()->GetRootFrame()
+  if ($r)
+    call ((class nsIFrameDebug*)(class ViewportFrame*)$r)->List((FILE*)__stderrp, 2)
+  end
+end
+
+define satom
+  p *((class nsStaticAtomWrapper*)$arg0)->mStaticAtom
+end
+
+define atom
+  p (char*)((class AtomImpl*)$arg0)->mString
+end
+
+define bta
+  thread apply all bt
+end
+
+define jsclass
+  # Look in the class slot
+  p *(JSClass*)(((JSObject*)$arg0)->classword & ~3)
+end
+
+define jsscript
+  # Assume this is a Function object and look in the private slot
+  set $fun = (JSFunction*)($arg0->slots[3] & ~1)
+  # Is it interpreted?
+  if ($fun->flags & 0x8000)
+    p *$fun->u.i.script
+  else
+    p "native"
+  end
+end
+
+#gdb implementation of the linux lsmod
+define lsmod
+       set $current = modules.next
+       set $offset =  ((int)&((struct module *)0).list) 
+   printf "Module\tAddress\n"
+
+   while($current.next != modules.next)
+               printf "%s\t%p\n",  \
+                       ((struct module *) (((void *) ($current)) - $offset ) )->name ,\
+                       ((struct module *) (((void *) ($current)) - $offset ) )->module_core
+               set $current = $current.next 
+       end
+end
+
+define gdblog 
+    set logging file $arg0
+#    set logging overwrite on
+    set logging off
+    set logging on
+    show logging
+end
+
