@@ -5,15 +5,121 @@
 # If not running interactively, don't do anything
 # fix for firefox already running error
 #   https://www.mattcutts.com/blog/how-to-fix-firefox-is-already-running-error/
-# echo "sourcing $BASH_SOURCE $(date)"
 
 case $- in
     *i*) ;;
       *) return;;
 esac
 
+echo "sourcing $BASH_SOURCE $(date)"
+
 export TZ=US/Pacific
 export DOTFILES=~/dotfiles
+export DISPLAY=${DISPLAY:-"`uname -n`:0"}
+export HOSTNAME=$(hostname)
+
+# enable tab expansion
+# https://askubuntu.com/questions/1245285/bash-doesnt-expand-variables-when-pressing-tab-key
+shopt -s direxpand
+
+alias mybash="bash --rcfile ~/.bashrc_mlwp"
+
+export _GVIM=/home/utils/vim-9.1.1797 # February 27, 2024
+export PATH=$_GVIM/bin:$PATH
+
+export _BASH=/home/utils/bash-5.2.37
+export PATH=$_BASH:$PATH
+
+export PATH=/home/utils/git-2.45.2/bin:$PATH
+
+# /home/utils/bash-5.2.37/bin:/home/mwoodpatrick/.vscode-server/bin/8dfae7a5cd50421d10cd99cb873990460525a898/bin/remote-cli:$PATH 
+
+# export EDITOR=/home/utils/vim-9.1.1591/bin/gvim
+# see INC02509509 | Problem with perforce & gvim 
+export P4EDITOR='gvim -f'
+ 
+# Add to beginning of PATH to ensure any older versions of these tools placed
+# here are not referenced accidentally from elsewhere in PATH
+export PATH=/home/$USER/bin:$PATH
+
+# . "$HOME/.cargo/env"
+# . "/colossus-local/mwoodpatrick/tools/cargo/env"
+
+# [Neovim text editor setup and LLM integration](https://confluence.nvidia.com/pages/viewpage.action?spaceKey=DFT&title=Neovim+text+editor+setup+and+LLM+integration)
+
+# export NVM_DIR="$HOME/.nvm"
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+export PATH=/home/utils/node-23.6.0/bin:$PATH
+
+# for clangd
+export PATH=/home/utils/llvm-20.1.0/bin/:$PATH
+
+# for [ripgrep](https://github.com/BurntSushi/ripgrep#installation)
+# rg --version
+export PATH=/home/utils/ripgrep-14.1.1/bin:$PATH
+
+# for [fd-find](https://github.com/sharkdp/fd#installation)
+export PATH=/home/utils/fd-8.7.1/bin:$PATH
+
+# for lua
+export PATH=/home/utils/lua-5.4.7/bin:$PATH
+
+# jq
+export PATH=/home/utils/jq-1.7.1/bin:$PATH
+
+# A recent gcc version is required for neovim's treesitter parser compilation
+# Make sure you add this to the beginning of your PATH var so older gcc is not referenced accidentally
+export _GCC=/home/utils/gcc-14.1.0
+export PATH=$_GCC/bin:$PATH
+export LD_LIBRARY_PATH=$_GCC/lib64:$_GCC/lib:$LD_LIBRARY_PATH
+
+# use latest neovim
+export _NEOVIM=/home/utils/neovim-0.11.4
+export PATH=$_NEOVIM/bin:$PATH
+export LD_LIBRARY_PATH=$_NEOVIM/lib:$LD_LIBRARY_PATH
+
+export PATH=/home/mwoodpatrick/bin:/home/utils/rust-1.88.0/bin:$PATH 
+
+nx () {
+    xterm -geometry 120x40+50+50 -e nvim "$@" &
+}
+
+nxskt () {
+    NVIM_APPNAME=kennyt-nvim-config xterm -geometry 120x40+50+50 -e nvim "$@" &
+}
+
+ks () {
+    NVIM_APPNAME=kickstart xterm -geometry 120x40+50+50 -fn lucidasanstypewriter-bold-12 -fg white -bg black -e nvim "$@" &
+    # NVIM_APPNAME=kickstart xterm -geometry 120x40+50+50 -fn lucidasanstypewriter-12 -e nvim "$@" &
+}
+
+nx2 () {
+    NVIM_APPNAME=nvim-config xterm -geometry 120x40+50+50 -e nvim "$@" &
+}
+
+function setup_nvim {
+    mkdir-p /home/$USER/bin
+    cd /home/$USER/bin
+
+    # required for lazy.nvim plugin manager to function properly (any git version newer than 2.19.0 will do)
+    ln -s /home/utils/git-2.45.2/bin/git
+     
+    # picker tool
+    ln -s /home/utils/fzf-0.58.0/bin/fzf
+     
+    # ripgrep (rg) is a grep equivalent
+    ln -s /home/utils/ripgrep-14.0.3/bin/rg
+     
+    # fd-find (fd) is a find command equivalent
+    ln -s /home/utils/fd-8.7.1/bin/fd
+     
+    # a clipper tool that your neovim/vim yanked text is available in your clipboard
+    ln -s /home/utils/xclip-0.12/bin/xclip
+     
+    # For some reason the cc binary is referenced by neovim treesitter's UI to compile language parsers, so link cc
+    ln -s /home/utils/gcc-13.2.0/bin/gcc cc
+}
 
 function ssh-agent-check {
     # Define the path to the SSH agent socket variable (optional, for clarity)
@@ -93,8 +199,6 @@ export PATH=/home/utils/openssh-8.1p1/bin:$PATH
 # use crucible for perforce operations
 export PATH=/home/nv/utils/crucible/1.0/bin:$PATH 
 
-# use latest neovim
-export PATH=/home/utils/neovim-0.7.0/bin:$PATH
 
 # use latest vim & gvim
 # export PATH=/home/utils/vim-8.2.3582/bin:$PATH
@@ -208,7 +312,6 @@ esac
 # sudo apt-get install bash-doc
 
 if [ -f $DOTFILES/bash/bash_aliases ]; then
-     echo "sourcing ~/.bash_mlwp_aliases"
      source $DOTFILES/bash/bash_aliases
 fi
 
@@ -219,8 +322,6 @@ fi
 if [ -f $DOTFILES/bash/bash_fsa ]; then
     source $DOTFILES/bash/bash_lsf
 fi
-
-export DISPLAY=${DISPLAY:-"`uname -n`:0"}
 
 # xhost +
 
@@ -237,17 +338,7 @@ function checkpathtype {
     fi
 }
 
-function fullDisplayName()
-{
-    local d=$DISPLAY
-
-    if [[ $d = \:* ]] ; then
-        d=`hostname`$d
-    fi
-
-    echo "$d"
-}
-
+# repeated?
 function myPerforceClients {
     local results="p4_clients.log"
     local clients=$(p4 -p p4hw:2001 -u mwoodpatrick -ztag -F "%client% %Update% %Access%" clients -a -u mwoodpatrick)
@@ -840,107 +931,3 @@ esac
 
 unset -f command_not_found_handle
 
-export DISPLAY=$(fullDisplayName)
-export HOSTNAME=$(hostname)
-
-# echo "PATH=$PATH"
-
-# umask 002 # better to provide access explicitly
-# echo "after $BASH_SOURCE hostname=$HOSTNAME myjobid=$LSB_JOBID DISPLAY=$DISPLAY"
-# uptime
-
-export _GVIM=/home/utils/vim-9.1.1797 # February 27, 2024
-export PATH=$_GVIM/bin:$PATH
-
-export _BASH=/home/utils/bash-5.2.37
-export PATH=$_BASH:$PATH
-
-export PATH=/home/utils/git-2.45.2/bin:$PATH
-
-# /home/utils/bash-5.2.37/bin:/home/mwoodpatrick/.vscode-server/bin/8dfae7a5cd50421d10cd99cb873990460525a898/bin/remote-cli:$PATH 
-
-# export EDITOR=/home/utils/vim-9.1.1591/bin/gvim
-# see INC02509509 | Problem with perforce & gvim 
-export P4EDITOR='gvim -f'
- 
-# Add to beginning of PATH to ensure any older versions of these tools placed
-# here are not referenced accidentally from elsewhere in PATH
-export PATH=/home/$USER/bin:$PATH
-
-# . "$HOME/.cargo/env"
-# . "/colossus-local/mwoodpatrick/tools/cargo/env"
-
-# [Neovim text editor setup and LLM integration](https://confluence.nvidia.com/pages/viewpage.action?spaceKey=DFT&title=Neovim+text+editor+setup+and+LLM+integration)
-
-# export NVM_DIR="$HOME/.nvm"
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-export PATH=/home/utils/node-23.6.0/bin:$PATH
-
-# for clangd
-export PATH=/home/utils/llvm-20.1.0/bin/:$PATH
-
-# for [ripgrep](https://github.com/BurntSushi/ripgrep#installation)
-# rg --version
-export PATH=/home/utils/ripgrep-14.1.1/bin:$PATH
-
-# for [fd-find](https://github.com/sharkdp/fd#installation)
-export PATH=/home/utils/fd-8.7.1/bin:$PATH
-
-# for lua
-export PATH=/home/utils/lua-5.4.7/bin:$PATH
-
-# jq
-export PATH=/home/utils/jq-1.7.1/bin:$PATH
-
-# A recent gcc version is required for neovim's treesitter parser compilation
-# Make sure you add this to the beginning of your PATH var so older gcc is not referenced accidentally
-export _GCC=/home/utils/gcc-14.1.0
-export PATH=$_GCC/bin:$PATH
-export LD_LIBRARY_PATH=$_GCC/lib64:$_GCC/lib:$LD_LIBRARY_PATH
-
-export _NEOVIM=/home/utils/neovim-0.11.4
-export PATH=$_NEOVIM/bin:$PATH
-export LD_LIBRARY_PATH=$_NEOVIM/lib:$LD_LIBRARY_PATH
-
-export PATH=/home/mwoodpatrick/bin:/home/utils/rust-1.88.0/bin:$PATH 
-
-nx () {
-    xterm -geometry 120x40+50+50 -e nvim "$@" &
-}
-
-nxskt () {
-    NVIM_APPNAME=kennyt-nvim-config xterm -geometry 120x40+50+50 -e nvim "$@" &
-}
-
-ks () {
-    NVIM_APPNAME=kickstart xterm -geometry 120x40+50+50 -fn lucidasanstypewriter-bold-12 -fg white -bg black -e nvim "$@" &
-    # NVIM_APPNAME=kickstart xterm -geometry 120x40+50+50 -fn lucidasanstypewriter-12 -e nvim "$@" &
-}
-
-nx2 () {
-    NVIM_APPNAME=nvim-config xterm -geometry 120x40+50+50 -e nvim "$@" &
-}
-
-function setup_nvim {
-    mkdir-p /home/$USER/bin
-    cd /home/$USER/bin
-
-    # required for lazy.nvim plugin manager to function properly (any git version newer than 2.19.0 will do)
-    ln -s /home/utils/git-2.45.2/bin/git
-     
-    # picker tool
-    ln -s /home/utils/fzf-0.58.0/bin/fzf
-     
-    # ripgrep (rg) is a grep equivalent
-    ln -s /home/utils/ripgrep-14.0.3/bin/rg
-     
-    # fd-find (fd) is a find command equivalent
-    ln -s /home/utils/fd-8.7.1/bin/fd
-     
-    # a clipper tool that your neovim/vim yanked text is available in your clipboard
-    ln -s /home/utils/xclip-0.12/bin/xclip
-     
-    # For some reason the cc binary is referenced by neovim treesitter's UI to compile language parsers, so link cc
-    ln -s /home/utils/gcc-13.2.0/bin/gcc cc
-}
