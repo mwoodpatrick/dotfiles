@@ -1,5 +1,7 @@
-#   https://ryanstutorials.net/bash-scripting-tutorial/
-#   https://linuxhint.com/category/bash-programming/
+# https://www.gnu.org/savannah-checkouts/gnu/bash/
+# https://seankross.com/the-unix-workbench/bash-programming.html
+# https://ryanstutorials.net/bash-scripting-tutorial/
+# https://linuxhint.com/category/bash-programming/
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc) for examples
 
 # If not running interactively, don't do anything
@@ -13,10 +15,30 @@ esac
 
 echo "sourcing $BASH_SOURCE $(date)"
 
+if [ -z ${PATH_BASE+x} ]; then 
+    # echo ".bashrc: defining PATH_BASE=$PATH"
+    export PATH_BASE=$PATH
+    export LD_LIBRARY_PATH_BASE=$LD_LIBRARY_PATH
+fi
+
+export P4CONFIG=.p4config
+
 export TZ=US/Pacific
 export DOTFILES=~/dotfiles
 export DISPLAY=${DISPLAY:-"`uname -n`:0"}
 export HOSTNAME=$(hostname)
+
+if [ -f $DOTFILES/bash/aliases.bash ]; then
+     source $DOTFILES/bash/aliases.bash
+fi
+
+if [ -f $DOTFILES/bash/fsa.bash ]; then
+    source $DOTFILES/bash/fsa.bash
+fi
+
+if [ -f $DOTFILES/bash/lsf.bash ]; then
+    source $DOTFILES/bash/lsf.bash
+fi
 
 # enable tab expansion
 # https://askubuntu.com/questions/1245285/bash-doesnt-expand-variables-when-pressing-tab-key
@@ -42,8 +64,6 @@ export PATH=/home/$USER/bin:$PATH
 
 # . "$HOME/.cargo/env"
 # . "/colossus-local/mwoodpatrick/tools/cargo/env"
-
-# [Neovim text editor setup and LLM integration](https://confluence.nvidia.com/pages/viewpage.action?spaceKey=DFT&title=Neovim+text+editor+setup+and+LLM+integration)
 
 # export NVM_DIR="$HOME/.nvm"
 # [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -72,10 +92,11 @@ export _GCC=/home/utils/gcc-14.1.0
 export PATH=$_GCC/bin:$PATH
 export LD_LIBRARY_PATH=$_GCC/lib64:$_GCC/lib:$LD_LIBRARY_PATH
 
+# [Neovim text editor setup and LLM integration](https://confluence.nvidia.com/pages/viewpage.action?spaceKey=DFT&title=Neovim+text+editor+setup+and+LLM+integration)
 # use latest neovim
 export _NEOVIM=/home/utils/neovim-0.11.4
-export PATH=$_NEOVIM/bin:$PATH
 export LD_LIBRARY_PATH=$_NEOVIM/lib:$LD_LIBRARY_PATH
+export PATH=$_NEOVIM/bin:$PATH
 
 export PATH=/home/mwoodpatrick/bin:/home/utils/rust-1.88.0/bin:$PATH 
 
@@ -145,6 +166,7 @@ function ssh-agent-check {
 }
 
 function cleanenv {
+    echo "Cleaning env"
     env -i HOME="$HOME" PATH="/usr/local/bin:/home/utils/Python-3.11.0/bin:/home/utils/bash-5.2.37/bin/:/home/mwoodpatrick/.cargo/bin:/home/mwoodpatrick/.local/bin:/bin" bash --noprofile --norc
 }
 
@@ -169,16 +191,6 @@ function cleanenv {
 # ( test -f $GPG_AGENT_FILE && . "${GPG_AGENT_FILE}" && gpg-connect-agent /bye ) || \
 # (  gpg-agent --daemon --enable-ssh-support --write-env-file "${GPG_AGENT_FILE}" && . "${GPG_AGENT_FILE}" )
 
-if [ -z ${PATH_BASE+x} ]; then 
-    # echo ".bashrc: defining PATH_BASE=$PATH"
-    export PATH_BASE=$PATH
-    export LD_LIBRARY_PATH_BASE=$LD_LIBRARY_PATH
-fi
-
-export P4CONFIG=.p4config
-
-# echo "$BASH_SOURCE: PATH=PATH_BASE is set to '$PATH_BASE'"
-export PATH=$PATH_BASE
 
 # use UNIX password Manager:
 
@@ -211,14 +223,9 @@ export PATH=/home/utils/gdb-15.1/bin:$PATH
 # use latest python
 # export PATH=/home/utils/Python-3.9.1/bin:$PATH
 export PATH=/home/utils/Python-3.11.0/bin:$PATH
-# echo "$BASH_SOURCE: Updated path to use Python-3.11.0 PATH=$PATH"
 
 # On CentOS 7
 # https://confluence.nvidia.com/display/HWINFFARM/Farm-docker
-
-if [ -f /etc/motd ]; then
-    cat /etc/motd
-fi
 
 # prevent exiting shell when typing Control-D
 shopt -s -o ignoreeof
@@ -305,17 +312,6 @@ xterm*|rxvt*)
     ;;
 esac
 
-if [ -f $DOTFILES/bash/aliases.bash ]; then
-     source $DOTFILES/bash/aliases.bash
-fi
-
-if [ -f $DOTFILES/bash/fsa.bash ]; then
-    source $DOTFILES/bash/fsa.bash
-fi
-
-if [ -f $DOTFILES/bash/lsf.bash ]; then
-    source $DOTFILES/bash/lsf.bash
-fi
 
 # xhost +
 
@@ -907,4 +903,3 @@ IRIX64)
 esac
 
 unset -f command_not_found_handle
-
