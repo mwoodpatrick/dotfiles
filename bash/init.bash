@@ -40,6 +40,10 @@ if [ -f $DOTFILES/bash/lsf.bash ]; then
     source $DOTFILES/bash/lsf.bash
 fi
 
+if [ -f $DOTFILES/bash/ssh.bash ]; then
+    source $DOTFILES/bash/ssh.bash
+fi
+
 # enable tab expansion
 # https://askubuntu.com/questions/1245285/bash-doesnt-expand-variables-when-pressing-tab-key
 shopt -s direxpand
@@ -117,6 +121,10 @@ nx2 () {
     NVIM_APPNAME=nvim-config xterm -geometry 120x40+50+50 -e nvim "$@" &
 }
 
+function stylua {
+    /home/utils/glibc-2.34/lib/ld-linux-x86-64.so.2     --library-path /home/utils/glibc-2.34/lib:/home/utils/gcc-14.1.0/lib64:/lib64:/usr/lib64     /home/mwoodpatrick/.local/share/kickstart/mason/packages/stylua/stylua "$@"
+}
+
 function setup_nvim {
     mkdir-p /home/$USER/bin
     cd /home/$USER/bin
@@ -140,30 +148,6 @@ function setup_nvim {
     ln -s /home/utils/gcc-13.2.0/bin/gcc cc
 }
 
-function ssh-agent-check {
-    # Define the path to the SSH agent socket variable (optional, for clarity)
-    # SSH_AUTH_SOCK is the file path to the agent's control socket.
-    
-    # 1. Check if the necessary environment variables are set and the process is running.
-    if [ -n "$SSH_AGENT_PID" ] && ps -p "$SSH_AGENT_PID" > /dev/null; then
-        echo "SSH agent is already running (PID: $SSH_AGENT_PID)."
-    
-    # 2. Check if a socket exists but the PID is missing/dead.
-    elif [ -S "$SSH_AUTH_SOCK" ]; then
-        echo "SSH socket found but agent PID is missing/dead. Restarting agent..."
-        # Kill the dead socket connection if necessary (optional)
-        # find /tmp -maxdepth 2 -type s -name "agent.*" -delete
-    
-        # Start the agent and set the environment variables
-        eval "$(ssh-agent -s)"
-    
-    # 3. If no agent or socket is found, start a new one.
-    else
-        echo "No SSH agent found. Starting new agent..."
-        # The output of ssh-agent -s is shell commands to set the variables.
-        eval "$(ssh-agent -s)"
-    fi
-}
 
 function cleanenv {
     echo "Cleaning env"
@@ -200,11 +184,6 @@ export PATH=/home/utils/password-store-1.7.4/bin:$PATH
 
 export PATH=/home/utils/subversion-1.14.1/bin:$PATH
 
-# use latest sshpass
-export PATH=/home/utils/sshpass-1.06/bin:$PATH
-
-# use latest ssh
-export PATH=/home/utils/openssh-8.1p1/bin:$PATH
 
 # use crucible for perforce operations
 export PATH=/home/nv/utils/crucible/1.0/bin:$PATH 
@@ -760,24 +739,6 @@ function dvsbuilds {
     # p4 print "//sw/automation/DVS 2.0/Build System/Classes/Database_Mappings/gpu_drv_bringup_a/Debug_Linux_AMD64_vGPU_Display_Plugin.txt" > /develop/fsf/Debug_Linux_AMD64_vGPU_Display_Plugin.txt
 }
 
-# https://www.cyberciti.biz/faq/how-to-use-ssh-agent-for-authentication-on-linux-unix/
-# https://www.openssh.com/manual.html
-# https://docs.github.com/en/authentication/connecting-to-github-with-ssh
-function start_ssh_agent {
-    if ps -p "$SSH_AGENT_PID" > /dev/null
-    then
-        echo "ssh-agent is already running"
-    else
-        eval "$(ssh-agent)"
-        # By default it adds the files "$HOME"/.ssh/id_rsa,
-        # "$HOME"/.ssh/id_dsa, "$HOME"/.ssh/id_ecdsa, "$HOME"/.ssh/id_ecdsa_sk,
-        # "$HOME"/.ssh/id_ed25520, and "$HOME"/.ssh/id_ed25519_sk.
-        
-        ssh-add
-
-        ssh-add -l
-    fi
-}
 
 # http://stackoverflow.com/questions/6433241/can-the-perl-debugger-save-the-readline-history-to-a-file
 export PERLDB_OPTS=HistFile=$HOME/.perldb.history
