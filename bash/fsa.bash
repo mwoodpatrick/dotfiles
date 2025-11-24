@@ -319,6 +319,7 @@ function fsa_mount_all {
     fsa_check_mounted dc2-cdot92-scr01-lif4b scratch.mwoodpatrick_gpu_2
     fsa_check_mounted dc2-cdot92-scr01-lif3a scratch.mwoodpatrick_gpu_3
     fsa_check_mounted dc7-cdot02-scr08 scratch.mwoodpatrick_gpu_4 
+    fsa_check_mounted dc2-cdot33-scr01 scratch.mwoodpatrick_gpu_5
     fsa_check_mounted dc7-cdot04-crit01 ip
 }
 
@@ -686,6 +687,23 @@ function fsa_gr102_tree1 {  # primary FSA support tree for gr102
     export FSA_BUILD_REGRESS_ROOT=$FSA_BUILD_MOUNT_DIR/scratch.mwoodpatrick_gpu_4/regress/mwoodpatrick/gr102/tree1
     export P4CLIENT_HW=mwoodpatrick_amodel.fullstack.gr102_tree1
     export FSA_BUILD_ROOT=$FSA_BUILD_MOUNT_DIR/scratch.mwoodpatrick_gpu_4/trees/fsa_nvgpu_gr102_tree1
+    source $FSA_BUILD_ROOT/hw/nvgpu_gr102s/fsa/build_and_test
+    echo "FSA_BUILD_ROOT=$FSA_BUILD_ROOT"
+    export hw=$FSA_BUILD_ROOT/hw
+    export nvgpu=$hw/nvgpu_gr102s
+    source $nvgpu/fsa/fsa_build_and_test/utils.sh
+    FSA_BUILD_BASE_CL=TOT # GOLDEN|TOT
+    echo FSA_BUILD_BASE_CL=$FSA_BUILD_BASE_CL 
+    echo FSA_BUILD_FSA_CL=$FSA_BUILD_FSA_CL
+    fsa_common
+}
+
+function fsa_gr102_tree2 {  # secondary FSA support tree for gr102 (Can be mounted on LSF & Colossus)
+    set +x
+    fsa_gr102_common
+    export FSA_BUILD_REGRESS_ROOT=$FSA_BUILD_MOUNT_DIR/scratch.mwoodpatrick_gpu_5/regress/mwoodpatrick/gr102/tree2
+    export P4CLIENT_HW=mwoodpatrick_amodel.fullstack.gr102_tree2
+    export FSA_BUILD_ROOT=$FSA_BUILD_MOUNT_DIR/scratch.mwoodpatrick_gpu_5/trees/fsa_nvgpu_gr102_tree2
     source $FSA_BUILD_ROOT/hw/nvgpu_gr102s/fsa/build_and_test
     echo "FSA_BUILD_ROOT=$FSA_BUILD_ROOT"
     export hw=$FSA_BUILD_ROOT/hw
