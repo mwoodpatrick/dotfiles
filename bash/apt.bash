@@ -1,4 +1,4 @@
-
+#! /usr/bin/bash
 # sudo apt-get install bash-doc
 
 function apt-update {
@@ -78,4 +78,62 @@ function apt-update {
     # see users/mcraighead/docs/cascade/misc_install.txt
     # see users/mcraighead/docs/cascade/server_install.txt
     # sudo mkdir /media/netapp39
+}
+
+function Ubuntu-24.04-desktop {
+  wsl --install  Ubuntu-24.04 --name Ubuntu-24.04-desktop
+
+  sudo apt update
+  sudo apt upgrade
+
+  ssh-keygen -t ed25519 -C "mwoodpatrick@gmail.com"
+  export GIT_ROOT=/mnt/wsl/projects/git
+  source $GIT_ROOT/dotfiles/bash/init.bash
+
+  sudo apt install unzip ripgrep luarocks fzf curl build-essential fd-find clangd nodejs npm python3-pip gh make cmake
+
+  # install rust
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh # install rust
+  source $HOME/.cargo/env
+  cargo --version
+  rustup --version
+
+  # install go All releases - The Go Programming Language
+  # Note: Replace 1.21.6 with the actual latest stable version number
+  LATEST_GO_VERSION="1.25.4"
+  curl -LO https://go.dev/dl/go${LATEST_GO_VERSION}.linux-amd64.tar.gz
+  sudo rm -rf /usr/local/go
+  sudo tar -C /usr/local -xzf go${LATEST_GO_VERSION}.linux-amd64.tar.gz
+
+  # add to bash
+  export PATH=$PATH:/usr/local/go/bin
+  source ~/.bashrc
+
+  go version
+
+  # install npm & node
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+  source ~/.bashrc
+  nvm install --lts
+  source ~/.bashrc
+  nvm --version
+  npm --version
+  node --version
+  npm install -g neovim
+
+  sudo npm install -g tree-sitter-cli
+
+  Add GIT_ROOT to .bashrc
+  export GIT_ROOT=/mnt/wsl/projects/git
+
+
+  xxzz
+  git clone git@github.com:neovim/neovim.git
+  git clone https://github.com/neovim/neovim.git
+  cd neovim/
+  make CMAKE_BUILD_TYPE=RelWithDebInfo
+  sudo make install
+  which nvim
+  nvim --version
+  history
 }
