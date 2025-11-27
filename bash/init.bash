@@ -13,18 +13,20 @@ case $- in
       *) return;;
 esac
 
-echo "sourcing $BASH_SOURCE $(date)"
-
 if [ -z ${PATH_BASE+x} ]; then 
     # echo ".bashrc: defining PATH_BASE=$PATH"
     export PATH_BASE=$PATH
     export LD_LIBRARY_PATH_BASE=$LD_LIBRARY_PATH
 fi
 
+SCRIPT_PATH="${BASH_SOURCE[0]}"
+export DOTFILES=$(dirname $(dirname $SCRIPT_PATH))
+# echo "SCRIPT_PATH=$SCRIPT_PATH"
+# echo "DOTFILES=$DOTFILES"
+
 export TZ=US/Pacific
-export DOTFILES=~/dotfiles
 export DISPLAY=${DISPLAY:-"`uname -n`:0"}
-export HOSTNAME=$(hostname)
+export HOSTNAME=$(hostname --fqdn)
 
 if [ -f $DOTFILES/bash/aliases.bash ]; then
      source $DOTFILES/bash/aliases.bash
@@ -40,6 +42,7 @@ fi
 # append to the history file, don't overwrite it
 shopt -s histappend
 
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1
 HISTSIZE=1000
 HISTFILESIZE=2000
 
