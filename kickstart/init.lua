@@ -832,12 +832,25 @@ require("lazy").setup({
 					-- can be found here https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json
 					--   settings = {},
 					-- },
+					-- [bash-language-server](https://github.com/bash-lsp/bash-language-server)
+					-- [shellcheck](https://www.shellcheck.net/)
 					bashls = {
 						cmd = { "bash-language-server", "start" },
+						-- Settings are optional but control internal behavior (e.g., shfmt settings)
 						settings = {
 							bashIde = {
 								globPattern = vim.env.GLOB_PATTERN or "*@(.sh|.inc|.bash|.command)",
 							},
+							-- Example: Control the formatter settings (requires shfmt binary)
+							format = {
+								indentSize = 2,
+								keepComments = true,
+							},
+							-- Example: Control ShellCheck diagnostics
+							-- ShellCheck is enabled by default and provides warnings/errors
+							-- diagnostics = {
+							--   group = { ['MyScript/Warning_Name'] = false },
+							-- },
 						},
 						filetypes = { "bash", "sh" },
 						root_markers = { ".git" },
