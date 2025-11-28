@@ -49,6 +49,9 @@ function apt-install-docker {
 
   sudo usermod -aG docker "$USER"
 
+  echo "Restart shell to add docker group"
+
+  docker version
   docker run hello-world
 }
 
@@ -76,6 +79,87 @@ function apt-install-explainshell {
   # open http://localhost:5001 to view the ui
 }
 
+function apt-install-python {
+  # https://www.tensorflow.org/versions/0.6.0/get_started/os_setup.html#virtualenv_install
+  sudo apt-get install python3-pip python3-dev python3-virtualenv
+  sudo apt autoremove
+}
+
+function apt-install-rust {
+  # install rust
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh # install rust
+  source "$HOME/.cargo/env"
+  cargo --version
+  rustup --version
+}
+
+function apt-install-go {
+  # install go All releases - The Go Programming Language
+  # Note: Replace 1.21.6 with the actual latest stable version number
+  LATEST_GO_VERSION="1.25.4"
+  curl -LO https://go.dev/dl/go${LATEST_GO_VERSION}.linux-amd64.tar.gz
+  sudo rm -rf /usr/local/go
+  sudo tar -C /usr/local -xzf go${LATEST_GO_VERSION}.linux-amd64.tar.gz
+
+  # add to bash
+  echo "export PATH=\$PATH:/usr/local/go/bin" >>"$HOME/.bashrc"
+  source "HOME/.bashrc"
+
+  which go
+  go version
+}
+
+function apt-install-git {
+  sudo apt install -y git gh git-filter-repo
+  git config --global user.email "mwoodpatrick.bash"
+  git config --global user.name "Mark Wood-Patrick"
+}
+
+function apt-install-build {
+  sudo apt install -y unzip curl build-essential make cmake
+}
+
+function apt-install-neovim {
+  sudo apt install -y xclip ripgrep luarocks fzf build-essential fd-find clangd nodejs npm
+  # Needed for neovim bashls
+  sudo apt install shellcheck
+  sudo apt-get -y install shfmt
+
+  cd "$GIT_ROOT" &&
+    git clone git@github.com:neovim/neovim.git &&
+    cd neovim &&
+    make CMAKE_BUILD_TYPE=RelWithDebInfo &&
+    sudo make install &&
+    which nvim &&
+    nvim --version
+
+  # This package has install issues and Gemini is better
+  # [explainshell](https://github.com/idank/explainshell/issues/350)
+  # apt-install-explainshell
+}
+
+function apt-install-bash {
+  sudo apt install -y bash-doc
+}
+
+function apt-install-node {
+  # node.js
+  # /usr/bin/nodejs
+  # /usr/bin/npm
+  sudo apt-get install nodejs
+  sudo apt-get install npm
+
+  # install npm & node
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+  source "$HOME/.bashrc"
+  nvm install --lts
+  source "$HOME/.bashrc"
+  nvm --version
+  npm --version
+  node --version
+  npm install -g neovim
+}
+
 function apt-update {
   sudo ntpdate time.windows.com
 
@@ -86,11 +170,16 @@ function apt-update {
   export GIT_ROOT=/mnt/wsl/projects/git
   source $GIT_ROOT/dotfiles/bash/init.bash
 
-  sudo apt install unzip ripgrep luarocks fzf curl build-essential fd-find clangd nodejs npm python3-pip gh make cmake git-filter-repo bash-doc
+  apt-install-build
+  apt-install-python
+  apt-install-docker
+  apt-install-bash
+  apt-install-docker
+  apt-install-git
+  apt-install-node
+  apt-install-neovim
 
-  # Needed for neovim bashls
-  sudo apt install shellcheck
-  sudo apt-get -y install shfmt
+  # sudo apt install unzip ripgrep luarocks fzf curl build-essential fd-find clangd nodejs npm python3-pip gh make cmake git-filter-repo bash-doc
 
   # sudo apt full-upgrade
   # to determine what package contains program run
@@ -114,12 +203,6 @@ function apt-update {
   sudo apt-get install zlib1g-dev
   sudo apt-get install openjdk-7-jdk
 
-  # node.js
-  # /usr/bin/nodejs
-  # /usr/bin/npm
-  sudo apt-get install nodejs
-  sudo apt-get install npm
-
   # for tegrasim
   sudo apt-get -y install build-essential python3 python3-dev subversion libx11-dev
   sudo apt-get -y install libc6:i386 zlib1g:i386 libncurses5:i386
@@ -133,9 +216,6 @@ function apt-update {
   # https://gist.github.com/softwaredoug/a871647f53a0810c55ac
   sudo apt-get install git python-pip make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev
 
-  # https://www.tensorflow.org/versions/0.6.0/get_started/os_setup.html#virtualenv_install
-  sudo apt-get install python-pip python-dev python-virtualenv
-
   #   rabbitmq management console:
   #       docs:  https://www.rabbitmq.com/management.html
   #       url:   http://localhost:15672
@@ -146,46 +226,8 @@ function apt-update {
   # see users/mcraighead/docs/cascade/server_install.txt
   # sudo mkdir /media/netapp39
 
-  # install rust
-  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh # install rust
-  source $HOME/.cargo/env
-  cargo --version
-  rustup --version
-
-  # install go All releases - The Go Programming Language
-  # Note: Replace 1.21.6 with the actual latest stable version number
-  LATEST_GO_VERSION="1.25.4"
-  curl -LO https://go.dev/dl/go${LATEST_GO_VERSION}.linux-amd64.tar.gz
-  sudo rm -rf /usr/local/go
-  sudo tar -C /usr/local -xzf go${LATEST_GO_VERSION}.linux-amd64.tar.gz
-
-  # add to bash
-  export PATH=$PATH:/usr/local/go/bin
-  source ~/.bashrc
-
-  go version
-
-  # install npm & node
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-  source ~/.bashrc
-  nvm install --lts
-  source ~/.bashrc
-  nvm --version
-  npm --version
-  node --version
-  npm install -g neovim
-
   sudo npm install -g tree-sitter-cli
 
-  Add GIT_ROOT to .bashrc
-  export GIT_ROOT=/mnt/wsl/projects/git
-
-  git clone git@github.com:neovim/neovim.git
-  git clone https://github.com/neovim/neovim.git
-  cd neovim/
-  make CMAKE_BUILD_TYPE=RelWithDebInfo
-  sudo make install
-  which nvim
-  nvim --version
-  history
+  # Add GIT_ROOT to .bashrc
+  echo "export GIT_ROOT=/mnt/wsl/projects/git" >>"$HOME/.bashrc"
 }

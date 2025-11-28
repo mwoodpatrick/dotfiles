@@ -36,6 +36,10 @@ if [ -f $DOTFILES/bash/ssh.bash ]; then
     source $DOTFILES/bash/ssh.bash
 fi
 
+if [ -f $DOTFILES/bash/apt.bash ]; then
+    source $DOTFILES/bash/apt.bash
+fi
+
 # enable tab expansion
 # https://askubuntu.com/questions/1245285/bash-doesnt-expand-variables-when-pressing-tab-key
 
