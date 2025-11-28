@@ -903,6 +903,110 @@ require("lazy").setup({
 		end,
 	},
 
+	-- avante.nvim - Use your Neovim like using Cursor AI IDE!
+	{
+		"yetone/avante.nvim",
+		-- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
+		-- ⚠️ must add this setting! ! !
+		build = vim.fn.has("win32") ~= 0
+				and "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false"
+			or "make",
+		event = "VeryLazy",
+		version = false, -- Never set this value to "*"! Never!
+		---@module 'avante'
+		---@type avante.Config
+		opts = {
+			-- add any opts here
+			-- this file can contain specific instructions for your project
+			instructions_file = "avante.md",
+			-- for example
+			provider = "claude",
+			providers = {
+				--				claude = {
+				--					endpoint = "https://api.anthropic.com",
+				--					model = "claude-sonnet-4-20250514",
+				--					timeout = 30000, -- Timeout in milliseconds
+				--					extra_request_body = {
+				--						temperature = 0.75,
+				--						max_tokens = 20480,
+				--					},
+				--				},
+				gemini = { -- Specifies the large language model provider (Google)
+					-- Model Selection: Specifies the powerful Gemini 2.5 Pro model
+					model = "gemini-2.5-pro",
+
+					-- Authentication: Uses the environment variable for security
+					api_key = os.getenv("AVANTE_GEMINI_API_KEY"),
+
+					-- Optional Settings to Control Output and Behavior:
+
+					-- Maximum length of the AI's response (tokens)
+					max_tokens = 8192, -- A common high value for complex coding tasks
+
+					-- Controls the randomness of the output (0.0 is deterministic, 1.0 is creative)
+					temperature = 0.2,
+
+					-- The highest cumulative probability of tokens to consider for generation
+					top_p = 0.9,
+
+					-- Stops generation if these specific strings are encountered (useful to prevent boilerplate)
+					stop_tokens = { "```lua", "###" },
+
+					-- Default system prompt applied to every query (guides the AI's persona and task)
+					system_prompt = "You are a senior Neovim and Lua expert. Provide clean, well-commented, and idiomatic Lua code solutions, adhering to best practices and the KISS principle.",
+
+					-- Configuration for displaying the chat interface
+					ui = {
+						-- Use a float window for the chat interface
+						mode = "float",
+						-- Dimensions of the floating window
+						width = 0.8,
+						height = 0.8,
+					},
+					-- ... other settings ...
+				},
+			},
+		},
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"MunifTanjim/nui.nvim",
+			--- The below dependencies are optional,
+			"nvim-mini/mini.pick", -- for file_selector provider mini.pick
+			"nvim-telescope/telescope.nvim", -- for file_selector provider telescope
+			"hrsh7th/nvim-cmp", -- autocompletion for avante commands and mentions
+			"ibhagwan/fzf-lua", -- for file_selector provider fzf
+			"stevearc/dressing.nvim", -- for input provider dressing
+			"folke/snacks.nvim", -- for input provider snacks
+			"nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
+			"zbirenbaum/copilot.lua", -- for providers='copilot'
+			{
+				-- support for image pasting
+				"HakonHarnes/img-clip.nvim",
+				event = "VeryLazy",
+				opts = {
+					-- recommended settings
+					default = {
+						embed_image_as_base64 = false,
+						prompt_for_file_name = false,
+						drag_and_drop = {
+							insert_mode = true,
+						},
+						-- required for Windows users
+						use_absolute_path = true,
+					},
+				},
+			},
+			{
+				-- Make sure to set this up properly if you have lazy=true
+				"MeanderingProgrammer/render-markdown.nvim",
+				opts = {
+					file_types = { "markdown", "Avante" },
+				},
+				ft = { "markdown", "Avante" },
+			},
+		},
+	},
+
 	{ -- Autoformat
 		"stevearc/conform.nvim",
 		event = { "BufWritePre" },
