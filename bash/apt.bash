@@ -85,6 +85,42 @@ function apt-install-python {
   sudo apt autoremove
 }
 
+# [WezTerm](https://wezterm.org/)
+# [wezterm](https://github.com/wezterm/wezterm)
+# cd "$GIT_ROOT" &&
+#   git clone https://github.com/wezterm/wezterm
+
+function apt-install-wezterm {
+  curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --yes --dearmor -o /usr/share/keyrings/wezterm-fury.gpg &&
+    echo 'deb [signed-by=/usr/share/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *' | sudo tee /etc/apt/sources.list.d/wezterm.list &&
+    sudo chmod 644 /usr/share/keyrings/wezterm-fury.gpg &&
+    sudo apt update &&
+    # sudo apt install wezterm
+    sudo apt install wezterm-nightly
+}
+
+# [WSL2 with GUI using Xvnc](https://gist.github.com/tdcosta100/385636cbae39fc8cd0937139e87b1c74#wsl2-with-gui-using-xvnc)
+# [tigervnc](https://github.com/TigerVNC/tigervnc/)
+# [TigerVNC](https://tigervnc.org/)
+function apt-install-tiger-vnc {
+  sudo apt update &&
+    sudo apt install tigervnc-standalone-server tigervnc-viewer xfce4 xfce4-goodies
+
+  sudo apt install \
+    $([ ! -z "$(apt-cache search ^acpi-support$)" ] && echo "acpi-support-") \
+    tigervnc-standalone-server \
+    ubuntu-desktop
+}
+
+function apt-install-gui {
+  sudo apt-get -y install xterm konsole libx11-dev
+  apt-install-wezterm
+}
+
+function apt-install-subversion {
+  sudo apt-get -y install subversion
+}
+
 function apt-install-rust {
   # install rust
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh # install rust
@@ -160,7 +196,17 @@ function apt-install-node {
   npm install -g neovim
 }
 
+function apt-check-updates {
+  sudo apt update
+  apt list --upgradable
+}
+
 function apt-update {
+  sudo apt update
+  sudo apt upgrade
+}
+
+function apt-install {
   sudo ntpdate time.windows.com
 
   sudo apt update
@@ -204,7 +250,6 @@ function apt-update {
   sudo apt-get install openjdk-7-jdk
 
   # for tegrasim
-  sudo apt-get -y install build-essential python3 python3-dev subversion libx11-dev
   sudo apt-get -y install libc6:i386 zlib1g:i386 libncurses5:i386
 
   # missing shared libraries:
