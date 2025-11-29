@@ -55,6 +55,16 @@ function apt-install-docker {
   docker run hello-world
 }
 
+# [](https://github.com/linuxserver/docker-webtop)
+function apt-install-docker-webtop {
+  cd "$GIT_ROOT" &&
+    git clone git@github.com:linuxserver/docker-webtop.git &&
+    cd docker-webtop &&
+    docker build --no-cache --pull -t lscr.io/linuxserver/webtop:latest . &&
+    docker run --rm --privileged lscr.io/linuxserver/webtop:latest
+  docker run --rm --name webtop lscr.io/linuxserver/webtop:latest
+}
+
 # [](https://github.com/idank/explainshell)
 # [explainshell not building on Ubutu40.04 · Issue #350 · idank/explainshell](https://github.com/idank/explainshell/issues/350)
 function apt-install-explainshell {
