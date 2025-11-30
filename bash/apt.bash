@@ -55,11 +55,7 @@ function apt-install-docker {
   docker run hello-world
 }
 
-# [I Run a Full Linux Desktop in Docker Just Because I Can](https://www.howtogeek.com/i-run-a-full-linux-desktop-in-docker-just-because-i-can/)
-# [docker-webtop](https://github.com/linuxserver/docker-webtop)
 # [docker-baseimage-selkies](https://github.com/linuxserver/docker-baseimage-selkies)
-# docker exec -it webtop-xfce /bin/bash
-# docker logs -f webtop-xfce
 
 function selkies {
   docker run --rm -d \
@@ -70,8 +66,17 @@ function selkies {
     ghcr.io/linuxserver/baseimage-selkies:debianbookworm
 }
 
+# [I Run a Full Linux Desktop in Docker Just Because I Can](https://www.howtogeek.com/i-run-a-full-linux-desktop-in-docker-just-because-i-can/)
+# [docker-webtop](https://github.com/linuxserver/docker-webtop)
+# docker exec -it webtop /bin/bash
+# docker logs -f webtop
 function webtop() {
   docker run --rm -d --name webtop -e PUID=1000 -e PGID=1000 -e TZ=Etc/UTC -p 3000:3000 -p 3001:3001 --shm-size=1gb lscr.io/linuxserver/webtop:latest
+}
+
+function webtop-launch() {
+  local tag=${1:-ubuntu-mate}
+  docker run --rm -d --name webtop -e PUID=1000 -e PGID=1000 -e TZ=Etc/UTC -p 3000:3000 -p 3001:3001 --shm-size=1gb lscr.io/linuxserver/webtop:$tag
 }
 
 function apt-install-docker-webtop {
