@@ -184,14 +184,16 @@ function apt-install-git {
   git config --global user.name "Mark Wood-Patrick"
 }
 
-function apt-install-build {
-  sudo apt install -y unzip curl build-essential make cmake
+function apt-install-build-tools {
+  sudo apt install -y unzip curl build-essential make cmake meson ninja-build
+  echo "Ninja version: $(ninja --version)"
+  echo "Meson version: $(meson --version)"
 }
 
 function apt-install-neovim {
   sudo apt install -y xclip ripgrep luarocks fzf build-essential fd-find clangd nodejs npm
   # Needed for neovim bashls
-  sudo apt install shellcheck
+  sudo apt install shellcheckninja --version
   sudo apt-get -y install shfmt
 
   cd "$GIT_ROOT" &&
@@ -249,7 +251,7 @@ function apt-install {
   export GIT_ROOT=/mnt/wsl/projects/git
   source $GIT_ROOT/dotfiles/bash/init.bash
 
-  apt-install-build
+  apt-install-build-tools
   apt-install-python
   apt-install-docker
   apt-install-bash
