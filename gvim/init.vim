@@ -15,9 +15,9 @@ syntax enable
 
 " Set columns and lines ONLY if running in a GUI
 " Displays in xterm
-echo "VIMRUNTIME="..$VIMRUNTIME 
+" echo "VIMRUNTIME="..$VIMRUNTIME 
 if has("gui_running")
-  echo "gui running"
+  " echo "gui running"
   set columns=120
   set lines=20
 endif
