@@ -103,3 +103,20 @@ nnoremap <leader>w :w<CR>
 
 " Clear trailing whitespace on save
 autocmd BufWritePre * :%s/\s\+$//e
+
+# install plugin manager
+# curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+# install Plugins using: :PlugInstall
+call plug#begin('~/.vim/plugged')
+
+" List your plugins here
+Plug 'tpope/vim-fugitive' " Git wrapper
+" Fuzzy finder
+" 1. The main fzf executable (a separate tool)
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+
+" 2. The fzf.vim integration for Vim
+Plug 'junegunn/fzf.vim'
+Plug 'vim-airline/vim-airline' " Status bar enhancement
+
+call plug#end()
