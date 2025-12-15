@@ -1,0 +1,52 @@
+local wezterm = require("wezterm")
+local config = {}
+
+config.color_scheme = "Catppuccin Macchiato" -- A light, modern theme similar to Breeze Light
+-- config.color_scheme = 'Breeze Dark' -- If using a dark theme
+config.font = wezterm.font("Hack", { weight = "Bold" })
+config.font_size = 11.0 -- Adjust size to match Konsole's default setting
+-- Enable transparency (adjust 0.9 to your desired opacity)
+config.window_background_opacity = 0.9
+
+-- If you want blur (requires a recent OS/GPU):
+-- config.window_background_opacity = 0.9
+-- config.macos_window_background_blur = 50
+-- config.text_background_opacity = 0.9 -- Optional: keeps text background opaque
+
+-- Disable title bar and decorations for a minimalist look
+config.window_decorations = "RESIZE"
+-- OR use "NONE" if you want a complete borderless window (may require external window manager tools)
+-- Ensure tabs are at the top (WezTerm default, but good to check)
+config.tab_bar_at_bottom = false
+
+-- Use a style that makes the active tab prominent
+config.colors = {
+	-- Override tab colors here
+	tab_bar = {
+		active_tab = {
+			bg_color = "#ffffff", -- White background for active tab
+			fg_color = "#000000", -- Black text for active tab
+		},
+		inactive_tab = {
+			bg_color = "#333333", -- Dark background for inactive tabs
+			fg_color = "#cccccc", -- Light text for inactive tabs
+		},
+	},
+}
+config.keys = {
+	-- Konsole typically uses Ctrl+Shift+...
+	{ key = "|", mods = "CTRL|SHIFT", action = wezterm.action.SplitPane({ direction = "Right" }) },
+	{ key = "-", mods = "CTRL|SHIFT", action = wezterm.action.SplitPane({ direction = "Down" }) },
+
+	-- Navigate splits like Konsole/Vim
+	{ key = "LeftArrow", mods = "CTRL|SHIFT", action = wezterm.action.ActivatePaneDirection("Left") },
+	{ key = "RightArrow", mods = "CTRL|SHIFT", action = wezterm.action.ActivatePaneDirection("Right") },
+	{ key = "UpArrow", mods = "CTRL|SHIFT", action = wezterm.action.ActivatePaneDirection("Up") },
+	{ key = "DownArrow", mods = "CTRL|SHIFT", action = wezterm.action.ActivatePaneDirection("Down") },
+}
+
+-- Enable shell integration to recognize prompts and commands
+config.enable_kitty_graphics = true
+config.use_ime = true -- Useful if you use complex input methods, as Konsole supports these well
+
+return config
