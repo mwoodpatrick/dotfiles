@@ -296,6 +296,32 @@ require("lazy").setup({
 	-- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
 	"NMAC427/guess-indent.nvim", -- Detect tabstop and shiftwidth automatically
 
+	{
+		"ibhagwan/fzf-lua",
+		-- Optional: dependencies for better experience
+		dependencies = { "nvim-tree/nvim-web-devicons" },
+		config = function()
+			-- Calling setup here ensures the module is loaded ONLY after it's downloaded
+			-- require("fzf-lua").setup({})
+			require("fzf-lua").setup({
+				-- Other config...
+				previewers = {
+					builtin = {
+						-- Explicitly set the order of preference
+						-- This stops the search once it finds 'chafa'
+						extensions = {
+							["png"] = { "chafa" },
+							["jpg"] = { "chafa" },
+							["jpeg"] = { "chafa" },
+							["gif"] = { "chafa" },
+						},
+						-- If you want to use the high-res WezTerm protocol:
+						chafa_opts = { "--format=iterm" },
+					},
+				},
+			})
+		end,
+	},
 	-- NOTE: Plugins can also be added by using a table,
 	-- with the first argument being the link and the following
 	-- keys can be used to configure plugin behavior/loading/etc.
