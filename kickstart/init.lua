@@ -1252,6 +1252,18 @@ require("lazy").setup({
 		--    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 	},
 
+	{
+		"Saghen/blink.cmp",
+		-- This tells lazy.nvim to run the build script
+		build = "cargo build --release",
+		-- On some systems, if you don't have cargo, you can download the pre-built binary:
+		-- build = 'nix run .#build-plugin',
+
+		opts = {
+			-- your configuration here
+		},
+	},
+
 	-- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
 	-- init.lua. If you want these files, they are in the repository, so you can just download them and
 	-- place them in the correct locations.
