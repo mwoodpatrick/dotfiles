@@ -119,39 +119,6 @@ fi
 . "$HOME/bin/env"
 . "/colossus-local/local-mwoodpatrick/tools/cargo/env"
 
-# export NVM_DIR="$HOME/.nvm"
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-export PATH=/home/utils/node-23.6.0/bin:$PATH
-
-# for clangd
-export PATH=/home/utils/llvm-20.1.0/bin/:$PATH
-
-# for [ripgrep](https://github.com/BurntSushi/ripgrep#installation)
-# rg --version
-export PATH=/home/utils/ripgrep-14.1.1/bin:$PATH
-
-# for [fd-find](https://github.com/sharkdp/fd#installation)
-export PATH=/home/utils/fd-8.7.1/bin:$PATH
-
-# for lua
-export PATH=/home/utils/lua-5.4.7/bin:$PATH
-
-# A recent gcc version is required for neovim's treesitter parser compilation
-# Make sure you add this to the beginning of your PATH var so older gcc is not referenced accidentally
-export _GCC=/home/utils/gcc-14.1.0
-export PATH=$_GCC/bin:$PATH
-export LD_LIBRARY_PATH=$_GCC/lib64:$_GCC/lib:$LD_LIBRARY_PATH
-
-# gvim
-export PATH=/home/utils/vim-9.1.1797/bin:$PATH
-
-export _NEOVIM=/home/utils/neovim-0.11.4
-export PATH=$_NEOVIM/bin:$PATH
-export LD_LIBRARY_PATH=$_NEOVIM/lib:$LD_LIBRARY_PATH
-
-export PATH=/home/utils/xclip-0.13/bin:$PATH
-
 nx () {
     xterm -geometry 120x40+50+50 -e nvim "$@" &
 }
