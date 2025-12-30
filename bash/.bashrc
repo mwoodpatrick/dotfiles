@@ -143,6 +143,9 @@ export _GCC=/home/utils/gcc-14.1.0
 export PATH=$_GCC/bin:$PATH
 export LD_LIBRARY_PATH=$_GCC/lib64:$_GCC/lib:$LD_LIBRARY_PATH
 
+# gvim
+export PATH=/home/utils/vim-9.1.1797/bin:$PATH
+
 export _NEOVIM=/home/utils/neovim-0.11.4
 export PATH=$_NEOVIM/bin:$PATH
 export LD_LIBRARY_PATH=$_NEOVIM/lib:$LD_LIBRARY_PATH
@@ -173,19 +176,19 @@ function setup_nvim {
 
     # required for lazy.nvim plugin manager to function properly (any git version newer than 2.19.0 will do)
     ln -s /home/utils/git-2.45.2/bin/git
-     
+
     # picker tool
     ln -s /home/utils/fzf-0.58.0/bin/fzf
-     
+
     # ripgrep (rg) is a grep equivalent
     ln -s /home/utils/ripgrep-14.0.3/bin/rg
-     
+
     # fd-find (fd) is a find command equivalent
     ln -s /home/utils/fd-8.7.1/bin/fd
-     
+
     # a clipper tool that your neovim/vim yanked text is available in your clipboard
     ln -s /home/utils/xclip-0.12/bin/xclip
-     
+
     # For some reason the cc binary is referenced by neovim treesitter's UI to compile language parsers, so link cc
     ln -s /home/utils/gcc-13.2.0/bin/gcc cc
 }
