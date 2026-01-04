@@ -24,13 +24,15 @@ export DOTFILES=$(dirname $(dirname $SCRIPT_PATH))
 # echo "SCRIPT_PATH=$SCRIPT_PATH"
 # echo "DOTFILES=$DOTFILES"
 
+# replace directory name variables with their actual values during tab completion
+shopt -s direxpand
+
 export TZ=US/Pacific
 export DISPLAY=${DISPLAY:-"`uname -n`:0"}
 export HOSTNAME=$(hostname --fqdn)
 
 if [ -f $DOTFILES/bash/aliases.bash ]; then
-    # echo "sourcing aliases"
-    source $DOTFILES/bash/aliases.bash
+     source $DOTFILES/bash/aliases.bash
 fi
 
 if [ -f $DOTFILES/bash/ssh.bash ]; then
