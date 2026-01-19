@@ -13,7 +13,7 @@ case $- in
       *) return;;
 esac
 
-if [ -z ${PATH_BASE+x} ]; then 
+if [ -z ${PATH_BASE+x} ]; then
     # echo ".bashrc: defining PATH_BASE=$PATH"
     export PATH_BASE=$PATH
     export LD_LIBRARY_PATH_BASE=$LD_LIBRARY_PATH
@@ -23,6 +23,9 @@ SCRIPT_PATH="${BASH_SOURCE[0]}"
 export DOTFILES=$(dirname $(dirname $SCRIPT_PATH))
 # echo "SCRIPT_PATH=$SCRIPT_PATH"
 # echo "DOTFILES=$DOTFILES"
+
+# replace directory name variables with their actual values during tab completion
+shopt -s direxpand
 
 export TZ=US/Pacific
 export DISPLAY=${DISPLAY:-"`uname -n`:0"}
@@ -137,7 +140,7 @@ PS2="continue-> "
 # for set -x
 PS4='$0.$LINENO+ '
 
-function uidtouname () 
+function uidtouname ()
 {
     getent passwd $1 | cut -d: -f1
 }
@@ -157,18 +160,18 @@ function apt-update {
     # update list of providers with:
     #   sudo gvim /etc/apt/sources.list
     #   sudo apt-get update
-    # 
-    # if fails with fix the GPG error 
-    #   The following signatures couldn't be verified because the public key is not available NO_PUBKEY 
+    #
+    # if fails with fix the GPG error
+    #   The following signatures couldn't be verified because the public key is not available NO_PUBKEY
     #
     # do:
     #
     #   sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F7B8CEA6056E8E56
-    # 
+    #
     # see:
     #
     #   https://www.rabbitmq.com/install-debian.html
-    #   
+    #
 
     sudo ntpdate time.windows.com;
     sudo apt update;
@@ -201,7 +204,7 @@ function apt-update {
     # /usr/bin/npm
     sudo apt-get install nodejs
     sudo apt-get install npm
-    
+
     # for tegrasim
     sudo apt-get -y install build-essential python3 python3-dev subversion libx11-dev
     sudo apt-get -y install libc6:i386 zlib1g:i386 libncurses5:i386
@@ -218,7 +221,7 @@ function apt-update {
     # https://www.tensorflow.org/versions/0.6.0/get_started/os_setup.html#virtualenv_install
     sudo apt-get install python-pip python-dev python-virtualenv
 
-    #   rabbitmq management console: 
+    #   rabbitmq management console:
     #       docs:  https://www.rabbitmq.com/management.html
     #       url:   http://localhost:15672
     #       notes: ~/specgen/docs/rabbitmq.txt
@@ -259,7 +262,7 @@ function wis() {
     # Turn on extended shell debugging
     shopt -s extdebug
 
-    # Dump the function's name, line number and fully qualified source file  
+    # Dump the function's name, line number and fully qualified source file
     declare -F $1
 
     # Turn off extended shell debugging
@@ -303,7 +306,7 @@ function extract {
 case $OSTYPE in
 Win32)
 	# export CYGWIN=tty
-    # unset PERL5DB since it gets set by active state which causes problems with 
+    # unset PERL5DB since it gets set by active state which causes problems with
     # cygwin perl.
 
     unset PERL5DB
@@ -324,9 +327,9 @@ Win32)
     function gvim() {
 	    local arglist="";
 	    local f;
-	
-	    for f 
-	    do 
+
+	    for f
+	    do
 	        if [ -a $f ]
 	        then
 	            local p=`cygpath -iw $f`;
@@ -335,21 +338,21 @@ Win32)
 	            arglist="$arglist $f"
 	        fi
 	    done
-	
+
 	    # echo "edit $arglist"
-	
-	   $VIM $arglist & 
+
+	   $VIM $arglist &
 	}
 
 
 	function iview() { $SYSROOT/Program\ Files/IrfanView/i_view32.exe `cygpath -iw $@` & }
 	function tkdiff() { wish `cygpath -iw $SYSROOT/bin/tkdiff.tcl` -- $@ & }
 
-	function start() { 
+	function start() {
 	    if [ -d $1 ]; then
             explorer `cygpath -iaw $1` &
         else
-            cmd /c `cygpath -iaw $1` & 
+            cmd /c `cygpath -iaw $1` &
         fi
     }
 

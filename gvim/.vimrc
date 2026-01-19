@@ -2,6 +2,14 @@
 " General Settings
 " ====================================================================
 
+echo "VIMRUNTIME="..$VIMRUNTIME
+if has("gui_running")
+  echo "gui running"
+  " Set the initial width of the gVim window to 120 characters 30 lines
+  set columns=120
+  set lines=30
+endif
+
 " Required for plugins and advanced features
 set nocompatible
 

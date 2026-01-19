@@ -43,7 +43,7 @@ alias up='cd ..'
 alias via="vi ~/.bash_aliases ; source ~/.bash_aliases"
 alias myps='ps -w -f -u $USER'
 alias mydf='df -k | grep "$USER"'
-alias vnc="/home/nv/bin/vncserver_high_ports.sh -alwaysshared -geometry 1600x1000 -depth 24" 
+alias vnc="/home/nv/bin/vncserver_high_ports.sh -alwaysshared -geometry 1600x1000 -depth 24"
 alias myvnc="grep $USER /tmp/vnc_totals"
 
 # ff - find string in files. $1 = directory, $2 = pattern
@@ -95,6 +95,7 @@ alias pd="/home/utils/perl-5.8.8/bin/perl -I lib -d:ptkdb  "
 alias pl="/home/utils/perl-5.14/5.14.1-nothreads-64/bin/perl"
 alias perltidy="/home/utils/perl-5.8.8/bin/perltidy"
 alias glivd=$hw/tools/imgtools/bin/glivd
+alias diskusage="du -sh \$(ls -A) | sort -hr | head"
 
 case $OSTYPE in
 Win32)
