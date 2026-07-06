@@ -45,6 +45,27 @@ in
       viAlias = true;       # Maps 'vi' command to nvim
       vimAlias = true;      # Maps 'vim' command to nvim
     };
+
+    bash = {
+      interactiveShellInit = ''
+        export EDITOR="nvim"
+        export GIT_ROOT=/mnt/wsl/projects/git
+        if [ -f $GIT_ROOT/dotfiles/bash/init.bash ]; then
+          source $GIT_ROOT/dotfiles/bash/init.bash
+        fi
+      '';
+      
+      shellAliases = {
+        ll = "ls -l";
+        la = "ls -la";
+        g  = "git";
+        v  = "nvim";
+        ".." = "cd ..";
+        "nb" = "sudo nixos-rebuild boot";
+        "ne" = "sudo nixos-rebuild edit";
+        "ns" = "sudo nixos-rebuild switch";
+      };
+    };
   };
 
   # Enable NIX-LD to allow unpatched dynamic binaries (like Mason LSPs)
