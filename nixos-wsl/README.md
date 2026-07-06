@@ -1,4 +1,4 @@
-= README
+# README
 
 Copy of Nix 26.05 configuration files for WSL-2
 
@@ -27,8 +27,8 @@ This release will receive security updates and bug fixes through December 31, 20
 
 ## References
 
-- https://nixos.org/blog/announcements/2026/nixos-2605/
-- https://endoflife.date/nixos
+- [NixOS 26.05 released](https://nixos.org/blog/announcements/2026/nixos-2605/)
+- [NixOS Releases](https://endoflife.date/nixos)
 
 ## NixOS on WSL
 
