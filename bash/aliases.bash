@@ -1,4 +1,5 @@
 unalias -a
+echo "sourcing aliases"
 
 alias c=clear
 # report what clients I have
@@ -45,6 +46,13 @@ alias myps='ps -w -f -u $USER'
 alias mydf='df -k | grep "$USER"'
 alias vnc="/home/nv/bin/vncserver_high_ports.sh -alwaysshared -geometry 1600x1000 -depth 24"
 alias myvnc="grep $USER /tmp/vnc_totals"
+
+alias g="git";
+alias v="nvim";
+alias ".."="cd ..";
+alias "nb"="sudo nixos-rebuild boot";
+alias "ne"="sudo nixos-rebuild edit";
+alias "ns"="sudo nixos-rebuild switch";
 
 # ff - find string in files. $1 = directory, $2 = pattern
 ff ()

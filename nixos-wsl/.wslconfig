@@ -1,0 +1,43 @@
+# https://learn.microsoft.com/en-us/windows/wsl/wsl-config
+# Network host settings that enable the DNS server used by WSL 2. 
+#	Changes the hostname
+#       sets generateHosts to true (the default), auto-generating /etc/hosts
+#       sets generateResolvConf to true (the default), WSL generates /etc/resolv.conf
+#       coul create your own (ie. nameserver 1.1.1.1)
+[wsl2]
+
+# Specify a custom Linux kernel to use with your installed distros. The default kernel used can be found at https://github.com/microsoft/WSL2-Linux-Kernel
+# kernel=C://Users/mlwp/Software/WSL/kernel/bzImage_6.1.21.2-microsoft-standard-WSL2+
+# kernel=C://Users/mlwp/Software/WSL/kernel/bzImage
+# [xanmod-kernel-WSL2](https://github.com/Locietta/xanmod-kernel-WSL2)
+# kernel=C:\\Users\\mlwp\\wsl\\bzImage-x64v3
+
+# Enable nested virtualization
+nestedVirtualization=true
+
+# Turn on default connection to bind WSL 2 localhost to Windows localhost
+# Turn on default connection to bind WSL 2 localhost to Windows localhost. 
+# Setting is ignored when networkingMode=mirrored
+# localhostforwarding=true
+
+# Turns on output console showing contents of dmesg when opening a WSL 2 distro for debugging
+debugConsole=false
+
+# Enable experimental features
+[experimental]
+# Automatically releases cached memory after detecting idle CPU usage. 
+# Set to gradual for slow release, and dropcache for instant release of cached memory.
+autoMemoryReclaim=gradual
+
+# newly created VHD will be set to sparse automatically.
+sparseVhd=true
+
+# turn on mirrored networking mode
+networkingMode=mirrored
+
+# Resolve DNS queries by communicating with Windows directly
+dnsTunneling=true 
+
+# Allow the Windows Firewall rules, as well as rules specific to Hyper-V traffic, to filter WSL network traffic.
+firewall=true
+
