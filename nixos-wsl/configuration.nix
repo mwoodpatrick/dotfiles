@@ -7,6 +7,9 @@
 
 { config, lib, pkgs, ... }:
 
+let
+  unstable = import <nixos-unstable> { config = { allowUnfree = true; }; };
+in
 {
   imports = [
     # include NixOS-WSL modules
@@ -31,6 +34,7 @@
     ripgrep
     unzip
     wget
+    unstable.ollama
   ];
 
   # Centralized tool management frameworks
@@ -41,7 +45,6 @@
       viAlias = true;       # Maps 'vi' command to nvim
       vimAlias = true;      # Maps 'vim' command to nvim
     };
-
   };
 
   # Enable NIX-LD to allow unpatched dynamic binaries (like Mason LSPs)
@@ -73,12 +76,12 @@
   home-manager.startAsUserService = true;
   home-manager.users.mwoodpatrick = { pkgs, ... }: {
 
-    # Packages that should be installed to the user profile.
-    home.packages = [ pkgs.atool 
-								      pkgs.httpie 
-											pkgs.htop
+  # Packages that should be installed to the user profile.
+  home.packages = [ pkgs.atool 
+                      pkgs.httpie 
+                      pkgs.htop
                       pkgs.fortune
-		    ];
+        ];
     programs = {
       # Simply add this alongside your programs.bash block
       starship = {
@@ -93,7 +96,7 @@
         # This works perfectly here because it's wrapped safely inside user 'eve' [1.2.5]
         initExtra = ''
           export EDITOR="nvim"
-	  export GIT_ROOT=/mnt/wsl/projects/git
+          export GIT_ROOT=/mnt/wsl/projects/git
           source $GIT_ROOT/dotfiles/bash/init.bash
         '';
   
@@ -104,9 +107,9 @@
           g = "git";
           v = "nvim";
           ".." = "cd ..";
-  	  "nb" = "sudo nixos-rebuild boot";
-  	  "ne" = "sudo nixos-rebuild edit";
-    	  "ns" = "sudo nixos-rebuild switch";
+          "nb" = "sudo nixos-rebuild boot";
+          "ne" = "sudo nixos-rebuild edit";
+          "ns" = "sudo nixos-rebuild switch";
         };
   
         # Controls Bash history configuration
@@ -140,6 +143,28 @@
     home.stateVersion = "26.05"; # Please read the comment before changing.
   };
 
+  #  Enable the Unfree licenses required for proprietary GPU acceleration hooks
+  nixpkgs.config.allowUnfree = true;
+
+  # Enable the Ollama Service 
+  # Enable the background daemon service
+  services.ollama = {
+    enable = true;
+
+    # use the unstable service version
+    package = unstable.ollama;
+  
+    # Pre-seed and pins models to download automatically in the background
+    loadModels = [ 
+      "gemma4:12b" 
+      "deepseek-r1:14b" 
+    ];
+
+    # Expose the API surface cleanly across internal WSL networking layers if needed
+    host = "0.0.0.0";
+    port = 11434;
+  };
+
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It's perfectly fine and recommended to leave
@@ -148,4 +173,3 @@
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "26.05"; # Did you read the comment?
 }
-
