@@ -52,7 +52,7 @@ alias v="nvim";
 alias ".."="cd ..";
 alias "nb"="sudo nixos-rebuild boot";
 alias "ne"="sudo nixos-rebuild edit";
-alias "ns"="sudo nixos-rebuild switch";
+alias "ns"="sudo nixos-rebuild switch --flake .#nixos";
 
 # ff - find string in files. $1 = directory, $2 = pattern
 ff ()

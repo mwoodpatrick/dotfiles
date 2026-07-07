@@ -31,6 +31,9 @@ export TZ=US/Pacific
 export DISPLAY=${DISPLAY:-"`uname -n`:0"}
 export HOSTNAME=$(hostname --fqdn)
 
+export ANTHROPIC_AUTH_TOKEN=ollama
+export ANTHROPIC_BASE_URL=http://localhost:11434
+
 if [ -f $DOTFILES/bash/aliases.bash ]; then
      source $DOTFILES/bash/aliases.bash
 fi
