@@ -5,16 +5,25 @@
 # NixOS-WSL specific options are documented on the NixOS-WSL repository:
 # https://github.com/nix-community/NixOS-WSL
 
-{ config, lib, pkgs, ... }:
-
-let
-  unstable = import <nixos-unstable> { config = { allowUnfree = true; }; };
-in
+# access unstable packages via pkgs.pkgs-unstable
+{ config, lib, pkgs, inputs, ... }:
 {
+  # This populates variables globally across all login accounts & system services
+  # but only gets loaded in WSL on system start. Put most variables in .envrc or
+  # .bashrc
+  environment.sessionVariables = {
+    ANTHROPIC_AUTH_TOKEN = "ollama";
+    ANTHROPIC_BASE_URL = "http://localhost:11434";
+    EDITOR="nvim";
+    GIT_ROOT = "/mnt/wsl/projects/git";
+    # Inform your global login shells where to locate the user socket channel
+    DBUS_SESSION_BUS_ADDRESS = "unix:path=/run/user/1000/bus";
+  };
+
   imports = [
     # include NixOS-WSL modules
-    <nixos-wsl/modules>
-    <home-manager/nixos>
+    # ./hardware-configuration.nix
+    # <nixos-wsl/modules>
   ];
 
   # Core architecture switches mapping the guest VM parameters
@@ -32,13 +41,20 @@ in
     lua5_1
     luarocks
     ripgrep
+    tmux
     unzip
     wget
-    unstable.ollama
+    pkgs-unstable.neovim
+    pkgs-unstable.ollama
+    inputs.claude-code-nix.packages.${pkgs.system}.default
   ];
 
   # Centralized tool management frameworks
   programs = {
+    # source .envrc files
+    direnv.enable = true;
+    direnv.nix-direnv.enable = true;
+
     neovim = {
       enable = true;
       defaultEditor = true; # Automatically assigns $EDITOR and $VISUAL to nvim
@@ -48,8 +64,6 @@ in
 
     bash = {
       interactiveShellInit = ''
-        export EDITOR="nvim"
-        export GIT_ROOT=/mnt/wsl/projects/git
         if [ -f $GIT_ROOT/dotfiles/bash/init.bash ]; then
           source $GIT_ROOT/dotfiles/bash/init.bash
         fi
@@ -63,7 +77,7 @@ in
         ".." = "cd ..";
         "nb" = "sudo nixos-rebuild boot";
         "ne" = "sudo nixos-rebuild edit";
-        "ns" = "sudo nixos-rebuild switch";
+        "ns" = "sudo nixos-rebuild switch --flake .#nixos";
       };
     };
   };
@@ -80,11 +94,6 @@ in
      DefaultEnvironment="DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus"
    '';
 
-  # Inform your global login shells where to locate the user socket channel
-  environment.sessionVariables = {
-    DBUS_SESSION_BUS_ADDRESS = "unix:path=/run/user/1000/bus";
-  };
-
   # Workaround for NixOS 26.05 activation bug under headless WSL states
   # Bypasses the broken user-space systemd reload loop during nixos-rebuild switch
   system.activationScripts.userUnits = "";
@@ -92,80 +101,17 @@ in
   # Enable declarative Nix experimental features
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  users.users.mwoodpatrick.isNormalUser = true;
-
-  home-manager.startAsUserService = true;
-  home-manager.users.mwoodpatrick = { pkgs, ... }: {
-
-  # Packages that should be installed to the user profile.
-  home.packages = [ pkgs.atool 
-                      pkgs.httpie 
-                      pkgs.htop
-                      pkgs.fortune
-        ];
-    programs = {
-      # Simply add this alongside your programs.bash block
-      starship = {
-        enable = false;
-        enableBashIntegration = true; # Automatically hooks it into Bash initExtra [2]
-      };
-  
-      bash = {
-        enable = true;
-  
-        # Extra lines to run during interactive shell sessions
-        # This works perfectly here because it's wrapped safely inside user 'eve' [1.2.5]
-        initExtra = ''
-          export EDITOR="nvim"
-          export GIT_ROOT=/mnt/wsl/projects/git
-          source $GIT_ROOT/dotfiles/bash/init.bash
-        '';
-  
-        # Shell aliases that get injected directly into your profile
-        shellAliases = {
-          ll = "ls -l";
-          la = "ls -la";
-          g = "git";
-          v = "nvim";
-          ".." = "cd ..";
-          "nb" = "sudo nixos-rebuild boot";
-          "ne" = "sudo nixos-rebuild edit";
-          "ns" = "sudo nixos-rebuild switch";
-        };
-  
-        # Controls Bash history configuration
-        # historySize = 10000;
-        # historyFileSize = 50000;
-        # historyControl = [ "ignoredups" "ignorespace" ]; # Don't record duplicate commands or commands starting with a space
-    
-        # Useful shell options to enable automatically
-        shellOptions = [
-          "autocd"   # Typing a directory name directly will cd into it
-          "cdspell"  # Minor typos in directory names will be automatically corrected
-          "cmdhist"  # Save multi-line commands as a single history entry
-        ];
-      
-      
-        # Extra lines to run for ALL login shells (both interactive and script sessions)
-        profileExtra = ''
-          # Environment variables or path scripts
-          export PATH="$HOME/.local/bin:$PATH"
-        '';
-      };
-    };
-
-    # This value determines the Home Manager release that your configuration is
-    # compatible with. This helps avoid breakage when a new Home Manager release
-    # introduces backwards incompatible changes.
-    #
-    # You should not change this value, even if you update Home Manager. If you do
-    # want to update the value, then make sure to first check the Home Manager
-    # release notes.
-    home.stateVersion = "26.05"; # Please read the comment before changing.
+  users.users.mwoodpatrick = {
+    isNormalUser = true;
+    description = "mwoodpatrick";
+    extraGroups = [ "networkmanager" "wheel" "docker" ];
   };
 
   #  Enable the Unfree licenses required for proprietary GPU acceleration hooks
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+  "claude-code"
+];
 
   # Enable the Ollama Service 
   # Enable the background daemon service
@@ -173,7 +119,7 @@ in
     enable = true;
 
     # use the unstable service version
-    package = unstable.ollama;
+    package = pkgs.pkgs-unstable.ollama;
   
     # Pre-seed and pins models to download automatically in the background
     loadModels = [ 
