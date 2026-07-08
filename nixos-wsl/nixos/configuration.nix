@@ -34,12 +34,16 @@
   # (e.g., Mason compilation, Treesitter parsers, and Telescope searching)
   environment.systemPackages = with pkgs; [
     fd
+    fzf
     gcc
     git
     gnumake
     lua-language-server
     lua5_1
     luarocks
+    nodejs_26
+    pnpm
+    yarn
     ripgrep
     tmux
     unzip
