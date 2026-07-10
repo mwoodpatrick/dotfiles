@@ -1,10 +1,22 @@
 { config, pkgs, ... }:
-
-{
+let
+  browser = "firefox.desktop"; # Or "chromium-browser.desktop", "brave-browser.desktop"
+in {
   # 1. Core Home Manager State Setup
   # Replace with your actual user environment details
   home.username = "mwoodpatrick";
   home.homeDirectory = "/home/mwoodpatrick";
+
+   xdg.mimeApps = {
+    enable = true;
+    defaultApplications = {
+      "text/html" = browser;
+      "x-scheme-handler/http" = browser;
+      "x-scheme-handler/https" = browser;
+      "x-scheme-handler/about" = browser;
+      "x-scheme-handler/unknown" = browser;
+    };
+  };
 
   # This value determines the Home Manager release that your configuration is
   # compatible with. Must map to your stable system state variant.
@@ -32,6 +44,7 @@
     htop
     fortune
     pyright
+    rustup # Includes cargo, rustc, etc.
   ];
 
   # 3. Automated Git Architecture Configurations
@@ -108,6 +121,55 @@
     '';
   };
 
+  # [Visual Studio Code](https://nixos.wiki/wiki/Visual_Studio_Code)
+  programs.vscode = {
+    enable = true;
+    package = pkgs.vscode;
+    profiles.default.extensions = with pkgs.vscode-extensions; [
+      bbenoist.nix
+      ms-python.python
+      dracula-theme.theme-dracula
+      vscodevim.vim
+      yzhang.markdown-all-in-one
+    ];
+    profiles.default.userSettings = {
+      "window.titleBarStyle" = "custom";
+      "telemetry.telemetryLevel" = "off";
+    };
+  };
+
+  programs.firefox = {
+    enable = true;
+    
+    # Global enterprise-level policies
+    policies = {
+      DisableTelemetry = true;
+      DisableFirefoxStudies = true;
+      DontCheckDefaultBrowser = true;
+      OfferToSaveLogins = false; # If using an external password manager
+    };
+
+    profiles.default = {
+      id = 0;
+      name = "default";
+      isDefault = true;
+
+      # Declarative extension management
+      extensions.packages = with pkgs.nubank.vscode-extensions; [ # or pkgs.nur.repos.rycee.firefox-addons
+        # pkgs.firefox-addons.ublock-origin
+        # pkgs.firefox-addons.bitwarden
+      ];
+
+      # Native firefox user preferences (about:config)
+      settings = {
+        "browser.startup.page" = 3; # Resume previous session
+        "privacy.trackingprotection.enabled" = true;
+        "signon.rememberSignons" = false;
+        "toolkit.legacyUserProfileCustomizations.stylesheets" = true; # For custom userChrome.css
+      };
+    };
+  };
+
   # 5. Declarative User Space Neovim Management
   # Configures binary routing matching how platforms look up packages safely
   # Currently not letting home manager not managing neovim since we use
@@ -137,8 +199,11 @@
   home.sessionVariables = {
     EDITOR = "nvim";
     VISUAL = "nvim";
+    DEFAULT_BROWSER = "${pkgs.firefox}/bin/firefox";
+    BROWSER = "firefox";
   };
 
   # Let Home Manager install and manage itself declaratively
+  # This option installs the home-manager CLI tool matching your configuration
   programs.home-manager.enable = true;
 }

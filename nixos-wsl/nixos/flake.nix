@@ -20,6 +20,7 @@
     claude-code-nix.url = "github:sadjow/claude-code-nix";
   };
 
+  # system' has been renamed to/replaced by 'stdenv.hostPlatform.system'
   outputs = { self, nixpkgs, nixpkgs-unstable, nixos-wsl, home-manager, ... }@inputs:
     let
       system = "x86_64-linux";

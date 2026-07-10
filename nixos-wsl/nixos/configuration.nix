@@ -50,7 +50,7 @@
     wget
     pkgs-unstable.neovim
     pkgs-unstable.ollama
-    inputs.claude-code-nix.packages.${pkgs.system}.default
+    inputs.claude-code-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
 
   # Centralized tool management frameworks
