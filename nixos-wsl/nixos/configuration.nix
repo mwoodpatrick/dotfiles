@@ -18,6 +18,7 @@
     GIT_ROOT = "/mnt/wsl/projects/git";
     # Inform your global login shells where to locate the user socket channel
     DBUS_SESSION_BUS_ADDRESS = "unix:path=/run/user/1000/bus";
+    DONT_PROMPT_WSL_INSTALL = "1";
   };
 
   imports = [
@@ -29,6 +30,23 @@
   # Core architecture switches mapping the guest VM parameters
   wsl.enable = true;
   wsl.defaultUser = "mwoodpatrick";
+
+  xdg = {
+    autostart.enable = true;
+    portal = {
+      enable = true;
+      extraPortals = [ 
+        pkgs.xdg-desktop-portal
+        pkgs.xdg-desktop-portal-gtk 
+      ];
+      
+      config = {
+        common = {
+          default = [ "gtk" ];
+        };
+      };
+    };
+  };
 
   # Essential build tools and utilities required by modern Neovim plugins
   # (e.g., Mason compilation, Treesitter parsers, and Telescope searching)
@@ -51,6 +69,7 @@
     pkgs-unstable.neovim
     pkgs-unstable.ollama
     inputs.claude-code-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
+    xdg-utils
   ];
 
   # Centralized tool management frameworks

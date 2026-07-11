@@ -28,7 +28,7 @@ wsl --mount --vhd C:/Users/mlwp/Storage/projects.vhdx --name projects
 # wsl.exe -d nix-wsl-temp
 # wsl.exe -d nix-wsl-vm-enabled
 # wsl -d Ubuntu-24.04-desktop
-wsl -d NixOS_26.05
+wsl -d NixOS
 Write-Host "LN: lsblk"
 Write-Host "LN: df -h"
 Write-Host "LN: systemctl status"
