@@ -31,6 +31,15 @@
   wsl.enable = true;
   wsl.defaultUser = "mwoodpatrick";
 
+  # Enable the Docker daemon service
+  virtualisation.docker = {
+    enable = true;
+    # Explicitly bind the default bridge to a custom, non-overlapping subnet
+    extraOptions = ''
+      --bip=192.168.150.1/24
+    '';
+  };
+
   xdg = {
     autostart.enable = true;
     portal = {
