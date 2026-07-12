@@ -47,12 +47,16 @@ alias mydf='df -k | grep "$USER"'
 alias vnc="/home/nv/bin/vncserver_high_ports.sh -alwaysshared -geometry 1600x1000 -depth 24"
 alias myvnc="grep $USER /tmp/vnc_totals"
 
+# Everyday administrative alias chains matching your layout requirements
+alias nix-switch="sudo nixos-rebuild switch --flake $GIT_ROOT/dotfiles/nixos-wsl/nixos/#nixos";
+alias nix-add="sudo git add /etc/nixos/";
+alias nix-commit="sudo git commit -m 'config: update flake definitions'";
+alias nix-push="sudo git push origin main";
+alias ns="nix-switch"
+
 alias g="git";
 alias v="nvim";
 alias ".."="cd ..";
-alias "nb"="sudo nixos-rebuild boot";
-alias "ne"="sudo nixos-rebuild edit";
-alias "ns"="sudo nixos-rebuild switch --flake .#nixos";
 
 # ff - find string in files. $1 = directory, $2 = pattern
 ff ()

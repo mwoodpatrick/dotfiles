@@ -16,6 +16,9 @@
     home-manager.url = "github:nix-community/home-manager/release-26.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
+    # Nix packages for AI coding agents and development tools. Automatically updated daily.
+    llm-agents.url = "github:numtide/llm-agents.nix";
+
     # Claude code
     claude-code-nix.url = "github:sadjow/claude-code-nix";
   };

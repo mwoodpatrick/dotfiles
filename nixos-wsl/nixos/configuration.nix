@@ -51,6 +51,7 @@
   # Essential build tools and utilities required by modern Neovim plugins
   # (e.g., Mason compilation, Treesitter parsers, and Telescope searching)
   environment.systemPackages = with pkgs; [
+    pciutils
     fd
     fzf
     gcc
@@ -91,17 +92,6 @@
           source $GIT_ROOT/dotfiles/bash/init.bash
         fi
       '';
-      
-      shellAliases = {
-        ll = "ls -l";
-        la = "ls -la";
-        g  = "git";
-        v  = "nvim";
-        ".." = "cd ..";
-        "nb" = "sudo nixos-rebuild boot";
-        "ne" = "sudo nixos-rebuild edit";
-        "ns" = "sudo nixos-rebuild switch --flake .#nixos";
-      };
     };
   };
 

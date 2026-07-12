@@ -45,6 +45,10 @@ in {
     fortune
     pyright
     rustup # Includes cargo, rustc, etc.
+    claude-code
+    codex
+    gemini-cli
+    opencode
   ];
 
   # 3. Automated Git Architecture Configurations
@@ -76,23 +80,6 @@ in {
     enable = true;
     enableCompletion = true;
     
-    # Declarative aliases mapping clean operational steps
-    shellAliases = {
-      # Everyday administrative alias chains matching your layout requirements
-      nix-switch = "sudo nixos-rebuild switch --flake /etc/nixos/#nixos";
-      nix-add    = "sudo git add /etc/nixos/";
-      nix-commit = "sudo git commit -m 'config: update flake definitions'";
-      nix-push   = "sudo git push origin main";
-      ll = "ls -l";
-      la = "ls -la";
-      g = "git";
-      v = "nvim";
-      ".." = "cd ..";
-      "nb" = "sudo nixos-rebuild boot";
-      "ne" = "sudo nixos-rebuild edit";
-      "ns" = "sudo nixos-rebuild switch --flake /etc/nixos/#nixos";
-    };
-
     # Extra lines to run during interactive shell sessions
     # This works perfectly here because it's wrapped safely inside user 'eve' [1.2.5]
     initExtra = ''
