@@ -116,10 +116,10 @@
     # Add other libraries if Warp throws further "not found" errors
     libxkbcommon
     # Include other GUI-related dependencies if needed
-    xorg.libX11
-    xorg.libXcursor
-    xorg.libXrandr
-    xorg.libXi
+    libx11
+    libxcursor
+    libxrandr
+    libxi
     libGL
   ]; 
 
