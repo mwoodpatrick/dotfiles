@@ -63,6 +63,8 @@
             {
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
+              # This makes 'inputs' available specifically to your home.nix
+              home-manager.extraSpecialArgs = { inherit inputs; };
               # Replace with your local system user name string
               home-manager.users.mwoodpatrick = import ./home.nix; 
             }

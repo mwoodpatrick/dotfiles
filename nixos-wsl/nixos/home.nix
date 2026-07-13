@@ -1,6 +1,12 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 let
   browser = "firefox.desktop"; # Or "chromium-browser.desktop", "brave-browser.desktop"
+
+  # Create an 'unstable' package set from the input
+  unstable = import inputs.nixpkgs-unstable {
+    system = "x86_64-linux"; # Ensure this matches your system architecture
+    config.allowUnfree = true;
+  };
 in {
   # 1. Core Home Manager State Setup
   # Replace with your actual user environment details
@@ -50,6 +56,10 @@ in {
     codex
     gemini-cli
     opencode
+    unstable.warp-terminal
+    # Inject Wayland Libraries
+    wayland
+    wayland-utils
   ];
 
   # 3. Automated Git Architecture Configurations
@@ -112,7 +122,7 @@ in {
   # [Visual Studio Code](https://nixos.wiki/wiki/Visual_Studio_Code)
   programs.vscode = {
     enable = true;
-    package = pkgs.vscode;
+    package = unstable.vscode;
     profiles.default.extensions = with pkgs.vscode-extensions; [
       bbenoist.nix
       ms-python.python

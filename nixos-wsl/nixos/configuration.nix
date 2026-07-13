@@ -19,6 +19,9 @@
     # Inform your global login shells where to locate the user socket channel
     DBUS_SESSION_BUS_ADDRESS = "unix:path=/run/user/1000/bus";
     DONT_PROMPT_WSL_INSTALL = "1";
+    # needed for warp-terminal
+    GDK_BACKEND = "x11"; 
+    WAYLAND_DISPLAY = "";
   };
 
   imports = [
@@ -106,7 +109,19 @@
 
   # Enable NIX-LD to allow unpatched dynamic binaries (like Mason LSPs)
   # to locate their runtime interpreters automatically within the Nix store
+
   programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [
+    wayland
+    # Add other libraries if Warp throws further "not found" errors
+    libxkbcommon
+    # Include other GUI-related dependencies if needed
+    xorg.libX11
+    xorg.libXcursor
+    xorg.libXrandr
+    xorg.libXi
+    libGL
+  ]; 
 
   # Enable the foundational D-Bus system services
   services.dbus.enable = true;
