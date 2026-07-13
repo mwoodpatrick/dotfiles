@@ -43,6 +43,7 @@ in {
     httpie 
     htop
     fortune
+    python314
     pyright
     rustup # Includes cargo, rustc, etc.
     claude-code
