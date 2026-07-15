@@ -979,7 +979,24 @@ require("lazy").setup({
       "stevearc/dressing.nvim", -- for input provider dressing
       "folke/snacks.nvim", -- for input provider snacks
       "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
-      "zbirenbaum/copilot.lua", -- for providers='copilot'
+      -- "zbirenbaum/copilot.lua", -- for providers='copilot'
+      {
+        {
+          "zbirenbaum/copilot.lua",
+          cmd = "Copilot",
+          event = "InsertEnter",
+          config = function()
+            require("copilot").setup {
+              -- Force the plugin to look at this specific node path
+              -- (On NixOS, the command 'node' will automatically resolve to the Nix Store wrapper)
+              copilot_node_command = "node",
+
+              suggestion = { enabled = true },
+              panel = { enabled = true },
+            }
+          end,
+        },
+      },
       {
         -- support for image pasting
         "HakonHarnes/img-clip.nvim",
@@ -1051,6 +1068,8 @@ require("lazy").setup({
     "saghen/blink.cmp",
     event = "VimEnter",
     version = "1.*",
+    -- This build step compiles the fuzzy engine locally in your writeable home directory
+    build = "cargo build --release",
     dependencies = {
       -- Snippet Engine
       {
@@ -1256,7 +1275,10 @@ require("lazy").setup({
     -- build = 'nix run .#build-plugin',
 
     opts = {
-      -- your configuration here
+      keymap = { preset = "default" },
+      sources = {
+        default = { "lsp", "path", "snippets", "buffer" },
+      },
     },
   },
 

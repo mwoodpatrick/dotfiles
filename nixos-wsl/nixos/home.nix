@@ -49,6 +49,9 @@ in {
     httpie 
     htop
     fortune
+    kitty
+    wezterm
+    ghostty
     python314
     pyright
     rustup # Includes cargo, rustc, etc.
@@ -60,6 +63,11 @@ in {
     # Inject Wayland Libraries
     wayland
     wayland-utils
+    viu
+    chafa
+    ueberzugpp
+    tree-sitter
+    imagemagick
   ];
 
   # 3. Automated Git Architecture Configurations

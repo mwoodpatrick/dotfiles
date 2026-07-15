@@ -67,21 +67,25 @@
     fd
     fzf
     gcc
+    ghostscript
     git
     gnumake
+    inputs.claude-code-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
     lua-language-server
     lua5_1
     luarocks
+    mermaid-cli
     nodejs_26
     pnpm
     yarn
     ripgrep
     tmux
     unzip
+    tectonic
     wget
     pkgs-unstable.neovim
     pkgs-unstable.ollama
-    inputs.claude-code-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
+    trash-cli
     xdg-utils
   ];
 
