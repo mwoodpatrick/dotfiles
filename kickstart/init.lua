@@ -84,10 +84,13 @@ I hope you enjoy your Neovim journey,
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
-local config_dir = vim.fn.stdpath "config"
+-- Add Treesitter parser directory to runtimepath
+local parser_install_dir = vim.fn.stdpath "data" .. "/site"
+vim.opt.runtimepath:append(parser_install_dir)
+-- local config_dir = vim.fn.stdpath "config"
 local state_dir = vim.fn.stdpath "state" .. "/startup_logs"
 local ts = os.date "%Y-%m-%d_%H-%M-%S"
-local log_file = string.format("%s/nvim_pack_diagnostics_%s.log", state_dir, ts)
+-- local log_file = string.format("%s/nvim_pack_diagnostics_%s.log", state_dir, ts)
 -- print("Using nvim config:"..config_dir.."logs:"..state_dir)
 -- vim.fn.input("Press ENTER to acknowledge: ")
 -- vim.notify("pkglog logfile:" .. log_file , vim.log.levels.INFO)
@@ -976,26 +979,50 @@ require("lazy").setup({
       "nvim-telescope/telescope.nvim", -- for file_selector provider telescope
       "hrsh7th/nvim-cmp", -- autocompletion for avante commands and mentions
       "ibhagwan/fzf-lua", -- for file_selector provider fzf
-      "stevearc/dressing.nvim", -- for input provider dressing
-      "folke/snacks.nvim", -- for input provider snacks
+      -- "stevearc/dressing.nvim", -- for input provider dressing
       "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
-      -- "zbirenbaum/copilot.lua", -- for providers='copilot'
       {
-        {
-          "zbirenbaum/copilot.lua",
-          cmd = "Copilot",
-          event = "InsertEnter",
-          config = function()
-            require("copilot").setup {
-              -- Force the plugin to look at this specific node path
-              -- (On NixOS, the command 'node' will automatically resolve to the Nix Store wrapper)
-              copilot_node_command = "node",
+        -- highly modular, feature-rich library for Neovim designed to provide
+        -- a cohesive collection of "snacks" (small, useful utilities) that
+        -- enhance your editor experience.
+        "folke/snacks.nvim", -- for input provider snacks
+        priority = 1000,
+        lazy = false,
+        config = function()
+          require("snacks").setup {
+            -- Add your specific snacks configuration here
+            -- Example modules:
+            bigfile = { enabled = true },
+            dashboard = { enabled = true },
+            indent = { enabled = true },
+            input = { enabled = true },
+            notifier = { enabled = true },
+            picker = { enabled = true },
+            quickfile = { enabled = true },
+            scope = { enabled = true },
+            scroll = { enabled = true },
+            statuscolumn = { enabled = true },
+            words = { enabled = true },
+          }
+          -- tell Neovim to use Snacks.input for all ui.input calls
+          Snacks.input.enable()
+        end,
+      },
+      {
+        -- high-performance, pure Lua alternative to the official github/copilot.vim plugin.
+        "zbirenbaum/copilot.lua",
+        cmd = "Copilot",
+        event = "InsertEnter",
+        config = function()
+          require("copilot").setup {
+            -- Force the plugin to look at this specific node path
+            -- (On NixOS, the command 'node' will automatically resolve to the Nix Store wrapper)
+            copilot_node_command = "node",
 
-              suggestion = { enabled = true },
-              panel = { enabled = true },
-            }
-          end,
-        },
+            suggestion = { enabled = true },
+            panel = { enabled = true },
+          }
+        end,
       },
       {
         -- support for image pasting
@@ -1344,6 +1371,13 @@ require("lazy").setup({
     },
   },
 })
+
+-- Ensure snacks is loaded
+local snacks = require "snacks"
+
+-- Explicitly override the UI provider
+vim.ui.input = snacks.input.input
+vim.ui.select = snacks.picker.select
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

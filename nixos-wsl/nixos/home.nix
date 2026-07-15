@@ -39,35 +39,36 @@ in {
   # 2. User-specific CLI Toolsets
   # Installs tools directly inside the user's execution profile path
   home.packages = with pkgs; [
+    atool 
+    bubblewrap          # Sandboxing toolkit utility used for security boundaries
+    chafa
+    claude-code
+    codex
+    fd                  # Fast user directory scanner dependency
+    fortune
+    gemini-cli
     git
     gh                  # GitHub official CLI engine
-    ripgrep             # Optimal regex finder for tools like Telescope/Nvim
-    fd                  # Fast user directory scanner dependency
-    bubblewrap          # Sandboxing toolkit utility used for security boundaries
-    slirp4netns         # User-space network engine for rootless sandboxes
-    atool 
     httpie 
     htop
-    fortune
     kitty
-    wezterm
+    lazygit
     ghostty
     python314
     pyright
+    ripgrep             # Optimal regex finder for tools like Telescope/Nvim
     rustup # Includes cargo, rustc, etc.
-    claude-code
-    codex
-    gemini-cli
+    slirp4netns         # User-space network engine for rootless sandboxes
+    imagemagick
     opencode
+    tree-sitter
     unstable.warp-terminal
     # Inject Wayland Libraries
     wayland
     wayland-utils
+    wezterm
     viu
-    chafa
     ueberzugpp
-    tree-sitter
-    imagemagick
   ];
 
   # 3. Automated Git Architecture Configurations

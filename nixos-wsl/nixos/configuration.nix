@@ -19,9 +19,9 @@
     # Inform your global login shells where to locate the user socket channel
     DBUS_SESSION_BUS_ADDRESS = "unix:path=/run/user/1000/bus";
     DONT_PROMPT_WSL_INSTALL = "1";
-    # needed for warp-terminal
-    GDK_BACKEND = "x11"; 
-    WAYLAND_DISPLAY = "";
+    # needed for warp-terminal which currenly does not appear to work with Wayland
+    # GDK_BACKEND = "x11"; 
+    # WAYLAND_DISPLAY = "";
   };
 
   imports = [
