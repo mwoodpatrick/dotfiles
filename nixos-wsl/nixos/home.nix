@@ -132,17 +132,6 @@ in {
   programs.vscode = {
     enable = true;
     package = unstable.vscode;
-    profiles.default.extensions = with pkgs.vscode-extensions; [
-      bbenoist.nix
-      ms-python.python
-      dracula-theme.theme-dracula
-      vscodevim.vim
-      yzhang.markdown-all-in-one
-    ];
-    profiles.default.userSettings = {
-      "window.titleBarStyle" = "custom";
-      "telemetry.telemetryLevel" = "off";
-    };
   };
 
   programs.firefox = {

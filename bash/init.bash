@@ -46,6 +46,10 @@ if [ -f $DOTFILES/bash/apt.bash ]; then
     source $DOTFILES/bash/apt.bash
 fi
 
+if [ -f $DOTFILES/bash/vscode.bash ]; then
+     source $DOTFILES/bash/vscode.bash
+fi
+
 # enable tab expansion
 # https://askubuntu.com/questions/1245285/bash-doesnt-expand-variables-when-pressing-tab-key
 
