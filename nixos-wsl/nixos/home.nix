@@ -132,6 +132,20 @@ in {
   programs.vscode = {
     enable = true;
     package = unstable.vscode;
+    # Install the core Neovim extension
+    profiles.default.extensions = with pkgs.vscode-extensions; [
+      asvetliakov.vscode-neovim
+      dracula-theme.theme-dracula
+    ];
+# Force VS Code to recognize your Nix-managed Neovim
+    profiles.default.userSettings = {
+      # Use the absolute path provided by the Nix profile
+      "vscode-neovim.neovimExecutablePaths.linux" = "${unstable.neovim}/bin/nvim";
+      
+      # Optional: Disable default VS Code keybindings that conflict with Neovim
+      "vim.useCtrlKeys" = true;
+      "vim.hlsearch" = true;
+    };
   };
 
   programs.firefox = {

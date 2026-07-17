@@ -1,8 +1,0 @@
-{
-  "telemetry.telemetryLevel": "off",
-  "window.titleBarStyle": "custom",
-  "workbench.colorTheme": "Dracula Theme Soft",
-  "extensions.experimental.affinity": {
-    "asvetliakov.vscode-neovim": 1
-  }
-}
