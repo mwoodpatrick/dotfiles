@@ -130,14 +130,27 @@
   # Enable the foundational D-Bus system services
   services.dbus.enable = true;
 
+  # Ensure the systemd user manager is properly configured to linger
+# This allows systemd to manage user services even when you aren't logged in
+systemd.user.services.nix-daemon.wantedBy = [ "multi-user.target" ];
+
   # Force systemd to instantiate user-space session buses automatically
   systemd.user.extraConfig = ''
-     DefaultEnvironment="DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus"
+     DefaultEnvironment="XDG_RUNTIME_DIR=/run/user/%U"
    '';
 
   # Workaround for NixOS 26.05 activation bug under headless WSL states
   # Bypasses the broken user-space systemd reload loop during nixos-rebuild switch
-  system.activationScripts.userUnits = "";
+  # system.activationScripts.userUnits = "";
+
+  # Make the user-space services significantly more robust against 
+  # future WSL lifecycle events.
+  # Ensure the systemd --user manager starts at boot and persists. 
+  # When you run nixos-rebuild, the system-level process finds an already-active 
+  # user manager to talk to.
+  # to verify run "systemctl --user status"
+  # loginctl show-user mwoodpatrick | grep Linger
+  users.users.mwoodpatrick.linger = true;
 
   # Enable declarative Nix experimental features
   nix.settings.experimental-features = [ "nix-command" "flakes" ];

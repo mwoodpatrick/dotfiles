@@ -48,11 +48,13 @@ alias vnc="/home/nv/bin/vncserver_high_ports.sh -alwaysshared -geometry 1600x100
 alias myvnc="grep $USER /tmp/vnc_totals"
 
 # Everyday administrative alias chains matching your layout requirements
+# Prefer nixos-rebuild boot for System Services: If you ever start modifying 
+# core system-level services (like networking, DBus, or kernel modules), 
+# use sudo nixos-rebuild boot instead of switch. It’s safer and avoids the 
+# need for live-reloading complex systemd-user states.
 alias nix-switch="sudo nixos-rebuild switch --flake $GIT_ROOT/dotfiles/nixos-wsl/nixos/#nixos";
-alias nix-add="sudo git add /etc/nixos/";
-alias nix-commit="sudo git commit -m 'config: update flake definitions'";
-alias nix-push="sudo git push origin main";
-alias ns="nix-switch"
+alias nix-boot="sudo nixos-rebuild boot --flake $GIT_ROOT/dotfiles/nixos-wsl/nixos/#nixos";
+alias nix-update="nix flake update --flake $GIT_ROOT/dotfiles/nixos-wsl/nixos";
 
 alias g="git";
 alias v="nvim";
