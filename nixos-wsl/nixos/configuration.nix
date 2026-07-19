@@ -87,6 +87,8 @@
     pkgs-unstable.ollama
     trash-cli
     xdg-utils
+    inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.default
+    inputs.nix-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
 
   # Centralized tool management frameworks

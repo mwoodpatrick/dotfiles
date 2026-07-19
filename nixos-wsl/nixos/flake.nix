@@ -21,6 +21,12 @@
 
     # Claude code
     claude-code-nix.url = "github:sadjow/claude-code-nix";
+
+    # nixai: AI-Powered NixOS Assistant
+    nix-ai.url = "github:olafkfreund/nix-ai-help";
+
+    # nix-agent
+    nix-agent.url = "github:JEFF7712/nix-agent";
   };
 
   # system' has been renamed to/replaced by 'stdenv.hostPlatform.system'

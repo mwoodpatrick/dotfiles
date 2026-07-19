@@ -49,16 +49,18 @@ in {
     gemini-cli
     git
     gh                  # GitHub official CLI engine
+    ghostty
     httpie 
     htop
     kitty
     lazygit
-    ghostty
+    nixfmt
     python314
     pyright
     ripgrep             # Optimal regex finder for tools like Telescope/Nvim
     rustup # Includes cargo, rustc, etc.
     slirp4netns         # User-space network engine for rootless sandboxes
+    stylua
     imagemagick
     opencode
     tree-sitter
