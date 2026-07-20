@@ -1,0 +1,4 @@
+[submodule "kickstart"]
+	path = kickstart
+	url = git@github.com:mwoodpatrick/kickstart.nvim.git
+	branch = development
