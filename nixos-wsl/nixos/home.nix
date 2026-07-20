@@ -1,4 +1,9 @@
-{ config, pkgs, inputs, ... }:
+{
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
 let
   browser = "firefox.desktop"; # Or "chromium-browser.desktop", "brave-browser.desktop"
 
@@ -7,13 +12,14 @@ let
     system = "x86_64-linux"; # Ensure this matches your system architecture
     config.allowUnfree = true;
   };
-in {
+in
+{
   # 1. Core Home Manager State Setup
   # Replace with your actual user environment details
   home.username = "mwoodpatrick";
   home.homeDirectory = "/home/mwoodpatrick";
 
-   xdg.mimeApps = {
+  xdg.mimeApps = {
     enable = true;
     defaultApplications = {
       "text/html" = browser;
@@ -34,32 +40,32 @@ in {
   # want to update the value, then make sure to first check the Home Manager
   # release notes.
 
-  home.stateVersion = "26.05"; 
+  home.stateVersion = "26.05";
 
   # 2. User-specific CLI Toolsets
   # Installs tools directly inside the user's execution profile path
   home.packages = with pkgs; [
-    atool 
-    bubblewrap          # Sandboxing toolkit utility used for security boundaries
+    atool
+    bubblewrap # Sandboxing toolkit utility used for security boundaries
     chafa
     claude-code
     codex
-    fd                  # Fast user directory scanner dependency
+    fd # Fast user directory scanner dependency
     fortune
     gemini-cli
     git
-    gh                  # GitHub official CLI engine
+    gh # GitHub official CLI engine
     ghostty
-    httpie 
+    httpie
     htop
     kitty
     lazygit
     nixfmt
     python314
     pyright
-    ripgrep             # Optimal regex finder for tools like Telescope/Nvim
+    ripgrep # Optimal regex finder for tools like Telescope/Nvim
     rustup # Includes cargo, rustc, etc.
-    slirp4netns         # User-space network engine for rootless sandboxes
+    slirp4netns # User-space network engine for rootless sandboxes
     stylua
     imagemagick
     opencode
@@ -93,7 +99,7 @@ in {
 
   programs.starship = {
     enable = false;
-     enableBashIntegration = true; # Automatically hooks it into Bash initExtra [2]
+    enableBashIntegration = true; # Automatically hooks it into Bash initExtra [2]
   };
 
   # 4. Interactive Shell Integrations
@@ -101,7 +107,7 @@ in {
   programs.bash = {
     enable = true;
     enableCompletion = true;
-    
+
     # Extra lines to run during interactive shell sessions
     # This works perfectly here because it's wrapped safely inside user 'eve' [1.2.5]
     initExtra = ''
@@ -110,19 +116,19 @@ in {
         source "/mnt/wsl/projects/git/dotfiles/bash/init.bash"
       fi
     '';
-  
+
     # Controls Bash history configuration
     # historySize = 10000;
     # historyFileSize = 50000;
     # historyControl = [ "ignoredups" "ignorespace" ]; # Don't record duplicate commands or commands starting with a space
-    
+
     # Useful shell options to enable automatically
     shellOptions = [
-      "autocd"   # Typing a directory name directly will cd into it
-      "cdspell"  # Minor typos in directory names will be automatically corrected
-      "cmdhist"  # Save multi-line commands as a single history entry
+      "autocd" # Typing a directory name directly will cd into it
+      "cdspell" # Minor typos in directory names will be automatically corrected
+      "cmdhist" # Save multi-line commands as a single history entry
     ];
-      
+
     # Extra lines to run for ALL login shells (both interactive and script sessions)
     profileExtra = ''
       # Environment variables or path scripts
@@ -139,11 +145,11 @@ in {
       asvetliakov.vscode-neovim
       dracula-theme.theme-dracula
     ];
-# Force VS Code to recognize your Nix-managed Neovim
+    # Force VS Code to recognize your Nix-managed Neovim
     profiles.default.userSettings = {
       # Use the absolute path provided by the Nix profile
       "vscode-neovim.neovimExecutablePaths.linux" = "${unstable.neovim}/bin/nvim";
-      
+
       # Optional: Disable default VS Code keybindings that conflict with Neovim
       "vim.useCtrlKeys" = true;
       "vim.hlsearch" = true;
@@ -152,7 +158,7 @@ in {
 
   programs.firefox = {
     enable = true;
-    
+
     # Global enterprise-level policies
     policies = {
       DisableTelemetry = true;
@@ -167,7 +173,8 @@ in {
       isDefault = true;
 
       # Declarative extension management
-      extensions.packages = with pkgs.nubank.vscode-extensions; [ # or pkgs.nur.repos.rycee.firefox-addons
+      extensions.packages = with pkgs.nubank.vscode-extensions; [
+        # or pkgs.nur.repos.rycee.firefox-addons
         # pkgs.firefox-addons.ublock-origin
         # pkgs.firefox-addons.bitwarden
       ];
@@ -181,30 +188,6 @@ in {
       };
     };
   };
-
-  # 5. Declarative User Space Neovim Management
-  # Configures binary routing matching how platforms look up packages safely
-  # Currently not letting home manager not managing neovim since we use
-  # our own kickstart scripts
-
-#  programs.neovim = {
-#    enable = true;
-#    viAlias = true;
-#    vimAlias = true;
-#    vimdiffAlias = true;
-#
-#    # 1. CRITICAL FLIP: Tell Home Manager not to create an init.lua file
-#    # This prevents Home Manager from creating symlinks over your files
-#    # Safe null configuration bypass option matching new option standards
-#    initLua = "";
-#
-#    # Injects system requirements matching language runtime dependencies
-#    extraPackages = with pkgs; [
-#      gcc               # C Compiler needed to assemble nvim-treesitter modules
-#      gnumake           # Build automation engines
-#      nodejs_22         # JS backend processing dependency engine
-#    ];
-#  };
 
   # Let Home Manager install and manage itself declaratively
   # This option installs the home-manager CLI tool matching your configuration

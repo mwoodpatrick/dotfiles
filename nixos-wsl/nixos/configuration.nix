@@ -6,9 +6,15 @@
 # https://github.com/nix-community/NixOS-WSL
 
 # access unstable packages via pkgs.pkgs-unstable
-{ config, lib, pkgs, inputs, ... }:
 {
-  
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
+{
+
   imports = [
     # include NixOS-WSL modules
     # ./hardware-configuration.nix
@@ -32,11 +38,11 @@
     autostart.enable = true;
     portal = {
       enable = true;
-      extraPortals = [ 
+      extraPortals = [
         pkgs.xdg-desktop-portal
-        pkgs.xdg-desktop-portal-gtk 
+        pkgs.xdg-desktop-portal-gtk
       ];
-      
+
       config = {
         common = {
           default = [ "gtk" ];
@@ -85,8 +91,8 @@
     neovim = {
       enable = true;
       defaultEditor = true; # Automatically assigns $EDITOR and $VISUAL to nvim
-      viAlias = true;       # Maps 'vi' command to nvim
-      vimAlias = true;      # Maps 'vim' command to nvim
+      viAlias = true; # Maps 'vi' command to nvim
+      vimAlias = true; # Maps 'vim' command to nvim
     };
 
     bash = {
@@ -112,60 +118,69 @@
     libxrandr
     libxi
     libGL
-  ]; 
+  ];
 
   # Enable the foundational D-Bus system services
   services.dbus.enable = true;
 
   # Ensure the systemd user manager is properly configured to linger
-# This allows systemd to manage user services even when you aren't logged in
-systemd.user.services.nix-daemon.wantedBy = [ "multi-user.target" ];
+  # This allows systemd to manage user services even when you aren't logged in
+  systemd.user.services.nix-daemon.wantedBy = [ "multi-user.target" ];
 
   # Force systemd to instantiate user-space session buses automatically
   systemd.user.extraConfig = ''
-     DefaultEnvironment="XDG_RUNTIME_DIR=/run/user/%U"
-   '';
+    DefaultEnvironment="XDG_RUNTIME_DIR=/run/user/%U"
+  '';
 
   # Workaround for NixOS 26.05 activation bug under headless WSL states
   # Bypasses the broken user-space systemd reload loop during nixos-rebuild switch
   # system.activationScripts.userUnits = "";
 
-  # Make the user-space services significantly more robust against 
+  # Make the user-space services significantly more robust against
   # future WSL lifecycle events.
-  # Ensure the systemd --user manager starts at boot and persists. 
-  # When you run nixos-rebuild, the system-level process finds an already-active 
+  # Ensure the systemd --user manager starts at boot and persists.
+  # When you run nixos-rebuild, the system-level process finds an already-active
   # user manager to talk to.
   # to verify run "systemctl --user status"
   # loginctl show-user mwoodpatrick | grep Linger
   users.users.mwoodpatrick.linger = true;
 
   # Enable declarative Nix experimental features
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   users.users.mwoodpatrick = {
     isNormalUser = true;
     description = "mwoodpatrick";
-    extraGroups = [ "networkmanager" "wheel" "docker" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "docker"
+    ];
   };
 
   #  Enable the Unfree licenses required for proprietary GPU acceleration hooks
   nixpkgs.config.allowUnfree = true;
-  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-  "claude-code"
-];
+  nixpkgs.config.allowUnfreePredicate =
+    pkg:
+    builtins.elem (lib.getName pkg) [
+      "claude-code"
+    ];
 
-  # Enable the Ollama Service 
+  # Enable the Ollama Service
   # Enable the background daemon service
   services.ollama = {
     enable = true;
 
     # use the unstable service version
     package = pkgs.pkgs-unstable.ollama;
-  
+
     # Pre-seed and pins models to download automatically in the background
-    loadModels = [ 
-      "gemma4:12b" 
-      "deepseek-r1:14b" 
+    loadModels = [
+      "gemma4:12b"
+      "deepseek-r1:14b"
     ];
 
     # Expose the API surface cleanly across internal WSL networking layers if needed
