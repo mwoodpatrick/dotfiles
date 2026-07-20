@@ -31,9 +31,6 @@ export TZ=US/Pacific
 export DISPLAY=${DISPLAY:-"`uname -n`:0"}
 export HOSTNAME=$(hostname --fqdn)
 
-export ANTHROPIC_AUTH_TOKEN=ollama
-export ANTHROPIC_BASE_URL=http://localhost:11434
-
 if [ -f $DOTFILES/bash/aliases.bash ]; then
      source $DOTFILES/bash/aliases.bash
 fi
@@ -318,14 +315,14 @@ Win32)
 
     unset PERL5DB
     export COLUMNS=80
-	export SYSROOT=/${SYSTEMDRIVE/:/}
-	export VIMRUNTIME=C:/Software/vim/vim74
-	export VIM=$VIMRUNTIME/gvim.exe
-	export EDITOR=`cygpath -iw $VIM`
-	export CVSEDITOR=`cygpath -iw $VIM`
-	export COMPILER=msvc6;
-	export CDPATH=$SYSROOT/Software
-	export P4EDITOR=`cygpath -iw $VIM`
+	  export SYSROOT=/${SYSTEMDRIVE/:/}
+	  export VIMRUNTIME=C:/Software/vim/vim74
+	  export VIM=$VIMRUNTIME/gvim.exe
+	  export EDITOR=`cygpath -iw $VIM`
+	  export CVSEDITOR=`cygpath -iw $VIM`
+	  export COMPILER=msvc6;
+	  export CDPATH=$SYSROOT/Software
+	  export P4EDITOR=`cygpath -iw $VIM`
     export CYGCOPYTOOLS_P4=1
     # as2 does not currently understand backslashes
 	# We don't modify any Fermi Cygwin install packages from their Cygwin default config.
@@ -367,15 +364,24 @@ Win32)
 
     ;;
 
-Linux)
+Linux|linux-gnu)
+    export DEFAULT_BROWSER=firefox
+    export BROWSER=firefox
     export EDITOR=vim
     export VISUAL=vim
     export VIEWER=vim
     export PAGER=less
     export MANPAGER=less
-    export SHELL=/bin/tcsh
-    # Now make bash our shell
-    export SHELL=/bin/bash
+    export SHELL=bash
+    export ANTHROPIC_AUTH_TOKEN=ollama
+    export ANTHROPIC_BASE_URL=http://localhost:11434
+    export GIT_ROOT=/mnt/wsl/projects/git
+    # Inform your global login shells where to locate the user socket channel
+    export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus"
+    export DONT_PROMPT_WSL_INSTALL="1"
+    # needed for warp-terminal which currenly does not appear to work with Wayland
+    # GDK_BACKEND = "x11" 
+    # WAYLAND_DISPLAY = ""
 
     # Commit to perlbrew
     # use perlbrew use 5.20.1-007 to switch version

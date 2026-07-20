@@ -8,22 +8,7 @@
 # access unstable packages via pkgs.pkgs-unstable
 { config, lib, pkgs, inputs, ... }:
 {
-  # This populates variables globally across all login accounts & system services
-  # but only gets loaded in WSL on system start. Put most variables in .envrc or
-  # .bashrc
-  environment.sessionVariables = {
-    ANTHROPIC_AUTH_TOKEN = "ollama";
-    ANTHROPIC_BASE_URL = "http://localhost:11434";
-    EDITOR="nvim";
-    GIT_ROOT = "/mnt/wsl/projects/git";
-    # Inform your global login shells where to locate the user socket channel
-    DBUS_SESSION_BUS_ADDRESS = "unix:path=/run/user/1000/bus";
-    DONT_PROMPT_WSL_INSTALL = "1";
-    # needed for warp-terminal which currenly does not appear to work with Wayland
-    # GDK_BACKEND = "x11"; 
-    # WAYLAND_DISPLAY = "";
-  };
-
+  
   imports = [
     # include NixOS-WSL modules
     # ./hardware-configuration.nix

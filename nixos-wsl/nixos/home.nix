@@ -206,15 +206,6 @@ in {
 #    ];
 #  };
 
-  # 6. Environmental Handshakes
-  # Explicitly forces system applications to look up Nix store symlinks smoothly
-  home.sessionVariables = {
-    EDITOR = "nvim";
-    VISUAL = "nvim";
-    DEFAULT_BROWSER = "${pkgs.firefox}/bin/firefox";
-    BROWSER = "firefox";
-  };
-
   # Let Home Manager install and manage itself declaratively
   # This option installs the home-manager CLI tool matching your configuration
   programs.home-manager.enable = true;
