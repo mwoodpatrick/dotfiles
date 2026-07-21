@@ -46,6 +46,7 @@ in
   # Installs tools directly inside the user's execution profile path
   home.packages = with pkgs; [
     atool
+    black # Python formatters & linters
     bubblewrap # Sandboxing toolkit utility used for security boundaries
     chafa
     claude-code
@@ -58,9 +59,14 @@ in
     ghostty
     httpie
     htop
+    isort # Python formatters & linters
     kitty
     lazygit
+    nil # fast, lightweight nix language server
+    nixd # nix langiage server with deep-introspection features
     nixfmt
+    prettier # Web/JavaScript formatters
+    prettierd
     python314
     pyright
     ripgrep # Optimal regex finder for tools like Telescope/Nvim
