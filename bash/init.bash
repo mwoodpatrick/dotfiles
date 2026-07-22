@@ -345,8 +345,16 @@ Win32)
 
 Linux | linux-gnu)
     export GIT_ROOT=/mnt/wsl/projects/git
+        # environment variable defined by the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/latest/] (created by freedesktop.org)
+    # base directory relative to which user-specific configuration files should be stored.
     export XDG_CONFIG_HOME=$GIT_ROOT/dotfiles/
-    export XDG_DATA_HOME==/mnt/wsl/projects/data
+    # base directory for user-specific data files (analogous to system-wide directories like /usr/share/
+    export XDG_DATA_HOME=/mnt/wsl/projects/data
+    # ordered, colon-separated list of system-wide configuration directories available to the user and applications
+    export XDG_CONFIG_DIRS=$GIT_ROOT/
+    # ordered, colon-separated list of system-wide data directories available to the user and applications
+    export XDG_DATA_DIRS=/mnt/wsl/projects/data
+    export NVIM_LOG_FILE=$XDG_DATA_HOME/nvim.log
     export DEFAULT_BROWSER=firefox
     export BROWSER=firefox
     export EDITOR=vim
