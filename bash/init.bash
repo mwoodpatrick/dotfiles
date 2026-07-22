@@ -9,8 +9,8 @@
 #   https://www.mattcutts.com/blog/how-to-fix-firefox-is-already-running-error/
 
 case $- in
-    *i*) ;;
-      *) return;;
+*i*) ;;
+*) return ;;
 esac
 
 if [ -z ${PATH_BASE+x} ]; then
@@ -28,24 +28,8 @@ export DOTFILES=$(dirname $(dirname $SCRIPT_PATH))
 shopt -s direxpand
 
 export TZ=US/Pacific
-export DISPLAY=${DISPLAY:-"`uname -n`:0"}
+export DISPLAY=${DISPLAY:-"$(uname -n):0"}
 export HOSTNAME=$(hostname --fqdn)
-
-if [ -f $DOTFILES/bash/aliases.bash ]; then
-     source $DOTFILES/bash/aliases.bash
-fi
-
-if [ -f $DOTFILES/bash/ssh.bash ]; then
-    source $DOTFILES/bash/ssh.bash
-fi
-
-if [ -f $DOTFILES/bash/apt.bash ]; then
-    source $DOTFILES/bash/apt.bash
-fi
-
-if [ -f $DOTFILES/bash/vscode.bash ]; then
-     source $DOTFILES/bash/vscode.bash
-fi
 
 # enable tab expansion
 # https://askubuntu.com/questions/1245285/bash-doesnt-expand-variables-when-pressing-tab-key
@@ -66,7 +50,7 @@ shopt -s checkwinsize
 
 # set a fancy prompt (non-color, unless we know we "want" color)
 case "$TERM" in
-    xterm-color) color_prompt=yes;;
+xterm-color) color_prompt=yes ;;
 esac
 
 # uncomment for a colored prompt, if the terminal has the capability; turned
@@ -76,12 +60,12 @@ esac
 
 if [ -n "$force_color_prompt" ]; then
     if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-	# We have color support; assume it's compliant with Ecma-48
-	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-	# a case would tend to support setf rather than setaf.)
-	color_prompt=yes
+        # We have color support; assume it's compliant with Ecma-48
+        # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+        # a case would tend to support setf rather than setaf.)
+        color_prompt=yes
     else
-	color_prompt=
+        color_prompt=
     fi
 fi
 
@@ -97,19 +81,18 @@ unset color_prompt force_color_prompt
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
-xterm*|rxvt*)
+xterm* | rxvt*)
     PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
     ;;
 *)
     ;;
 esac
 
-
 # xhost +
 
 function checkpathtype {
     local path=$1
-    if [  ! -e ${path} ]; then
+    if [ ! -e ${path} ]; then
         echo "${path} does not exist"
     elif [ -L ${path} ] && [ -d ${path} ]; then
         echo "${path} is a symbolic link to directory $(readlink -f $path)"
@@ -123,11 +106,11 @@ function checkpathtype {
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
 if ! shopt -oq posix; then
-  if [ -f /usr/share/bash-completion/bash_completion ]; then
-    . /usr/share/bash-completion/bash_completion
-  elif [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
-  fi
+    if [ -f /usr/share/bash-completion/bash_completion ]; then
+        . /usr/share/bash-completion/bash_completion
+    elif [ -f /etc/bash_completion ]; then
+        . /etc/bash_completion
+    fi
 fi
 
 # make less more friendly for non-text input files, see lesspipe(1)
@@ -144,8 +127,7 @@ PS2="continue-> "
 # for set -x
 PS4='$0.$LINENO+ '
 
-function uidtouname ()
-{
+function uidtouname() {
     getent passwd $1 | cut -d: -f1
 }
 
@@ -177,9 +159,9 @@ function apt-update {
     #   https://www.rabbitmq.com/install-debian.html
     #
 
-    sudo ntpdate time.windows.com;
-    sudo apt update;
-    sudo apt upgrade;
+    sudo ntpdate time.windows.com
+    sudo apt update
+    sudo apt upgrade
 
     # sudo apt full-upgrade
     # to determine what package contains program run
@@ -242,7 +224,7 @@ function x() {
 
 function logmsg() {
     if [ $interactive ]; then
-        echo $*;
+        echo $*
     fi
 }
 
@@ -252,11 +234,11 @@ function htmlTidy() {
 
 # tidy -xml -i -o issue_formatted.xml issue.xml
 function xmlTidy() {
-    tidy -i  -wrap 2000 -xml < $1 > $2
+    tidy -i -wrap 2000 -xml <$1 >$2
 }
 
 function set_date {
-    local d=`date +%m/%d/%Y\ %H:%M:%S`
+    local d=$(date +%m/%d/%Y\ %H:%M:%S)
     # echo date -s "11/20/2003 12:48:00"
     echo date -s \"$d\"
 }
@@ -280,25 +262,25 @@ function extract {
         # display usage if no parameters given
         echo "Usage: extract ."
     else
-        if [ -f $1 ] ; then
+        if [ -f $1 ]; then
             # NAME=${1%.*}
             # mkdir $NAME && cd $NAME
             case $1 in
             *.tar.bz2) tar xvjf $1 ;;
             *.tar.gz) tar xvzf $1 ;;
             *.tar.xz) tar xvJf $1 ;;
-            *.lzma)   unlzma $1 ;;
-            *.bz2)    bunzip2 $1 ;;
-            *.rar)    unrar x -ad $1 ;;
-            *.gz)     gunzip $1 ;;
-            *.tar)    tar xvf $1 ;;
-            *.tbz2)   tar xvjf $1 ;;
-            *.tgz)    tar xvzf $1 ;;
-            *.zip)    unzip $1 ;;
-            *.Z)      uncompress $1 ;;
-            *.7z)     7z x $1 ;;
-            *.xz)     unxz $1 ;;
-            *.exe)    cabextract $1 ;;
+            *.lzma) unlzma $1 ;;
+            *.bz2) bunzip2 $1 ;;
+            *.rar) unrar x -ad $1 ;;
+            *.gz) gunzip $1 ;;
+            *.tar) tar xvf $1 ;;
+            *.tbz2) tar xvjf $1 ;;
+            *.tgz) tar xvzf $1 ;;
+            *.zip) unzip $1 ;;
+            *.Z) uncompress $1 ;;
+            *.7z) 7z x $1 ;;
+            *.xz) unxz $1 ;;
+            *.exe) cabextract $1 ;;
             *) echo "extract: '$1' - unknown archive method" ;;
             esac
         else
@@ -309,62 +291,62 @@ function extract {
 
 case $OSTYPE in
 Win32)
-	# export CYGWIN=tty
+    # export CYGWIN=tty
     # unset PERL5DB since it gets set by active state which causes problems with
     # cygwin perl.
 
     unset PERL5DB
     export COLUMNS=80
-	  export SYSROOT=/${SYSTEMDRIVE/:/}
-	  export VIMRUNTIME=C:/Software/vim/vim74
-	  export VIM=$VIMRUNTIME/gvim.exe
-	  export EDITOR=`cygpath -iw $VIM`
-	  export CVSEDITOR=`cygpath -iw $VIM`
-	  export COMPILER=msvc6;
-	  export CDPATH=$SYSROOT/Software
-	  export P4EDITOR=`cygpath -iw $VIM`
+    export SYSROOT=/${SYSTEMDRIVE/:/}
+    export VIMRUNTIME=C:/Software/vim/vim74
+    export VIM=$VIMRUNTIME/gvim.exe
+    export EDITOR=$(cygpath -iw $VIM)
+    export CVSEDITOR=$(cygpath -iw $VIM)
+    export COMPILER=msvc6
+    export CDPATH=$SYSROOT/Software
+    export P4EDITOR=$(cygpath -iw $VIM)
     export CYGCOPYTOOLS_P4=1
     # as2 does not currently understand backslashes
-	# We don't modify any Fermi Cygwin install packages from their Cygwin default config.
-	# John Neil Mon 5/7/2007 4:12 PM
+    # We don't modify any Fermi Cygwin install packages from their Cygwin default config.
+    # John Neil Mon 5/7/2007 4:12 PM
 
     function gvim() {
-	    local arglist="";
-	    local f;
+        local arglist=""
+        local f
 
-	    for f
-	    do
-	        if [ -a $f ]
-	        then
-	            local p=`cygpath -iw $f`;
-	            arglist="$arglist $p"
-	        else
-	            arglist="$arglist $f"
-	        fi
-	    done
+        for f; do
+            if [ -a $f ]; then
+                local p=$(cygpath -iw $f)
+                arglist="$arglist $p"
+            else
+                arglist="$arglist $f"
+            fi
+        done
 
-	    # echo "edit $arglist"
+        # echo "edit $arglist"
 
-	   $VIM $arglist &
-	}
+        $VIM $arglist &
+    }
 
+    function iview() { $SYSROOT/Program\ Files/IrfanView/i_view32.exe $(cygpath -iw $@) & }
+    function tkdiff() { wish $(cygpath -iw $SYSROOT/bin/tkdiff.tcl) -- $@ & }
 
-	function iview() { $SYSROOT/Program\ Files/IrfanView/i_view32.exe `cygpath -iw $@` & }
-	function tkdiff() { wish `cygpath -iw $SYSROOT/bin/tkdiff.tcl` -- $@ & }
-
-	function start() {
-	    if [ -d $1 ]; then
-            explorer `cygpath -iaw $1` &
+    function start() {
+        if [ -d $1 ]; then
+            explorer $(cygpath -iaw $1) &
         else
-            cmd /c `cygpath -iaw $1` &
+            cmd /c $(cygpath -iaw $1) &
         fi
     }
 
-	function p4w() { p4win& }
+    function p4w() { p4win & }
 
     ;;
 
-Linux|linux-gnu)
+Linux | linux-gnu)
+    export GIT_ROOT=/mnt/wsl/projects/git
+    export XDG_CONFIG_HOME=$GIT_ROOT/dotfiles/
+    export XDG_DATA_HOME==/mnt/wsl/projects/data
     export DEFAULT_BROWSER=firefox
     export BROWSER=firefox
     export EDITOR=vim
@@ -375,31 +357,30 @@ Linux|linux-gnu)
     export SHELL=bash
     export ANTHROPIC_AUTH_TOKEN=ollama
     export ANTHROPIC_BASE_URL=http://localhost:11434
-    export GIT_ROOT=/mnt/wsl/projects/git
     # Inform your global login shells where to locate the user socket channel
     export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus"
     export DONT_PROMPT_WSL_INSTALL="1"
     # needed for warp-terminal which currenly does not appear to work with Wayland
-    # GDK_BACKEND = "x11" 
+    # GDK_BACKEND = "x11"
     # WAYLAND_DISPLAY = ""
 
     # Commit to perlbrew
     # use perlbrew use 5.20.1-007 to switch version
     # perlbrew info
 
-	#export VCS_HOME=/home/vcs/vcs5.2
-	#export VCS=/home/vcs/vcs5.2
-	#export VIRSIMHOME=/home/virsim
+    #export VCS_HOME=/home/vcs/vcs5.2
+    #export VCS=/home/vcs/vcs5.2
+    #export VIRSIMHOME=/home/virsim
     export XUSERFILESEARCHPATH=${XUSERFILESEARCHPATH}:$HOME/app-defaults/%N
-	#export VIRSIM_LICENSE_DIR=$VIRSIMHOME/license
-	#export LM_LICENSE_FILE=/home/virsim/license/license.dat
-	#export LM_LICENSE_FILE=${LM_LICENSE_FILE}:/home/vcs/license.dat.vcsd
-	#export VS=$VIRSIMHOME
-	#export VS_BIN=${VS}/bin
-	#export XNLSPATH=${VIRSIMHOME}/nls
-	export CDS_INST_DIR=/home/xl_98
-	export XL=/home/xl_98
-	export WDIR_OVERRIDE=1
+    #export VIRSIM_LICENSE_DIR=$VIRSIMHOME/license
+    #export LM_LICENSE_FILE=/home/virsim/license/license.dat
+    #export LM_LICENSE_FILE=${LM_LICENSE_FILE}:/home/vcs/license.dat.vcsd
+    #export VS=$VIRSIMHOME
+    #export VS_BIN=${VS}/bin
+    #export XNLSPATH=${VIRSIMHOME}/nls
+    export CDS_INST_DIR=/home/xl_98
+    export XL=/home/xl_98
+    export WDIR_OVERRIDE=1
     ;;
 SunOS)
     export MANPATH=/usr/local/man:/usr/share/man:/usr/perl5/man:/usr/local/lsf/man:/usr/X11R6/man:/usr/man
@@ -408,27 +389,43 @@ SunOS)
     export VISUAL=vim
     export VIEWER=vim
     export PAGER=less
-	#export VCS_HOME=/home/vcs/vcs5.2
-	#export VCS=/home/vcs/vcs5.2
-	#export VIRSIMHOME=/home/virsim
+    #export VCS_HOME=/home/vcs/vcs5.2
+    #export VCS=/home/vcs/vcs5.2
+    #export VIRSIMHOME=/home/virsim
     export XUSERFILESEARCHPATH=${XUSERFILESEARCHPATH}:$HOME/app-defaults/%N
-	#export VIRSIM_LICENSE_DIR=$VIRSIMHOME/license
-	#export LM_LICENSE_FILE=/home/virsim/license/license.dat
-	#export LM_LICENSE_FILE=${LM_LICENSE_FILE}:/home/vcs/license.dat.vcsd
-	#export VS=$VIRSIMHOME
-	#export VS_BIN=${VS}/bin
-	#export XNLSPATH=${VIRSIMHOME}/nls
-	export CDS_INST_DIR=/home/xl_98
-	export XL=/home/xl_98
-	export WDIR=/home/vcs/flexlm
-	export WDIR_OVERRIDE=1
+    #export VIRSIM_LICENSE_DIR=$VIRSIMHOME/license
+    #export LM_LICENSE_FILE=/home/virsim/license/license.dat
+    #export LM_LICENSE_FILE=${LM_LICENSE_FILE}:/home/vcs/license.dat.vcsd
+    #export VS=$VIRSIMHOME
+    #export VS_BIN=${VS}/bin
+    #export XNLSPATH=${VIRSIMHOME}/nls
+    export CDS_INST_DIR=/home/xl_98
+    export XL=/home/xl_98
+    export WDIR=/home/vcs/flexlm
+    export WDIR_OVERRIDE=1
     ;;
 IRIX64)
-    declare -x PATH=~/os-tools/bin:$PATH;
+    declare -x PATH=~/os-tools/bin:$PATH
     ;;
 *)
-    logmsg "Unknown OS type `uname`: .environment startup failed";
+    logmsg "Unknown OS type $(uname): .environment startup failed"
     ;;
 esac
 
 unset -f command_not_found_handle
+
+if [ -f $DOTFILES/bash/aliases.bash ]; then
+    source $DOTFILES/bash/aliases.bash
+fi
+
+if [ -f $DOTFILES/bash/ssh.bash ]; then
+    source $DOTFILES/bash/ssh.bash
+fi
+
+if [ -f $DOTFILES/bash/apt.bash ]; then
+    source $DOTFILES/bash/apt.bash
+fi
+
+if [ -f $DOTFILES/bash/vscode.bash ]; then
+    source $DOTFILES/bash/vscode.bash
+fi

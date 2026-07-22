@@ -46,6 +46,8 @@ in
   # Installs tools directly inside the user's execution profile path
   home.packages = with pkgs; [
     atool
+    bash-language-server
+    shellcheck # Required backend linter utilized by the Bash LSP
     black # Python formatters & linters
     bubblewrap # Sandboxing toolkit utility used for security boundaries
     chafa
@@ -69,8 +71,10 @@ in
     prettierd
     python314
     pyright
+    ranger
     ripgrep # Optimal regex finder for tools like Telescope/Nvim
     rustup # Includes cargo, rustc, etc.
+    shfmt # bash formatter
     slirp4netns # User-space network engine for rootless sandboxes
     stylua
     imagemagick
