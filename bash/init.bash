@@ -20,7 +20,8 @@ if [ -z ${PATH_BASE+x} ]; then
 fi
 
 SCRIPT_PATH="${BASH_SOURCE[0]}"
-export DOTFILES=$(dirname $(dirname $SCRIPT_PATH))
+export DOTFILES
+DOTFILES=$(dirname $(dirname ${SCRIPT_PATH}))
 # echo "SCRIPT_PATH=$SCRIPT_PATH"
 # echo "DOTFILES=$DOTFILES"
 
@@ -29,7 +30,8 @@ shopt -s direxpand
 
 export TZ=US/Pacific
 export DISPLAY=${DISPLAY:-"$(uname -n):0"}
-export HOSTNAME=$(hostname --fqdn)
+export HOSTNAME
+HOSTNAME=$(hostname --fqdn)
 
 # enable tab expansion
 # https://askubuntu.com/questions/1245285/bash-doesnt-expand-variables-when-pressing-tab-key
@@ -422,8 +424,8 @@ esac
 
 unset -f command_not_found_handle
 
-if [ -f $DOTFILES/bash/aliases.bash ]; then
-    source $DOTFILES/bash/aliases.bash
+if [ -f "$DOTFILES"/bash/aliases.bash ]; then
+    source "$DOTFILES"/bash/aliases.bash
 fi
 
 if [ -f $DOTFILES/bash/ssh.bash ]; then

@@ -4,7 +4,7 @@ echo "sourcing aliases"
 alias c=clear
 # report what clients I have
 alias p4clients="p4 clients -t -u mwoodpatrick"
-alias p4shelved="p4 changes -u $USER -s shelved"
+alias p4shelved="p4 changes -u \$USER -s shelved"
 # report latest changelist
 alias p4tot="p4 changes -m 1 ..."
 alias p4changes="p4 changes -t -m 20 |less"
@@ -24,7 +24,6 @@ alias cnd='cvs -n update -d'
 alias cndn='cvs -n update -d 2>&1 | grep New'
 alias demangle="c++filt"
 alias ds=dirs
-alias forge='/home/nv/utils/forge/1.0/bin/forge.pl $*'
 alias gv100r='cd /home/scratch.emu_gv100/gv100/regressions/systems'
 alias h=history
 alias ht='history | tail -50'
@@ -38,14 +37,12 @@ alias ltrt="ls -ltr | tail"
 alias pe=printenv
 alias rs='eval `resize`'
 alias hssh="ssh c823543-a.stcla1.sfba.home.com"
-alias s='cmd /c "start $1"'
 alias soc="source ~/.bashrc"
 alias up='cd ..'
 alias via="vi ~/.bash_aliases ; source ~/.bash_aliases"
 alias myps='ps -w -f -u $USER'
 alias mydf='df -k | grep "$USER"'
 alias vnc="/home/nv/bin/vncserver_high_ports.sh -alwaysshared -geometry 1600x1000 -depth 24"
-alias myvnc="grep $USER /tmp/vnc_totals"
 
 # Everyday administrative alias chains matching your layout requirements
 # Prefer nixos-rebuild boot for System Services: If you ever start modifying 
