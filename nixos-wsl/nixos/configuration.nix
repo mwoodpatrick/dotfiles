@@ -67,6 +67,7 @@
     luarocks
     mermaid-cli
     nodejs_26
+    neovide
     pnpm
     yarn
     ripgrep

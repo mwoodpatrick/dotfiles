@@ -42,9 +42,41 @@ in
 
   home.stateVersion = "26.05";
 
+  # [Fonts](https://nixos.wiki/wiki/Fonts)
+  fonts = {
+    fontconfig = {
+      enable = true;
+
+      defaultFonts = {
+        serif = [
+          "Liberation Serif"
+          "Vazirmatn"
+        ];
+        sansSerif = [
+          "Ubuntu"
+          "Vazirmatn"
+        ];
+        monospace = [
+          "Ubuntu Mono"
+          "JetBrainsMono Nerd Font"
+        ];
+      };
+    };
+  };
+
   # 2. User-specific CLI Toolsets
   # Installs tools directly inside the user's execution profile path
   home.packages = with pkgs; [
+    noto-fonts
+    noto-fonts-cjk-sans
+    noto-fonts-color-emoji
+    liberation_ttf
+    fira-code
+    fira-code-symbols
+    mplus-outline-fonts.githubRelease
+    nerdfix
+    dina-font
+    # proggyfonts
     atool
     bash-language-server
     shellcheck # Required backend linter utilized by the Bash LSP
