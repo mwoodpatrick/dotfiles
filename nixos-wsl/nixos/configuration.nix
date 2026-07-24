@@ -51,6 +51,42 @@
     };
   };
 
+  # [Fonts](https://nixos.wiki/wiki/Fonts)
+  fonts = {
+    enableDefaultPackages = true;
+    packages = with pkgs; [
+      noto-fonts
+      noto-fonts-cjk-sans
+      noto-fonts-color-emoji
+      liberation_ttf
+      fira-code
+      fira-code-symbols
+      mplus-outline-fonts.githubRelease
+      nerd-fonts.jetbrains-mono
+      dina-font
+      # proggyfonts
+    ];
+
+    fontconfig = {
+      enable = true;
+
+      defaultFonts = {
+        serif = [
+          "Liberation Serif"
+          "Vazirmatn"
+        ];
+        sansSerif = [
+          "Ubuntu"
+          "Vazirmatn"
+        ];
+        monospace = [
+          "Ubuntu Mono"
+          "JetBrainsMono Nerd Font"
+        ];
+      };
+    };
+  };
+
   # Essential build tools and utilities required by modern Neovim plugins
   # (e.g., Mason compilation, Treesitter parsers, and Telescope searching)
   environment.systemPackages = with pkgs; [
@@ -66,6 +102,7 @@
     lua5_1
     luarocks
     mermaid-cli
+    nerdfix
     nodejs_26
     neovide
     pnpm
