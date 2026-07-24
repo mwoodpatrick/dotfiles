@@ -75,6 +75,7 @@ in
     fira-code-symbols
     mplus-outline-fonts.githubRelease
     nerdfix
+    nerd-fonts.jetbrains-mono
     dina-font
     # proggyfonts
     atool
