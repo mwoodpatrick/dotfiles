@@ -11,7 +11,7 @@ alias p4changes="p4 changes -t -m 20 |less"
 # report what cl we want
 function p4want {
     echo "want:"
-    p4 describe $1|head -1
+    p4 describe $1 | head -1
     echo "have:"
     p4 changes -m 1 ...#have
 }
@@ -45,22 +45,24 @@ alias mydf='df -k | grep "$USER"'
 alias vnc="/home/nv/bin/vncserver_high_ports.sh -alwaysshared -geometry 1600x1000 -depth 24"
 
 # Everyday administrative alias chains matching your layout requirements
-# Prefer nixos-rebuild boot for System Services: If you ever start modifying 
-# core system-level services (like networking, DBus, or kernel modules), 
-# use sudo nixos-rebuild boot instead of switch. It’s safer and avoids the 
+# Prefer nixos-rebuild boot for System Services: If you ever start modifying
+# core system-level services (like networking, DBus, or kernel modules),
+# use sudo nixos-rebuild boot instead of switch. It’s safer and avoids the
 # need for live-reloading complex systemd-user states.
-alias nix-switch="sudo nixos-rebuild switch --flake $GIT_ROOT/dotfiles/nixos-wsl/nixos/#nixos";
-alias nix-boot="sudo nixos-rebuild boot --flake $GIT_ROOT/dotfiles/nixos-wsl/nixos/#nixos";
-alias nix-update="nix flake update --flake $GIT_ROOT/dotfiles/nixos-wsl/nixos";
+alias nix-switch="sudo nixos-rebuild switch --flake \$GIT_ROOT/dotfiles/nixos-wsl/nixos/#nixos"
+alias nix-boot="sudo nixos-rebuild boot --flake \$GIT_ROOT/dotfiles/nixos-wsl/nixos/#nixos"
+alias nix-update="nix flake update --flake \$GIT_ROOT/dotfiles/nixos-wsl/nixos"
+alias nix-check="nix flake check \$GIT_ROOT/dotfiles/nixos-wsl/nixos"
+alias nix-generations="sudo nixos-rebuild list-generations"
+alias nix-gc="sudo nix-collect-garbage --delete-older-than 1d"
 
-alias g="git";
-alias v="nvim";
-alias ".."="cd ..";
+alias g="git"
+alias v="nvim"
+alias ".."="cd .."
 
 # ff - find string in files. $1 = directory, $2 = pattern
-ff ()
-{
-	find $1 -exec grep -si $2 \{\} \; -print
+ff() {
+    find $1 -exec grep -si $2 \{\} \; -print
 }
 
 #   nvrun projectteam
@@ -75,7 +77,7 @@ function record_projectname() {
         nvprojectname save . business=gpu group=hwinf team=content subteam=class
     fi
     # gpu_ga100_hwinf_content_mods
-    projectname=`nvprojectname resolve`
+    projectname=$(nvprojectname resolve)
     export PROJECT=$projectname
     echo "nvprojectname=$projectname"
     cat .nvprojectname
@@ -110,12 +112,12 @@ alias diskusage="du -sh \$(ls -A) | sort -hr | head"
 
 case $OSTYPE in
 Win32)
-	# no 'more' on cygwin
-	alias more=less;
-	alias bj="rsh -l $USER l-xterm-1 bjobs"
-	alias bjw="rsh -l $USER l-xterm-1 bjobs -w"
-	alias bjp="rsh -l $USER l-xterm-1 bjobs -p"
-	alias bq="rsh -l $USER l-xterm-1 bq"
+    # no 'more' on cygwin
+    alias more=less
+    alias bj="rsh -l $USER l-xterm-1 bjobs"
+    alias bjw="rsh -l $USER l-xterm-1 bjobs -w"
+    alias bjp="rsh -l $USER l-xterm-1 bjobs -p"
+    alias bq="rsh -l $USER l-xterm-1 bq"
     # alias p4='env PWD="`echo $PWD | cygpath -w -f -`" p4'
     ;;
 

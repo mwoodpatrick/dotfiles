@@ -25,6 +25,14 @@
   wsl.enable = true;
   wsl.defaultUser = "mwoodpatrick";
 
+  # [nix.gc](https://mynixos.com/nixpkgs/options/nix.gc)
+  nix.gc = {
+    automatic = true;
+    dates = "weekly"; # or "daily"
+    options = "--delete-older-than 30d";
+    # fred = 23; # enable for flake check
+  };
+
   # Enable the Docker daemon service
   virtualisation.docker = {
     enable = true;
@@ -160,6 +168,7 @@
 
   # Enable the foundational D-Bus system services
   services.dbus.enable = true;
+  # services.nonexistentoption.enable = true; # enable for flake check
 
   # Ensure the systemd user manager is properly configured to linger
   # This allows systemd to manage user services even when you aren't logged in
