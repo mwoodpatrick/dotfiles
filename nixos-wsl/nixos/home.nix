@@ -66,6 +66,7 @@ in
     nil # fast, lightweight nix language server
     nixd # nix langiage server with deep-introspection features
     nixfmt
+    obsidian
     prettier # Web/JavaScript formatters
     prettierd
     python314

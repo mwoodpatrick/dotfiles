@@ -5,3 +5,6 @@ vscode
 !vscode/User/keybindings.json
 !vscode/User/snippets/
 !vscode/User/extensions.json
+# Obsidian local caches and state
+obsidian
+.obsidian
