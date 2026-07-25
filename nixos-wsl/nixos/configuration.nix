@@ -25,6 +25,11 @@
   wsl.enable = true;
   wsl.defaultUser = "mwoodpatrick";
 
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+  };
+
   # [nix.gc](https://mynixos.com/nixpkgs/options/nix.gc)
   nix.gc = {
     automatic = true;
