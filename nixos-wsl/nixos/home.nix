@@ -44,6 +44,7 @@ in
 
   # Installs tools directly inside the user's execution profile path
   home.packages = with pkgs; [
+    pkgs.aider-chat
     atool
     bash-language-server
     shellcheck # Required backend linter utilized by the Bash LSP
@@ -78,7 +79,7 @@ in
     slirp4netns # User-space network engine for rootless sandboxes
     stylua
     imagemagick
-    opencode
+    unstable.opencode
     tree-sitter
     unstable.warp-terminal
     # Inject Wayland Libraries

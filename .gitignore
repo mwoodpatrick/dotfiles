@@ -8,3 +8,4 @@ vscode
 # Obsidian local caches and state
 obsidian
 .obsidian
+.aider*
