@@ -70,7 +70,12 @@ in
     obsidian
     prettier # Web/JavaScript formatters
     prettierd
-    python314
+    (python314.withPackages (ps: [
+      ps.requests
+      ps.pandas
+      ps.numpy
+      ps.ollama
+    ]))
     pyright
     ranger
     ripgrep # Optimal regex finder for tools like Telescope/Nvim
