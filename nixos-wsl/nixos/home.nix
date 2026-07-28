@@ -54,7 +54,7 @@ in
     claude-code
     codex
     fd # Fast user directory scanner dependency
-    file  # Provides the core `file` utility binary
+    file # Provides the core `file` utility binary
     fortune
     gemini-cli
     git
@@ -65,6 +65,7 @@ in
     isort # Python formatters & linters
     kitty
     lazygit
+    lsof
     nil # fast, lightweight nix language server
     nixd # nix langiage server with deep-introspection features
     nixfmt
@@ -83,7 +84,7 @@ in
     rustup # Includes cargo, rustc, etc.
     shfmt # bash formatter
     slirp4netns # User-space network engine for rootless sandboxes
-    sqlite  # Provides both the CLI utility and sqlite3 libraries
+    sqlite # Provides both the CLI utility and sqlite3 libraries
     stylua
     imagemagick
     unstable.opencode
@@ -95,7 +96,7 @@ in
     wezterm
     viu
     ueberzugpp
-    yq-go  # Provides a reliable YAML processor/parser
+    yq-go # Provides a reliable YAML processor/parser
   ];
 
   # 3. Automated Git Architecture Configurations
