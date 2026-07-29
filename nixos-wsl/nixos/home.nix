@@ -65,6 +65,7 @@ in
     isort # Python formatters & linters
     kitty
     lazygit
+    lmstudio
     lsof
     nil # fast, lightweight nix language server
     nixd # nix langiage server with deep-introspection features
