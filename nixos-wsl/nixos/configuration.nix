@@ -111,12 +111,12 @@
     git
     gnumake
     inputs.claude-code-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
-    lua-language-server
     lua5_1
     luarocks
     mermaid-cli
     nerdfix
     nodejs_26
+    vscode-langservers-extracted    # Provides css, html & json-languageservers
     neovide
     pnpm
     yarn

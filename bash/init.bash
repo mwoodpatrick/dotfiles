@@ -347,7 +347,7 @@ Win32)
 
 Linux | linux-gnu)
     export GIT_ROOT=/mnt/wsl/projects/git
-        # environment variable defined by the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/latest/] (created by freedesktop.org)
+    # environment variable defined by the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/latest/] (created by freedesktop.org)
     # base directory relative to which user-specific configuration files should be stored.
     export XDG_CONFIG_HOME=$GIT_ROOT/dotfiles/
     # base directory for user-specific data files (analogous to system-wide directories like /usr/share/
@@ -391,6 +391,10 @@ Linux | linux-gnu)
     export CDS_INST_DIR=/home/xl_98
     export XL=/home/xl_98
     export WDIR_OVERRIDE=1
+    export OLLAMA_MODELS=/var/lib/ollama/models
+    export OLLAMA_ENDPOINT="http://localhost:11434/v1"
+    export LM_STUDIO_MODELS="$HOME/.lmstudio/models"
+    export LMSTUDIO_ENDPOINT="http://localhost:1234/v1"
     ;;
 SunOS)
     export MANPATH=/usr/local/man:/usr/share/man:/usr/perl5/man:/usr/local/lsf/man:/usr/X11R6/man:/usr/man

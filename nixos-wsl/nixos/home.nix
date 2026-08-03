@@ -46,7 +46,6 @@ in
   home.packages = with pkgs; [
     pkgs.aider-chat
     atool
-    bash-language-server
     shellcheck # Required backend linter utilized by the Bash LSP
     black # Python formatters & linters
     bubblewrap # Sandboxing toolkit utility used for security boundaries
@@ -63,6 +62,7 @@ in
     httpie
     htop
     isort # Python formatters & linters
+    jq # Essential CLI JSON processor
     kitty
     lazygit
     lmstudio
@@ -91,7 +91,6 @@ in
     unstable.opencode
     tree-sitter
     unstable.warp-terminal
-    # Inject Wayland Libraries
     wayland
     wayland-utils
     wezterm
