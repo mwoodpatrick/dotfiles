@@ -443,3 +443,7 @@ fi
 if [ -f $DOTFILES/bash/vscode.bash ]; then
     source $DOTFILES/bash/vscode.bash
 fi
+
+# echo "finished init.bash"
+# enable direnv
+eval "$(direnv hook bash)"

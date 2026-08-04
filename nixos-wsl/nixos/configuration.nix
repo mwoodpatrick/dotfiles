@@ -116,6 +116,7 @@
     mermaid-cli
     nerdfix
     nodejs_26
+    openai
     vscode-langservers-extracted    # Provides css, html & json-languageservers
     neovide
     pnpm
