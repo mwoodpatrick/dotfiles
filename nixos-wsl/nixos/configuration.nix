@@ -24,6 +24,9 @@
   # Core architecture switches mapping the guest VM parameters
   wsl.enable = true;
   wsl.defaultUser = "mwoodpatrick";
+  # This tells the NixOS-WSL builder to dynamically generate 
+  # a valid wsl.conf with interop turned off during system activation
+  wsl.interop.includePath = false;
 
   hardware.graphics = {
     enable = true;
@@ -111,6 +114,7 @@
     git
     gnumake
     inputs.claude-code-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
+    kmod # Provides lsmod, modprobe, rmmod, etc
     lua5_1
     luarocks
     mermaid-cli

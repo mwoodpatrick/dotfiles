@@ -66,6 +66,7 @@ in
     kitty
     lazygit
     lmstudio
+    lua-language-server
     lsof
     nil # fast, lightweight nix language server
     nixd # nix langiage server with deep-introspection features
@@ -78,6 +79,7 @@ in
       ps.pandas
       ps.numpy
       ps.ollama
+      ps.matplotlib
     ]))
     pyright
     ranger
