@@ -30,6 +30,9 @@
 
     # Official Hermes Agent Flake
     hermes-agent.url = "github:NousResearch/hermes-agent";
+
+    # Secrets management for NixOS
+    sops-nix.url = "github:convolutional/sops-nix";
   };
 
   # system' has been renamed to/replaced by 'stdenv.hostPlatform.system'
