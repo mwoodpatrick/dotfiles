@@ -114,7 +114,16 @@
     tectonic
     wget
     kmod # Provides lsmod, modprobe, rmmod, etc
+    age # Provides age and age-keygen
+    sops # Secrets management CLI
   ];
+
+  # Secrets Management (sops-nix)
+  sops = {
+    defaultSopsFile = ./secrets.yaml;
+    age.keyFile = "/home/mwoodpatrick/.config/sops/age/keys.txt";
+    secrets.ollama_api_key = {};
+  };
 
   # Centralized tool management frameworks
   programs = {
@@ -234,6 +243,8 @@
         backend = "local";
         timeout = 180;
       };
+      # Use the decrypted sops secret for authentication
+      env.OLLAMA_API_KEY = "/run/secrets/ollama_api_key";
     };
 
     # Exposes the 'hermes' CLI tool globally in your system PATH

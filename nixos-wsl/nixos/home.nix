@@ -50,7 +50,6 @@ in
     black # Python formatters & linters
     bubblewrap # Sandboxing toolkit utility used for security boundaries
     chafa
-    claude-code
     codex
     fd # Fast user directory scanner dependency
     file # Provides the core `file` utility binary
@@ -103,6 +102,7 @@ in
     fd
     fzf
     git
+    # claude-code
     inputs.claude-code-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
     lua5_1
     luarocks

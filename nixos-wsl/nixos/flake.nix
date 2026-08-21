@@ -32,7 +32,10 @@
     hermes-agent.url = "github:NousResearch/hermes-agent";
 
     # Secrets management for NixOS
-    sops-nix.url = "github:convolutional/sops-nix";
+    # sops-nix.url = "github:convolutional/sops-nix";
+    # Add sops-nix input
+    sops-nix.url = "github:Mic92/sops-nix";
+    sops-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   # system' has been renamed to/replaced by 'stdenv.hostPlatform.system'
@@ -44,6 +47,7 @@
       nixos-wsl,
       home-manager,
       hermes-agent,
+      sops-nix,
       ...
     }@inputs:
     let
@@ -64,6 +68,9 @@
 
             # Pulls in necessary architecture optimizations for running under Windows Hyper-V
             nixos-wsl.nixosModules.default
+
+            # Import the sops-nix system module
+            sops-nix.nixosModules.sops
 
             # Links your core layout options file directly into the graph
             ./configuration.nix
