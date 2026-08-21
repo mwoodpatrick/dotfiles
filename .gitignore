@@ -1,12 +1,63 @@
-*.swp
+# General Git Ignore
+.DS_Store
+Thumbs.db
 *.log
-vscode
-!vscode/User/settings.json
-!vscode/User/keybindings.json
-!vscode/User/snippets/
-!vscode/User/extensions.json
-# Obsidian local caches and state
-obsidian
-.obsidian
-.aider*
-LM*Studio
+*.tmp
+*.swp
+*.swo
+
+# Nix / Flakes
+result
+flake-lock.pub
+
+# AI & LLM Tooling Caches
+**/Cache/
+**/GPUCache/
+**/blob_storage/
+**/Local Storage/
+**/Session Storage/
+**/Shared Dictionary/
+**/Crashpad/
+**/DawnGraphiteCache/
+**/DawnWebGPUCache/
+**/Dictionaries/
+**/IndexedDB/
+
+# Obsidian
+.obsidian/workspace*
+.obsidian/cache/
+
+# VS Code
+.vscode/
+.history/
+**/User/History/
+**/User/globalStorage/vscode-redhat-telemetry/cache/
+**/workspaceStorage/
+
+# LM Studio
+LM Studio/
+LM-Studio/
+**/logs/
+
+# Node / Opencode
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+.pytest_cache/
+
+# Neovim / Lua
+.netrwhist
+undo/
+# Keep nvim-pack-lock.json but ignore local state
+# .nvim_state/

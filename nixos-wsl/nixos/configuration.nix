@@ -107,35 +107,13 @@
   # (e.g., Mason compilation, Treesitter parsers, and Telescope searching)
   environment.systemPackages = with pkgs; [
     pciutils
-    fd
-    fzf
     gcc
     ghostscript
-    git
     gnumake
-    inputs.claude-code-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
-    kmod # Provides lsmod, modprobe, rmmod, etc
-    lua5_1
-    luarocks
     mermaid-cli
-    nerdfix
-    nodejs_26
-    openai
-    vscode-langservers-extracted # Provides css, html & json-languageservers
-    neovide
-    pnpm
-    yarn
-    ripgrep
-    tmux
-    unzip
     tectonic
     wget
-    pkgs-unstable.neovim
-    pkgs-unstable.ollama
-    trash-cli
-    xdg-utils
-    inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.default
-    inputs.nix-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
+    kmod # Provides lsmod, modprobe, rmmod, etc
   ];
 
   # Centralized tool management frameworks

@@ -99,6 +99,29 @@ in
     viu
     ueberzugpp
     yq-go # Provides a reliable YAML processor/parser
+    # Migrated from configuration.nix
+    fd
+    fzf
+    git
+    inputs.claude-code-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
+    lua5_1
+    luarocks
+    nerdfix
+    nodejs_26
+    openai
+    vscode-langservers-extracted
+    neovide
+    pnpm
+    yarn
+    ripgrep
+    tmux
+    unzip
+    pkgs-unstable.neovim
+    pkgs-unstable.ollama
+    trash-cli
+    xdg-utils
+    inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.default
+    inputs.nix-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
 
   # 3. Automated Git Architecture Configurations
