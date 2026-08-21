@@ -102,8 +102,8 @@ in
     fd
     fzf
     git
-    # claude-code
-    inputs.claude-code-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
+    claude-code
+    # inputs.claude-code-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
     lua5_1
     luarocks
     nerdfix
