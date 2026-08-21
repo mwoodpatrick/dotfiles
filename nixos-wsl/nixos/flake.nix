@@ -27,13 +27,26 @@
 
     # nix-agent
     nix-agent.url = "github:JEFF7712/nix-agent";
+
+    # Official Hermes Agent Flake
+    hermes-agent.url = "github:NousResearch/hermes-agent";
   };
 
   # system' has been renamed to/replaced by 'stdenv.hostPlatform.system'
-  outputs = { self, nixpkgs, nixpkgs-unstable, nixos-wsl, home-manager, ... }@inputs:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      nixpkgs-unstable,
+      nixos-wsl,
+      home-manager,
+      hermes-agent,
+      ...
+    }@inputs:
     let
       system = "x86_64-linux";
-    in {
+    in
+    {
       nixosConfigurations = {
         # This string must match your target system identifier attribute node
         nixos = nixpkgs.lib.nixosSystem {
@@ -43,12 +56,15 @@
           specialArgs = { inherit inputs; };
 
           modules = [
+            # Pull in the Hermes module
+            hermes-agent.nixosModules.default
+
             # Pulls in necessary architecture optimizations for running under Windows Hyper-V
             nixos-wsl.nixosModules.default
 
             # Links your core layout options file directly into the graph
             ./configuration.nix
-            
+
             # Machine-specific storage block mounts mapping file
             # ./hardware-configuration.nix
 
@@ -72,7 +88,7 @@
               # This makes 'inputs' available specifically to your home.nix
               home-manager.extraSpecialArgs = { inherit inputs; };
               # Replace with your local system user name string
-              home-manager.users.mwoodpatrick = import ./home.nix; 
+              home-manager.users.mwoodpatrick = import ./home.nix;
             }
           ];
         };

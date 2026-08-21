@@ -24,7 +24,7 @@
   # Core architecture switches mapping the guest VM parameters
   wsl.enable = true;
   wsl.defaultUser = "mwoodpatrick";
-  # This tells the NixOS-WSL builder to dynamically generate 
+  # This tells the NixOS-WSL builder to dynamically generate
   # a valid wsl.conf with interop turned off during system activation
   wsl.interop.includePath = false;
 
@@ -121,7 +121,7 @@
     nerdfix
     nodejs_26
     openai
-    vscode-langservers-extracted    # Provides css, html & json-languageservers
+    vscode-langservers-extracted # Provides css, html & json-languageservers
     neovide
     pnpm
     yarn
@@ -243,6 +243,26 @@
     # Expose the API surface cleanly across internal WSL networking layers if needed
     host = "0.0.0.0";
     port = 11434;
+  };
+
+  services.hermes-agent = {
+    enable = true;
+
+    # Choose your default model (e.g., routing through local Ollama or OpenRouter)
+    settings = {
+      model.default = "ollama/gemma4";
+      toolsets = [ "all" ];
+      terminal = {
+        backend = "local";
+        timeout = 180;
+      };
+    };
+
+    # Exposes the 'hermes' CLI tool globally in your system PATH
+    addToSystemPackages = true;
+
+    # Optional: Enable container mode if the agent needs to run arbitrary package managers
+    # container.enable = true;
   };
 
   # This value determines the NixOS release from which the default
