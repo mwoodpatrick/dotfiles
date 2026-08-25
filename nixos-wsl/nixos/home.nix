@@ -74,11 +74,12 @@ in
     prettier # Web/JavaScript formatters
     prettierd
     (python314.withPackages (ps: [
-      ps.requests
-      ps.pandas
+      ps.firecrawl-py
+      ps.matplotlib
       ps.numpy
       ps.ollama
-      ps.matplotlib
+      ps.pandas
+      ps.requests
     ]))
     pyright
     ranger

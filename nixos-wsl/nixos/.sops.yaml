@@ -1,0 +1,36 @@
+keys:
+  # Your personal age public key (from age-keygen -y ~/.config/sops/age/keys.txt)
+  - &personal_age_key age13fhryh520fkhrc4c3yx4lexznv36knn8am76kkc20vcmn62f7g2sy8meh9
+  - &host_age age1nnp0rxyz6ydzu2lahpyw6zfcja29jvfud54tz3xh3l8gx4t44v2qg9ln9z
+
+  # You can also use PGP keys if you prefer, but age is often simpler
+  # - &personal_pgp_key 0xDEADBEEFCAFE0123
+
+creation_rules:
+  # This rule applies to any file named 'secrets.yaml' directly in the 'secrets/' directory
+  # or 'secrets/github-deploy-key.yaml' etc.
+  - path_regex: "secrets/.*\\.yaml$"
+    key_groups:
+      - age:
+          - *personal_age_key
+        # Add host keys for decryption on the target system
+        # sops-nix will automatically pick up the system's SSH host keys
+        # as decryption keys if enabled in your NixOS config.
+        # So you typically don't list them explicitly here unless you
+        # want to restrict it to specific fingerprints, which is rare.
+        # This part ensures your *personal* key can decrypt it.
+
+  - path_regex: "secrets/.*\\.json$"
+    key_groups:
+      - age:
+          - *personal_age_key
+
+  - path_regex: hermes/env\.enc\.yaml$
+    key_groups:
+      - age:
+          - *host_age
+
+  - path_regex: hermes/.*\.env$
+    key_groups:
+      - age:
+          - *host_age

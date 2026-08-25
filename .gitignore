@@ -10,6 +10,32 @@ Thumbs.db
 result
 flake-lock.pub
 
+# exclude the keyfile
+nixos-wsl/nixos/sops/age/keyFile.txt
+
+# Hermes
+hermes/.env
+hermes/auth.json
+hermes/logs/
+hermes/sessions/
+hermes/*.log
+hermes/.DS_Store
+hermes/.hermes_history
+hermes/.skills_prompt_snapshot.json
+hermes/.update_check
+hermes/auth.lock
+hermes/bin/
+hermes/cache/
+hermes/config.yaml.bak.20260822_093421
+hermes/models_dev_cache.etag
+hermes/models_dev_cache.json
+hermes/ollama_cloud_models_cache.json
+hermes/provider_models_cache.json
+hermes/state.db
+hermes/state.db-shm
+hermes/state.db-wal
+hermes/terminal-sessions/
+
 # AI & LLM Tooling Caches
 **/Cache/
 **/GPUCache/

@@ -115,14 +115,66 @@
     wget
     kmod # Provides lsmod, modprobe, rmmod, etc
     age # Provides age and age-keygen
+    ssh-to-age # Convert ssh private keys in ed25519 format to age keys
     sops # Secrets management CLI
+    at-spi2-core
+    glib # C library of programming buildings blocks
+    xdotool # Fake keyboard/mouse input, window management, and more.if using X11 routing fallback
   ];
 
   # Secrets Management (sops-nix)
+  # [Sops-Nix encrypted secrets](https://saylesss88.github.io/installation/enc/sops-nix.html)
+  # [Sops-nix options](https://dl.thalheim.io/)
   sops = {
-    defaultSopsFile = ./secrets.yaml;
-    age.keyFile = "/home/mwoodpatrick/.config/sops/age/keys.txt";
-    secrets.ollama_api_key = {};
+    # This will add secrets.yml to the nix store
+    # You can avoid this by adding a string to the full path instead, i.e.
+    # sops.defaultSopsFile = "/root/.sops/secrets/example.yaml";
+    # should be checked into repo
+    defaultSopsFile = ./secrets/secrets.yaml;
+    # defaultSopsFile = ./secrets.yaml;
+    # This will automatically import SSH keys as age keys
+    # age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+    # This is using an age key that is expected to already be in the filesystem
+    # age.keyFile = "/var/lib/sops-nix/key.txt";
+    # age.keyFile = "/home/mwoodpatrick/.config/sops/age/keys.txt";
+    # Path to age key file used for sops decryptio (should not be checked into repo and be an absolute path)
+    age.keyFile = "/mnt/wsl/projects/git/dotfiles/nixos-wsl/nixos/sops/age/keyFile.txt";
+    # This will generate a new key if the key specified above does not exist
+    age.generateKey = true;
+
+    # Declare every key from your YAML file you want extracted:
+    secrets = {
+      # This is the actual specification of the secrets.
+      ollama_api_key = { };
+      hello = { };
+      example_array = {
+        owner = "mwoodpatrick";
+        mode = "0400";
+        format = "yaml";
+        sopsFile = ./secrets/secrets.yaml;
+      };
+      example_number = { };
+      example_booleans = { };
+      # Nested key (extracts 'password' from under 'database'):
+      "db-password" = {
+        format = "yaml"; # Optional: default is yaml
+        key = "database/password";
+        sopsFile = ./secrets/secrets.yaml;
+      };
+
+      # secrets stored in json file
+      "ANTHROPIC_API_KEY" = {
+        format = "json";
+        sopsFile = ./secrets/secrets.json;
+      };
+
+      # Debug me
+# "redis-token" = {
+#   format = "json";
+#   key = "services/redis";
+#   sopsFile = ./secrets/secrets.json;
+# };
+    };
   };
 
   # Centralized tool management frameworks

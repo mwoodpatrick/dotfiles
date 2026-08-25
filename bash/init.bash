@@ -22,6 +22,9 @@ fi
 SCRIPT_PATH="${BASH_SOURCE[0]}"
 export DOTFILES
 DOTFILES=$(dirname $(dirname ${SCRIPT_PATH}))
+export SOPS_AGE_KEY_FILE=$DOTFILES/nixos-wsl/nixos/sops/age/keyFile.txt
+export HERMES_HOME=$DOTFILES/hermes
+
 # echo "SCRIPT_PATH=$SCRIPT_PATH"
 # echo "DOTFILES=$DOTFILES"
 
