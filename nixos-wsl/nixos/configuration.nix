@@ -126,12 +126,12 @@
   # [Sops-Nix encrypted secrets](https://saylesss88.github.io/installation/enc/sops-nix.html)
   # [Sops-nix options](https://dl.thalheim.io/)
   sops = {
+    # Default sops file used for all secrets.
     # This will add secrets.yml to the nix store
-    # You can avoid this by adding a string to the full path instead, i.e.
-    # sops.defaultSopsFile = "/root/.sops/secrets/example.yaml";
     # should be checked into repo
     defaultSopsFile = ./secrets/secrets.yaml;
-    # defaultSopsFile = ./secrets.yaml;
+    # Default sops format used for all secrets
+    defaultSopsFormat = "yaml";
     # This will automatically import SSH keys as age keys
     # age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
     # This is using an age key that is expected to already be in the filesystem
@@ -145,21 +145,22 @@
     # Declare every key from your YAML file you want extracted:
     secrets = {
       # This is the actual specification of the secrets.
-      ollama_api_key = { };
+      OLLAMA_API_KEY = {
+        owner = "mwoodpatrick";
+        mode = "0400";
+        format = "yaml";
+      };
       hello = { };
       example_array = {
         owner = "mwoodpatrick";
         mode = "0400";
         format = "yaml";
-        sopsFile = ./secrets/secrets.yaml;
       };
       example_number = { };
       example_booleans = { };
       # Nested key (extracts 'password' from under 'database'):
       "db-password" = {
-        format = "yaml"; # Optional: default is yaml
         key = "database/password";
-        sopsFile = ./secrets/secrets.yaml;
       };
 
       # secrets stored in json file
@@ -169,11 +170,11 @@
       };
 
       # Debug me
-# "redis-token" = {
-#   format = "json";
-#   key = "services/redis";
-#   sopsFile = ./secrets/secrets.json;
-# };
+      # "redis-token" = {
+      #   format = "json";
+      #   key = "services/redis";
+      #   sopsFile = ./secrets/secrets.json;
+      # };
     };
   };
 
@@ -296,7 +297,7 @@
         timeout = 180;
       };
       # Use the decrypted sops secret for authentication
-      env.OLLAMA_API_KEY = "/run/secrets/ollama_api_key";
+      env.OLLAMA_API_KEY = "/run/secrets/OLLAMA_API_KEY";
     };
 
     # Exposes the 'hermes' CLI tool globally in your system PATH

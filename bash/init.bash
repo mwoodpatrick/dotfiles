@@ -22,8 +22,6 @@ fi
 SCRIPT_PATH="${BASH_SOURCE[0]}"
 export DOTFILES
 DOTFILES=$(dirname $(dirname ${SCRIPT_PATH}))
-export SOPS_AGE_KEY_FILE=$DOTFILES/nixos-wsl/nixos/sops/age/keyFile.txt
-export HERMES_HOME=$DOTFILES/hermes
 
 # echo "SCRIPT_PATH=$SCRIPT_PATH"
 # echo "DOTFILES=$DOTFILES"
@@ -394,8 +392,11 @@ Linux | linux-gnu)
     export CDS_INST_DIR=/home/xl_98
     export XL=/home/xl_98
     export WDIR_OVERRIDE=1
+    export SOPS_AGE_KEY_FILE=$DOTFILES/nixos-wsl/nixos/sops/age/keyFile.txt
+    export OLLAMA_HOST="https://ollama.com"
     export OLLAMA_MODELS=/var/lib/ollama/models
     export OLLAMA_ENDPOINT="http://localhost:11434/v1"
+    export HERMES_HOME=$DOTFILES/hermes
     export LM_STUDIO_MODELS="$HOME/.lmstudio/models"
     export LMSTUDIO_ENDPOINT="http://localhost:1234/v1"
     ;;
