@@ -401,6 +401,9 @@ Linux | linux-gnu)
     export HERMES_HOME=$DOTFILES/hermes
     export LM_STUDIO_MODELS="$HOME/.lmstudio/models"
     export LMSTUDIO_ENDPOINT="http://localhost:1234/v1"
+    if [ -r $OLLAMA_API_KEY_FILE ]; then
+        export OLLAMA_API_KEY="$(cat $OLLAMA_API_KEY_FILE)"
+    fi
     ;;
 SunOS)
     export MANPATH=/usr/local/man:/usr/share/man:/usr/perl5/man:/usr/local/lsf/man:/usr/X11R6/man:/usr/man
