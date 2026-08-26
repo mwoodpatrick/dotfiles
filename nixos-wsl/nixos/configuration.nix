@@ -110,6 +110,7 @@
     gcc
     ghostscript
     gnumake
+    inputs.hermes-agent.packages.${pkgs.system}.default
     mermaid-cli
     tectonic
     wget
