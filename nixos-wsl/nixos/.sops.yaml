@@ -1,6 +1,7 @@
 keys:
-  # Your personal age public key (from age-keygen -y ~/.config/sops/age/keys.txt)
+  # Your personal age public key (from age-keygen -y $SOPS_AGE_KEY_FILE or ~/.config/sops/age/keys.txt)
   - &personal_age_key age13fhryh520fkhrc4c3yx4lexznv36knn8am76kkc20vcmn62f7g2sy8meh9
+  - &mlwpenvy360 age1u7g3gtp5w8s50d2j5dcd9u0qzxlkq4ssyffptajzjmhc0290ddwqffl46f
   - &host_age age1nnp0rxyz6ydzu2lahpyw6zfcja29jvfud54tz3xh3l8gx4t44v2qg9ln9z
 
   # You can also use PGP keys if you prefer, but age is often simpler
@@ -13,6 +14,7 @@ creation_rules:
     key_groups:
       - age:
           - *personal_age_key
+          - *mlwpenvy360
         # Add host keys for decryption on the target system
         # sops-nix will automatically pick up the system's SSH host keys
         # as decryption keys if enabled in your NixOS config.
@@ -24,13 +26,4 @@ creation_rules:
     key_groups:
       - age:
           - *personal_age_key
-
-  - path_regex: hermes/env\.enc\.yaml$
-    key_groups:
-      - age:
-          - *host_age
-
-  - path_regex: hermes/.*\.env$
-    key_groups:
-      - age:
-          - *host_age
+          - *mlwpenvy360

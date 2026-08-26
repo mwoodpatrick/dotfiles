@@ -392,7 +392,9 @@ Linux | linux-gnu)
     export CDS_INST_DIR=/home/xl_98
     export XL=/home/xl_98
     export WDIR_OVERRIDE=1
-    export SOPS_AGE_KEY_FILE=$DOTFILES/nixos-wsl/nixos/sops/age/keyFile.txt
+    export NIXOS_CONFIG_ROOT=$DOTFILES/nixos-wsl/nixos
+    export SOPS_AGE_KEY_FILE=$NIXOS_CONFIG_ROOT/sops/age/keyFile.txt
+    export SOPS_SECRETS=$NIXOS_CONFIG_ROOT/secrets
     export OLLAMA_HOST="https://ollama.com"
     export OLLAMA_MODELS=/var/lib/ollama/models
     export OLLAMA_ENDPOINT="http://localhost:11434/v1"
