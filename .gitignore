@@ -59,18 +59,16 @@ hermes/skills/.usage.json.lock
 **/Dictionaries/
 **/IndexedDB/
 
-# Obsidian
+# Obsidian dynamic metadata and caches
 .obsidian/workspace*
 .obsidian/cache/
-.obsidian/*.log
-.obsidian/plugins/
-.obsidian/snippets/
-.obsidian/themes/
-.obsidian/hotkeys.json
-.obsidian/backlink.json
-.obsidian/community-plugins.json
-.obsidian/graph.json
-.obsidian/types.json
+.obsidian/Cache/
+.obsidian/Code\ Cache/
+.obsidian/Cookies*
+
+# (Optional) Ignore community plugin binaries if you prefer fresh local installs
+# .obsidian/plugins/
+
 obsidian/
 
 # VS Code
