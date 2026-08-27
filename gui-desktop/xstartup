@@ -1,0 +1,6 @@
+#!/bin/bash
+# ~/.vnc/xstartup
+# Launch XFCE Desktop Environment
+# xrdb $HOME/.Xresources
+# startxfce4 &
+/usr/bin/xterm
