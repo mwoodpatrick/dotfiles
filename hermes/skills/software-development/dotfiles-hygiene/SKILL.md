@@ -38,6 +38,7 @@ A personal dotfiles repository tends to accumulate untracked directories that bl
    - **AI tool artifacts:** `.aider*`, `.opencode/`, OpenCode/Opencode local packages
    - **Editor/runtime state:** `.obsidian/workspace*`, `obsidian/` (Electron profile data), `.vscode/`, `vscode/`, `pulse/`
    - **Agent runtime state:** `hermes/` caches, `hermes/lsp/`, `hermes/memories/`, `hermes/.curator_backups/`, `hermes/pastes/`, `hermes/verification_evidence.db`
+   - **Nix flake artifacts:** `flake.lock` updates, `result`, `result-*`
    - **Real source to keep:** new skill directories, config files, Docker setups, install scripts
 
 3. **Review one issue at a time.** Present:
@@ -46,7 +47,7 @@ A personal dotfiles repository tends to accumulate untracked directories that bl
    - Options: delete, ignore, keep/commit, inspect contents first.
    - A recommended default (option 1).
 
-4. **Act on the user's terse choice.** Users often reply with just `1`, `a`, `c`, or `y`. Retain the option list in context and execute immediately.
+4. **Act on the user's terse choice.** This user often replies with just `1`, `a`, `c`, or `y`. Retain the option list in context and execute immediately.
 
 5. **When in doubt, inspect before deleting.** Use `ls -la`, `find`, and `read_file` to confirm a directory is not live config before `rm -rf`.
 
@@ -70,12 +71,13 @@ A personal dotfiles repository tends to accumulate untracked directories that bl
 
 ## Pitfalls
 
-- **Deleting a directory that is actually a live profile/home directory.** Before `rm -rf`, check `ls -la`. If it contains `.env`, `auth.json`, `state.db`, or similar, it is a working profile, not a backup.
+- **Deleting a directory that is actually a live profile/home directory.** Before `rm -rf`, check `ls -la`. If it contains `.env`, `auth.json`, `state.db`, model caches, or a full `skills/` tree, it is a working profile, not a backup. Names like `hermes.sv` or `foo.bak` are not enough to classify something as disposable.
 - **Assuming a sibling directory with a dot prefix is the same as one without.** `.obsidian/` (Obsidian vault config) and `obsidian/` (Electron user-data dump) are different; classify them separately.
 - **Ignoring a nested `.gitignore` surprise.** A tool like OpenCode may ship an internal `.gitignore` that ignores `package.json`. If the user wants that file committed, the nested `.gitignore` is the blocker, not the root one. Ask whether to change the nested file or accept the tool's default.
 - **Treating `package-lock.json` as always source.** In dotfiles, lockfiles are often generated artifacts. Ask whether exact versions are pinned in `package.json` instead of committing the lockfile.
 - **Forgetting executable bits.** Scripts like `build.sh`, `entrypoint.sh`, `webtop.bash` need `chmod +x` after write.
 - **Committing hardcoded secrets.** When reviewing Dockerfiles, replace hardcoded passwords with runtime env vars and an entrypoint script.
+- **Missing Nix deprecation renames.** A rebuild warning like "'system' has been renamed to/replaced by 'stdenv.hostPlatform.system'" means a module is reading `pkgs.system`. Replace it with `pkgs.stdenv.hostPlatform.system` before committing.
 
 ## Verification
 
@@ -87,3 +89,4 @@ A personal dotfiles repository tends to accumulate untracked directories that bl
 
 - `references/obsidian-state-classification.md` — how to split `.obsidian/` config from `obsidian/` runtime data.
 - `references/nested-gitignore-decision.md` — handling tools that ignore their own source files.
+- `references/nix-deprecation-fixes.md` — common Nix attribute renames encountered while maintaining this dotfiles flake.
