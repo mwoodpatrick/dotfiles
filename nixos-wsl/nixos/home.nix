@@ -71,6 +71,7 @@ in
     nixd # nix langiage server with deep-introspection features
     nixfmt
     obsidian
+    pandoc
     prettier # Web/JavaScript formatters
     prettierd
     (python314.withPackages (ps: [

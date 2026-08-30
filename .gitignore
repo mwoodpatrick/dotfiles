@@ -30,6 +30,11 @@ hermes/logs/
 hermes/sessions/
 hermes/*.log
 hermes/.DS_Store
+hermes/desktop/
+hermes/install_id
+hermes/projects.db
+hermes/spawn-ledger.json
+hermes/tui-theme-boot.json
 hermes/.skills_prompt_snapshot.json
 hermes/.update_check
 hermes/bin/
