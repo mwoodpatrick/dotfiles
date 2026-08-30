@@ -125,3 +125,5 @@ env/
 undo/
 # Keep nvim-pack-lock.json but ignore local state
 # .nvim_state/
+hermes/skills/.curator_state
+hermes/skills/.curator_backups/
