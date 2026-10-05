@@ -121,6 +121,9 @@
     at-spi2-core
     glib # C library of programming buildings blocks
     xdotool # Fake keyboard/mouse input, window management, and more.if using X11 routing fallback
+    mesa-demos
+    chafa
+    timg
   ];
 
   # Secrets Management (sops-nix)
@@ -220,6 +223,11 @@
     libxi
     libGL
   ];
+
+  # running a lightweight notification daemon to satisfy GLFW
+  # (the windowing/input C library Kitty links against).
+  services.dunst.enable = true;
+  # services.mako.enable = true;
 
   # Enable the foundational D-Bus system services
   services.dbus.enable = true;

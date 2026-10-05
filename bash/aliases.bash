@@ -1,6 +1,7 @@
 unalias -a
 echo "sourcing aliases"
 
+alias kitty="LIBGL_ALWAYS_SOFTWARE=1 kitty&"
 alias c=clear
 # report what clients I have
 alias p4clients="p4 clients -t -u mwoodpatrick"

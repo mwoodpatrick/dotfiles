@@ -56,6 +56,12 @@ case "$TERM" in
 xterm-color) color_prompt=yes ;;
 esac
 
+# make systemd autostart Dunst properly whenever Kitty queries it, inject those variables 
+# into the systemd user manager
+if [ -n "$WAYLAND_DISPLAY" ] || [ -n "$DISPLAY" ]; then
+    systemctl --user import-environment DISPLAY WAYLAND_DISPLAY XDG_RUNTIME_DIR 2>/dev/null
+fi
+
 # update lean
 echo "ensure we have latest version of lean theorem prover"
 elan default stable
