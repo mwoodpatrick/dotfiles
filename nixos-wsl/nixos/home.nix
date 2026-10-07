@@ -85,6 +85,8 @@ in
     ]))
     pyright
     ranger
+    librsvg # Small library to render SVG images to Cairo surfaces
+    resvg # SVG rendering library.
     ripgrep # Optimal regex finder for tools like Telescope/Nvim
     rustup # Includes cargo, rustc, etc.
     shfmt # bash formatter
