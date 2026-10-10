@@ -13,6 +13,8 @@ case $- in
 *) return ;;
 esac
 
+export LD_LIBRARY_PATH=/etc/profiles/per-user/mwoodpatrick/lib
+
 if [ -z ${PATH_BASE+x} ]; then
     # echo ".bashrc: defining PATH_BASE=$PATH"
     export PATH_BASE=$PATH

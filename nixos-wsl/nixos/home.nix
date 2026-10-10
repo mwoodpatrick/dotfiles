@@ -127,6 +127,8 @@ in
     xdg-utils
     inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.default
     inputs.nix-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
+    nix-ld
+    nix-index # locate the package providing a certain file in nixpkgs
   ];
 
   # 3. Automated Git Architecture Configurations
