@@ -2,6 +2,7 @@ unalias -a
 echo "sourcing aliases"
 
 alias kitty="LIBGL_ALWAYS_SOFTWARE=1 kitty&"
+alias ghostty="ghosty&"
 alias c=clear
 # report what clients I have
 alias p4clients="p4 clients -t -u mwoodpatrick"
@@ -96,6 +97,49 @@ function record_projectname() {
         nvrun projectteam
         nvprojectname resolve_validate
     fi
+}
+
+function lean_update {
+    (
+        set -e # Exit immediately on error
+        nix-switch
+        echo "==> Active Lake version:"
+        lake --version
+        cd ../my_lean_project
+        # Navigate to project
+        cd ../my_lean_project || return 1
+        echo -n "==> Previous toolchain: "
+        cat lean-toolchain
+        echo "==> Fetching latest toolchain from Mathlib master..."
+        curl -s -o lean-toolchain https://raw.githubusercontent.com/leanprover-community/mathlib4/master/lean-toolchain
+        NEW_TOOLCHAIN=$(tr -d ' \r\n' <lean-toolchain)
+        echo "==> Updated toolchain: $NEW_TOOLCHAIN"
+        # Extract clean tag (e.g., 'v4.35.0-rc4' from 'leanprover/lean4:v4.35.0-rc4')
+        VERSO_TAG="${NEW_TOOLCHAIN#*:}"
+        # Auto-update Verso's rev in lakefile.toml if present
+        if [ -f "lakefile.toml" ]; then
+            echo "==> Syncing Verso rev to '$VERSO_TAG' in lakefile.toml..."
+            sed -i -E "/name = [\"']verso[\"']/,/rev =/ s/rev = \".*\"/rev = \"${VERSO_TAG}\"/" lakefile.toml
+        fi
+        # Clean old manifests, build directories, and stale branch refs
+        echo "==> Cleaning stale package caches and manifests..."
+        rm -rf lake-manifest.json .lake/packages/verso .lake/packages/subverso .lake/build
+
+        # Export NixOS SSL bundle for Lake / curl downloads
+        export SSL_CERT_FILE="/etc/ssl/certs/ca-bundle.crt"
+
+        echo "==> Resolving dependencies..."
+        lake update
+
+        echo "==> Fetching precompiled Mathlib olean caches..."
+        lake exe cache get
+
+        echo "==> Building project..."
+        lake build
+
+        set +e
+        echo "==> Update complete!"
+    )
 }
 
 # list extern symbols

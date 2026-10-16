@@ -224,6 +224,10 @@
     libGL
   ];
 
+  # Mask the WSL-generated mount guard unit
+  systemd.units."wsl-mnt-guard.service".enable = false;
+  systemd.services.wsl-mnt-guard.enable = false;
+
   # running a lightweight notification daemon to satisfy GLFW
   # (the windowing/input C library Kitty links against).
   services.dunst.enable = true;
