@@ -51,7 +51,7 @@ in
     bubblewrap # Sandboxing toolkit utility used for security boundaries
     chafa
     codex
-    elan # Installer for Lean theorem prover.
+    unstable.elan # Install latest Lean theorem prover.
     fd # Fast user directory scanner dependency
     file # Provides the core `file` utility binary
     fortune
