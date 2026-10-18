@@ -2,7 +2,7 @@ unalias -a
 echo "sourcing aliases"
 
 alias kitty="LIBGL_ALWAYS_SOFTWARE=1 kitty&"
-alias ghostty="ghosty&"
+alias ghostty="ghostty&"
 alias c=clear
 # report what clients I have
 alias p4clients="p4 clients -t -u mwoodpatrick"
@@ -101,13 +101,14 @@ function record_projectname() {
 
 function lean_update {
     (
+        local project=${1:-my_lean_project}
+        echo "Updating project: $project"
         set -e # Exit immediately on error
         nix-switch
         echo "==> Active Lake version:"
         lake --version
-        cd ../my_lean_project
         # Navigate to project
-        cd ../my_lean_project || return 1
+        cd $GIT_ROOT/$project || return 1
         echo -n "==> Previous toolchain: "
         cat lean-toolchain
         echo "==> Fetching latest toolchain from Mathlib master..."
