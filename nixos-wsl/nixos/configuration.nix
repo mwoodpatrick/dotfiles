@@ -183,7 +183,7 @@
   };
 
   environment.sessionVariables = {
-    OLLAMA_API_KEY_FILE = config.sops.secrets.OLLAMA_API_KEY.path;
+    # OLLAMA_API_KEY_FILE = config.sops.secrets.OLLAMA_API_KEY.path;
   };
 
   # Centralized tool management frameworks

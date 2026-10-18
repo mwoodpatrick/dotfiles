@@ -58,7 +58,7 @@ case "$TERM" in
 xterm-color) color_prompt=yes ;;
 esac
 
-# make systemd autostart Dunst properly whenever Kitty queries it, inject those variables 
+# make systemd autostart Dunst properly whenever Kitty queries it, inject those variables
 # into the systemd user manager
 if [ -n "$WAYLAND_DISPLAY" ] || [ -n "$DISPLAY" ]; then
     systemctl --user import-environment DISPLAY WAYLAND_DISPLAY XDG_RUNTIME_DIR 2>/dev/null
@@ -407,15 +407,14 @@ Linux | linux-gnu)
     export NIXOS_CONFIG_ROOT=$DOTFILES/nixos-wsl/nixos
     export SOPS_AGE_KEY_FILE=$NIXOS_CONFIG_ROOT/sops/age/keyFile.txt
     export SOPS_SECRETS=$NIXOS_CONFIG_ROOT/secrets
-    export OLLAMA_HOST="https://ollama.com"
+    # Ollama server socket binding & native CLI targeting
+    export OLLAMA_HOST="http://localhost:11434"
+    # HTTP API base target for client requests from third-party apps, plugins, & frameworks
+    export OLLAMA_ENDPOINT="$OLLAMA_HOST/v1"
     export OLLAMA_MODELS=/var/lib/ollama/models
-    export OLLAMA_ENDPOINT="http://localhost:11434/v1"
     export HERMES_HOME=$DOTFILES/hermes
     export LM_STUDIO_MODELS="$HOME/.lmstudio/models"
     export LMSTUDIO_ENDPOINT="http://localhost:1234/v1"
-    if [ -r $OLLAMA_API_KEY_FILE ]; then
-        export OLLAMA_API_KEY="$(cat $OLLAMA_API_KEY_FILE)"
-    fi
     ;;
 SunOS)
     export MANPATH=/usr/local/man:/usr/share/man:/usr/perl5/man:/usr/local/lsf/man:/usr/X11R6/man:/usr/man
