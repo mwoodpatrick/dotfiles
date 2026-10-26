@@ -36,6 +36,8 @@ export DISPLAY=${DISPLAY:-"$(uname -n):0"}
 export HOSTNAME
 HOSTNAME=$(hostname --fqdn)
 
+export ZED_ALLOW_EMULATED_GPU=1
+
 # enable tab expansion
 # https://askubuntu.com/questions/1245285/bash-doesnt-expand-variables-when-pressing-tab-key
 

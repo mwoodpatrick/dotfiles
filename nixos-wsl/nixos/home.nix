@@ -115,6 +115,7 @@ in
     nodejs_26
     openai
     vscode-langservers-extracted
+    vscodium-fhs
     neovide
     pnpm
     yarn

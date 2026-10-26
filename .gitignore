@@ -13,6 +13,16 @@ flake-lock.pub
 # exclude the keyfile
 nixos-wsl/nixos/sops/age/keyFile.txt
 
+# Ignore all runtime and cache data inside VSCodium
+VSCodium/*
+
+# Allow only user configuration files
+!VSCodium/User/
+VSCodium/User/*
+!VSCodium/User/settings.json
+!VSCodium/User/keybindings.json
+!VSCodium/User/snippets/
+
 # Hermes LSP tooling
 hermes/lsp/
 
