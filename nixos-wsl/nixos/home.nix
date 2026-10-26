@@ -129,6 +129,7 @@ in
     inputs.nix-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
     nix-ld
     nix-index # locate the package providing a certain file in nixpkgs
+    pkgs-unstable.zed-editor
   ];
 
   # 3. Automated Git Architecture Configurations
