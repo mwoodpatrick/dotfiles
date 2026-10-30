@@ -7,10 +7,11 @@
 
 # access unstable packages via pkgs.pkgs-unstable
 {
-  config,
+# config,
   lib,
   pkgs,
   inputs,
+  unstable,
   ...
 }:
 {
@@ -289,7 +290,7 @@
     enable = true;
 
     # use the unstable service version
-    package = pkgs.pkgs-unstable.ollama;
+    package = unstable.ollama;
 
     # Pre-seed and pins models to download automatically in the background
     loadModels = [

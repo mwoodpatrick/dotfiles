@@ -2,11 +2,13 @@
   config,
   pkgs,
   inputs,
+  unstable,
   ...
 }:
 let
   browser = "firefox.desktop"; # Or "chromium-browser.desktop", "brave-browser.desktop"
 
+  # pkgs-unstable = inputs.nixpkgs-unstable.legacyPackages.${system};
   # Create an 'unstable' package set from the input
   unstable = import inputs.nixpkgs-unstable {
     system = "x86_64-linux"; # Ensure this matches your system architecture
@@ -94,7 +96,7 @@ in
     sqlite # Provides both the CLI utility and sqlite3 libraries
     stylua
     imagemagick
-    unstable.opencode
+    unstable.opencode # Official Nixpkgs unstable derivation
     tree-sitter
     unstable.warp-terminal
     wayland
@@ -115,22 +117,22 @@ in
     nodejs_26
     openai
     vscode-langservers-extracted
-    vscodium-fhs
+    unstable.vscodium-fhs
     neovide
     pnpm
     yarn
     ripgrep
     tmux
     unzip
-    pkgs-unstable.neovim
-    pkgs-unstable.ollama
+    unstable.neovim
+    unstable.ollama
     trash-cli
     xdg-utils
     inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.default
     inputs.nix-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
     nix-ld
     nix-index # locate the package providing a certain file in nixpkgs
-    pkgs-unstable.zed-editor
+    unstable.zed-editor
   ];
 
   # 3. Automated Git Architecture Configurations

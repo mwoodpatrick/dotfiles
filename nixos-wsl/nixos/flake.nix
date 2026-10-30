@@ -52,17 +52,24 @@
     }@inputs:
     let
       system = "x86_64-linux";
+      # pkgs-unstable = inputs.nixpkgs-unstable.legacyPackages.${system};
+      # Create an 'unstable' package set from the input
+      unstable = import inputs.nixpkgs-unstable {
+        system = "x86_64-linux"; # Ensure this matches your system architecture
+        config.allowUnfree = true;
+      };
     in
     {
       nixosConfigurations = {
         # This string must match your target system identifier attribute node
         nixos = nixpkgs.lib.nixosSystem {
-          inherit system;
-
           # Makes external input channels cleanly available down within evaluation modules
-          specialArgs = { inherit inputs; };
+          specialArgs = { inherit inputs unstable; };
 
           modules = [
+            # Set host platform explicitly in module config
+            { nixpkgs.hostPlatform = system; }
+
             # Pull in the Hermes module
             hermes-agent.nixosModules.default
 
@@ -77,18 +84,6 @@
 
             # Machine-specific storage block mounts mapping file
             # ./hardware-configuration.nix
-
-            # Embedded overlay setup block to declare and expose 'pkgs-unstable'
-            ({ config, pkgs, ... }: {
-              nixpkgs.overlays = [
-                (final: prev: {
-                  pkgs-unstable = import nixpkgs-unstable {
-                    inherit system;
-                    config.allowUnfree = true;
-                  };
-                })
-              ];
-            })
 
             # Home Manager inline integration mapping (omit if using standalone runner)
             home-manager.nixosModules.home-manager
