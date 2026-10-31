@@ -1,8 +1,6 @@
 {
-  config,
   pkgs,
   inputs,
-  unstable,
   ...
 }:
 let
@@ -16,20 +14,29 @@ let
   };
 in
 {
-  # 1. Core Home Manager State Setup
-  # Replace with your actual user environment details
-  home.username = "mwoodpatrick";
-  home.homeDirectory = "/home/mwoodpatrick";
+  home = {
+    username = "mwoodpatrick";
+    homeDirectory = "/home/mwoodpatrick";
 
-  xdg.mimeApps = {
-    enable = true;
-    defaultApplications = {
-      "text/html" = browser;
-      "x-scheme-handler/http" = browser;
-      "x-scheme-handler/https" = browser;
-      "x-scheme-handler/about" = browser;
-      "x-scheme-handler/unknown" = browser;
+    sessionVariables = {
+      # Ensure Ollama daemon target is consistently set in the shell session
+      OLLAMA_HOST = "http://localhost:11434";
+      OLLAMA_API_KEY_FILE= "/run/secrets/OLLAMA_API_KEY";
     };
+  };
+
+  xdg = {
+    mimeApps = {
+      enable = true;
+      defaultApplications = {
+        "text/html" = browser;
+        "x-scheme-handler/http" = browser;
+        "x-scheme-handler/https" = browser;
+        "x-scheme-handler/about" = browser;
+        "x-scheme-handler/unknown" = browser;
+      };
+    };
+
   };
 
   # This value determines the Home Manager release that your configuration is

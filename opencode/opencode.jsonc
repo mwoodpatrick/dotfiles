@@ -1,3 +1,26 @@
 {
-  "$schema": "https://opencode.ai/config.json"
+  "$schema": "https://opencode.ai/config.json",
+
+  // Model format: "provider/model_name"
+  // Uses Ollama cloud model for deep reasoning / chat / build tasks
+  "model": "ollama/gpt-oss:120b-cloud",
+  "agents": {
+    "title": {
+      // Fast low-latency model for small edits, summaries, or commit messages
+      "model": "ollama/qwen2.5-coder:7b",
+    },
+  },
+  // Default agent ("build" or "plan")
+  "default_agent": "plan",
+  // Automatically format modified files
+  "formatter": true,
+  "providers": {
+    "ollama": {
+      "settings": {
+        // Point to your local Ollama daemon bridge
+        // Can be hardcoded or dynamically read from {env:OLLAMA_HOST}
+        "baseURL": "http://localhost:11434/v1",
+      },
+    },
+  },
 }

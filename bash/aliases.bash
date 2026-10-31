@@ -51,12 +51,23 @@ alias vnc="/home/nv/bin/vncserver_high_ports.sh -alwaysshared -geometry 1600x100
 # core system-level services (like networking, DBus, or kernel modules),
 # use sudo nixos-rebuild boot instead of switch. It’s safer and avoids the
 # need for live-reloading complex systemd-user states.
-alias nix-switch="sudo nixos-rebuild switch --flake \$GIT_ROOT/dotfiles/nixos-wsl/nixos/#nixos"
-alias nix-boot="sudo nixos-rebuild boot --flake \$GIT_ROOT/dotfiles/nixos-wsl/nixos/#nixos"
-alias nix-update="nix flake update --flake \$GIT_ROOT/dotfiles/nixos-wsl/nixos"
-alias nix-check="nix flake check \$GIT_ROOT/dotfiles/nixos-wsl/nixos"
+alias nix-switch="sudo nixos-rebuild switch --flake \$NIXOS_CONFIG_ROOT"
+alias nix-boot="sudo nixos-rebuild boot --flake \$NIXOS_CONFIG_ROOT"
+alias nix-check="nix flake check \$NIXOS_CONFIG_ROOT"
 alias nix-generations="sudo nixos-rebuild list-generations"
-alias nix-gc="sudo nix-collect-garbage --delete-older-than 1d"
+
+function nix-update() {
+    nix flake update --flake $NIXOS_CONFIG_ROOT nixpkgs-unstable &&
+    nix-check &&
+    nix-switch &&
+    nix-generations
+}
+
+function nix-gc() {
+    sudo nix-collect-garbage --delete-older-than 1d
+    echo "Remaining NixOS generations:"
+    nix-generations
+}
 
 alias g="git"
 alias v="nvim"
