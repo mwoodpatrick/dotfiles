@@ -56,17 +56,17 @@ alias nix-boot="sudo nixos-rebuild boot --flake \$NIXOS_CONFIG_ROOT"
 alias nix-check="nix flake check \$NIXOS_CONFIG_ROOT"
 alias nix-generations="sudo nixos-rebuild list-generations"
 
-function nix-update() {
-    nix flake update --flake $NIXOS_CONFIG_ROOT nixpkgs-unstable &&
-    nix-check &&
-    nix-switch &&
-    nix-generations
-}
-
 function nix-gc() {
     sudo nix-collect-garbage --delete-older-than 1d
     echo "Remaining NixOS generations:"
     nix-generations
+}
+
+function nix-update() {
+    nix flake update --flake $NIXOS_CONFIG_ROOT nixpkgs-unstable &&
+    nix-check &&
+    nix-switch &&
+    nix-gc
 }
 
 alias g="git"
