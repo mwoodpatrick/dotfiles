@@ -42,9 +42,9 @@ alias vnc='/home/nv/bin/vncserver_high_ports.sh -alwaysshared -geometry 1600x100
 # core system-level services (like networking, DBus, or kernel modules),
 # use sudo nixos-rebuild boot instead of switch. It’s safer and avoids the
 # need for live-reloading complex systemd-user states.
-alias nix-switch='sudo nixos-rebuild switch --flake \$NIXOS_CONFIG_ROOT'
-alias nix-boot='sudo nixos-rebuild boot --flake \$NIXOS_CONFIG_ROOT'
-alias nix-check='nix flake check \$NIXOS_CONFIG_ROOT'
+alias nix-switch='sudo nixos-rebuild switch --flake $NIXOS_CONFIG_ROOT'
+alias nix-boot='sudo nixos-rebuild boot --flake $NIXOS_CONFIG_ROOT'
+alias nix-check='nix flake check $NIXOS_CONFIG_ROOT'
 alias nix-generations='sudo nixos-rebuild list-generations'
 
 function nix-gc() {
