@@ -5,25 +5,24 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc) for examples
 
 # If not running interactively, don't do anything
-# fix for firefox already running error
-#   https://www.mattcutts.com/blog/how-to-fix-firefox-is-already-running-error/
 
 case $- in
 *i*) ;;
-*) return ;;
+*) [[ "${BASH_SOURCE[0]}" == "$0" ]] && exit 0 || return ;;
 esac
 
-export LD_LIBRARY_PATH=/etc/profiles/per-user/mwoodpatrick/lib
+interactive=1
 
-if [ -z ${PATH_BASE+x} ]; then
+[[ -z "$LD_LIBRARY_PATH" ]] && export LD_LIBRARY_PATH=/etc/profiles/per-user/mwoodpatrick/lib
+
+if [ -z "${PATH_BASE+x}" ]; then
     # echo ".bashrc: defining PATH_BASE=$PATH"
-    export PATH_BASE=$PATH
-    export LD_LIBRARY_PATH_BASE=$LD_LIBRARY_PATH
+    export PATH_BASE="$PATH"
+    export LD_LIBRARY_PATH_BASE="$LD_LIBRARY_PATH"
 fi
 
-SCRIPT_PATH="${BASH_SOURCE[0]}"
-export DOTFILES
-DOTFILES=$(dirname $(dirname ${SCRIPT_PATH}))
+export SCRIPT_PATH=$(realpath "${BASH_SOURCE[0]}")
+export DOTFILES=$(dirname "$(dirname "$SCRIPT_PATH")")
 
 # echo "SCRIPT_PATH=$SCRIPT_PATH"
 # echo "DOTFILES=$DOTFILES"
@@ -31,11 +30,9 @@ DOTFILES=$(dirname $(dirname ${SCRIPT_PATH}))
 # replace directory name variables with their actual values during tab completion
 shopt -s direxpand
 
-export TZ=US/Pacific
-export DISPLAY=${DISPLAY:-"$(uname -n):0"}
-export HOSTNAME
-HOSTNAME=$(hostname --fqdn)
-
+export TZ=America/Los_Angeles
+export DISPLAY="${DISPLAY:-$(uname -n):0}"
+export HOSTNAME=$(hostname --fqdn)
 export ZED_ALLOW_EMULATED_GPU=1
 
 # enable tab expansion
@@ -45,11 +42,9 @@ export ZED_ALLOW_EMULATED_GPU=1
 shopt -s histappend
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1
-HISTSIZE=1000
-HISTFILESIZE=2000
-
-# append to the history file, don't overwrite it
-shopt -s histappend
+export HISTFILE="/home/mwoodpatrick/.bash_history"
+export HISTSIZE=1000
+export HISTFILESIZE=2000
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -57,7 +52,7 @@ shopt -s checkwinsize
 
 # set a fancy prompt (non-color, unless we know we "want" color)
 case "$TERM" in
-xterm-color) color_prompt=yes ;;
+xterm* | rxvt* | screen* | tmux*) color_prompt=yes ;;
 esac
 
 # make systemd autostart Dunst properly whenever Kitty queries it, inject those variables
@@ -67,8 +62,11 @@ if [ -n "$WAYLAND_DISPLAY" ] || [ -n "$DISPLAY" ]; then
 fi
 
 # update lean
-echo "ensure we have latest version of lean theorem prover"
-elan default stable
+[[ -z "$LEAN_UPDATED" ]] && {
+    echo "ensure we have latest version of lean theorem prover"
+    elan default stable
+    export LEAN_UPDATED=1
+}
 
 # uncomment for a colored prompt, if the terminal has the capability; turned
 # off by default to not distract the user: the focus in a terminal window
@@ -88,11 +86,10 @@ fi
 
 if [ "$color_prompt" = yes ]; then
     # PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-    PS1='[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-    PS1='$ '
+    PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    # PS1='$ '
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-    PS1='$ '
 fi
 unset color_prompt force_color_prompt
 
@@ -109,14 +106,14 @@ esac
 
 function checkpathtype {
     local path=$1
-    if [ ! -e ${path} ]; then
-        echo "${path} does not exist"
-    elif [ -L ${path} ] && [ -d ${path} ]; then
-        echo "${path} is a symbolic link to directory $(readlink -f $path)"
-    elif [ -d ${path} ]; then
-        echo "${path} is a directory"
+    if [ ! -e "$path" ]; then
+        echo "$path does not exist"
+    elif [ -L "$path" ] && [ -d "$path" ]; then
+        echo "$path is a symbolic link to directory $(readlink -f "$path")"
+    elif [ -d "$path" ]; then
+        echo "$path is a directory"
     else
-        echo "${path} is a file"
+        echo "$path is a file"
     fi
 }
 
@@ -134,18 +131,9 @@ fi
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
 # http://www.thegeekstuff.com/2008/09/bash-shell-take-control-of-ps1-ps2-ps3-ps4-and-prompt_command
-PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD}\007"'
-# basic prompt shell name and version
-PS1="\s-\v \t> "
-# for line continuations
-PS2="continue-> "
-# for select
-# PS3="Select a day (1-4): "
-# for set -x
-PS4='$0.$LINENO+ '
 
 function uidtouname() {
-    getent passwd $1 | cut -d: -f1
+    getent passwd "$1" | cut -d: -f1
 }
 
 # module load vnc
@@ -156,7 +144,7 @@ function uidtouname() {
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
 # sudo apt-get install bash-doc
 
-function apt-update {
+function apt_update {
     # https://help.ubuntu.com/community/AptGet/Howto
     # http://searchenterprisedesktop.techtarget.com/tip/What-non-Linux-admins-need-to-know-about-the-apt-get-tool
     #
@@ -240,8 +228,8 @@ function x() {
 }
 
 function logmsg() {
-    if [ $interactive ]; then
-        echo $*
+    if [[ -n $interactive ]]; then
+        echo $@
     fi
 }
 
@@ -266,12 +254,12 @@ function wis() {
     shopt -s extdebug
 
     # Dump the function's name, line number and fully qualified source file
-    declare -F $1
+    declare -F "$1"
 
     # Turn off extended shell debugging
     shopt -u extdebug
-    type $1
-    whereis $1
+    type "$1"
+    whereis "$1"
 }
 
 function extract {
@@ -279,10 +267,10 @@ function extract {
         # display usage if no parameters given
         echo "Usage: extract ."
     else
-        if [ -f $1 ]; then
+        if [ -f "$1" ]; then
             # NAME=${1%.*}
             # mkdir $NAME && cd $NAME
-            case $1 in
+            case "$1" in
             *.tar.bz2) tar xvjf $1 ;;
             *.tar.gz) tar xvzf $1 ;;
             *.tar.xz) tar xvJf $1 ;;
@@ -360,11 +348,11 @@ Win32)
 
     ;;
 
-Linux | linux-gnu)
+Linux|linux-gnu)
     export GIT_ROOT=/mnt/wsl/projects/git
     # environment variable defined by the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/latest/] (created by freedesktop.org)
     # base directory relative to which user-specific configuration files should be stored.
-    export XDG_CONFIG_HOME=$GIT_ROOT/dotfiles/
+    export XDG_CONFIG_HOME=$GIT_ROOT/dotfiles
     # base directory for user-specific data files (analogous to system-wide directories like /usr/share/
     export XDG_DATA_HOME=/mnt/wsl/projects/data
     # ordered, colon-separated list of system-wide configuration directories available to the user and applications
@@ -467,5 +455,5 @@ if [ -f $DOTFILES/bash/vscode.bash ]; then
 fi
 
 # echo "finished init.bash"
-# enable direnv
+# enable direnv, this should be the last line in the file
 eval "$(direnv hook bash)"

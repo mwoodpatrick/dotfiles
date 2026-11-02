@@ -82,6 +82,7 @@ in
     nixfmt
     obsidian
     pandoc
+    patchelf # Small utility to modify the dynamic linker and RPATH of ELF executables.
     prettier # Web/JavaScript formatters
     prettierd
     (python314.withPackages (ps: [

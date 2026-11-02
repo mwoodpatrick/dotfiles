@@ -1,30 +1,21 @@
 unalias -a
 echo "sourcing aliases"
 
-alias kitty="LIBGL_ALWAYS_SOFTWARE=1 kitty&"
-alias ghostty="ghostty&"
-alias c=clear
-# report what clients I have
-alias p4clients="p4 clients -t -u mwoodpatrick"
-alias p4shelved="p4 changes -u \$USER -s shelved"
-# report latest changelist
-alias p4tot="p4 changes -m 1 ..."
-alias p4changes="p4 changes -t -m 20 |less"
-# report what cl we want
-function p4want {
-    echo "want:"
-    p4 describe $1 | head -1
-    echo "have:"
-    p4 changes -m 1 ...#have
+kitty() {
+    LIBGL_ALWAYS_SOFTWARE=1 command kitty "$@" &
 }
-# report what changelist I have in my tree
-alias p4have="p4 changes -m 1 ...#have"
-alias p4rev="p4 _revision"
+
+ghostty() {
+    command ghostty "$@" &
+}
+
+alias c='clear'
+# report what clients I have
 alias cho='cvs history -o'
 alias cn='cvs -n update'
 alias cnd='cvs -n update -d'
 alias cndn='cvs -n update -d 2>&1 | grep New'
-alias demangle="c++filt"
+alias demangle='c++filt'
 alias ds=dirs
 alias gv100r='cd /home/scratch.emu_gv100/gv100/regressions/systems'
 alias h=history
@@ -34,27 +25,27 @@ alias j='jobs -l'
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
-alias ltr="ls -ltr"
-alias ltrt="ls -ltr | tail"
+alias ltr='ls -ltr'
+alias ltrt='ls -ltr | tail'
 alias pe=printenv
 alias rs='eval `resize`'
-alias hssh="ssh c823543-a.stcla1.sfba.home.com"
-alias soc="source ~/.bashrc"
+alias hssh='ssh c823543-a.stcla1.sfba.home.com'
+alias soc='source ~/.bashrc'
 alias up='cd ..'
-alias via="vi ~/.bash_aliases ; source ~/.bash_aliases"
+alias via='vi ~/.bash_aliases ; source ~/.bash_aliases'
 alias myps='ps -w -f -u $USER'
 alias mydf='df -k | grep "$USER"'
-alias vnc="/home/nv/bin/vncserver_high_ports.sh -alwaysshared -geometry 1600x1000 -depth 24"
+alias vnc='/home/nv/bin/vncserver_high_ports.sh -alwaysshared -geometry 1600x1000 -depth 24'
 
 # Everyday administrative alias chains matching your layout requirements
 # Prefer nixos-rebuild boot for System Services: If you ever start modifying
 # core system-level services (like networking, DBus, or kernel modules),
 # use sudo nixos-rebuild boot instead of switch. It’s safer and avoids the
 # need for live-reloading complex systemd-user states.
-alias nix-switch="sudo nixos-rebuild switch --flake \$NIXOS_CONFIG_ROOT"
-alias nix-boot="sudo nixos-rebuild boot --flake \$NIXOS_CONFIG_ROOT"
-alias nix-check="nix flake check \$NIXOS_CONFIG_ROOT"
-alias nix-generations="sudo nixos-rebuild list-generations"
+alias nix-switch='sudo nixos-rebuild switch --flake \$NIXOS_CONFIG_ROOT'
+alias nix-boot='sudo nixos-rebuild boot --flake \$NIXOS_CONFIG_ROOT'
+alias nix-check='nix flake check \$NIXOS_CONFIG_ROOT'
+alias nix-generations='sudo nixos-rebuild list-generations'
 
 function nix-gc() {
     sudo nix-collect-garbage --delete-older-than 1d
@@ -63,7 +54,7 @@ function nix-gc() {
 }
 
 function nix-update() {
-    nix flake update --flake $NIXOS_CONFIG_ROOT nixpkgs-unstable &&
+    nix flake update --flake "$NIXOS_CONFIG_ROOT" nixpkgs-unstable &&
     nix-check &&
     nix-switch &&
     nix-gc
@@ -75,8 +66,15 @@ alias ".."="cd .."
 
 # ff - find string in files. $1 = directory, $2 = pattern
 ff() {
-    find $1 -exec grep -si $2 \{\} \; -print
+    local dir=${1:-.}
+    local pattern=${2:-}
+    if [[ -z $pattern ]]; then
+        echo "Usage: ff <directory> <pattern>"
+        return 1
+    fi
+    find "$dir" -type f -exec grep -si -- "$pattern" {} + -print
 }
+
 
 #   nvrun projectteam
 #   nvprojectname resolve_validate
@@ -155,35 +153,21 @@ function lean_update {
 }
 
 # list extern symbols
-alias nmc="nm -gC"
+alias nmc='nm -gC'
 # list unresolved symbols
-alias nmuc="nm -uC"
-alias lsfstatus="bhosts -s vcs | head -2"
+alias nmuc='nm -uC'
+alias lsfstatus='bhosts -s vcs | head -2'
 alias lsc='ls -hF --color'
-alias p="/home/utils/perl-5.8.8/bin/perl"
-alias pd="/home/utils/perl-5.8.8/bin/perl -I lib -d:ptkdb  "
-alias pl="/home/utils/perl-5.14/5.14.1-nothreads-64/bin/perl"
-alias perltidy="/home/utils/perl-5.8.8/bin/perltidy"
-alias glivd=$hw/tools/imgtools/bin/glivd
-alias diskusage="du -sh \$(ls -A) | sort -hr | head"
+alias diskusage='du -sh \$(ls -A) | sort -hr | head'
 
 case $OSTYPE in
 Win32)
     # no 'more' on cygwin
     alias more=less
-    alias bj="rsh -l $USER l-xterm-1 bjobs"
-    alias bjw="rsh -l $USER l-xterm-1 bjobs -w"
-    alias bjp="rsh -l $USER l-xterm-1 bjobs -p"
-    alias bq="rsh -l $USER l-xterm-1 bq"
-    # alias p4='env PWD="`echo $PWD | cygpath -w -f -`" p4'
     ;;
 
 *)
-    alias bj=bjobs
-    alias bjw="bjobs -w"
-    alias bjp="bjobs -p"
-    alias bq="bqueues | bq.pl"
-    alias firefox="firefox -P &"
+    alias firefox='firefox -P &'
     alias chrome="/home/utils/chrome-58.0.3029.110/opt/google/chrome/google-chrome &"
     alias py=python3
     ;;
