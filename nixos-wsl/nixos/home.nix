@@ -105,6 +105,7 @@ in
     stylua
     imagemagick
     unstable.opencode # Official Nixpkgs unstable derivation
+    unstable.opencode-desktop
     tree-sitter
     unstable.warp-terminal
     wayland
