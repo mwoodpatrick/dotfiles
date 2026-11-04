@@ -55,12 +55,14 @@
       # pkgs-unstable = inputs.nixpkgs-unstable.legacyPackages.${system};
       # Create an 'unstable' package set from the input
       unstable = import inputs.nixpkgs-unstable {
-        system = "x86_64-linux"; # Ensure this matches your system architecture
+        inherit system;
         config.allowUnfree = true;
       };
     in
     {
       nixosConfigurations = {
+        inherit system;
+        specialArgs = { inherit inputs unstable; };
         # This string must match your target system identifier attribute node
         nixos = nixpkgs.lib.nixosSystem {
           # Makes external input channels cleanly available down within evaluation modules
@@ -88,12 +90,14 @@
             # Home Manager inline integration mapping (omit if using standalone runner)
             home-manager.nixosModules.home-manager
             {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              # This makes 'inputs' available specifically to your home.nix
-              home-manager.extraSpecialArgs = { inherit inputs; };
-              # Replace with your local system user name string
-              home-manager.users.mwoodpatrick = import ./home.nix;
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                # This makes 'inputs' available specifically to your home.nix
+                extraSpecialArgs = { inherit inputs unstable; };
+                # Replace with your local system user name string
+                users.mwoodpatrick = import ./home.nix;
+              };
             }
           ];
         };

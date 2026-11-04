@@ -1,17 +1,15 @@
 {
+  config,
+  lib,
   pkgs,
   inputs,
+  unstable,
   ...
 }:
 let
+  home = config.home.homeDirectory;
   browser = "firefox.desktop"; # Or "chromium-browser.desktop", "brave-browser.desktop"
-
-  # pkgs-unstable = inputs.nixpkgs-unstable.legacyPackages.${system};
-  # Create an 'unstable' package set from the input
-  unstable = import inputs.nixpkgs-unstable {
-    system = "x86_64-linux"; # Ensure this matches your system architecture
-    config.allowUnfree = true;
-  };
+  inherit (lib) mkForce;
 in
 {
   home = {
@@ -21,11 +19,13 @@ in
     sessionVariables = {
       # Ensure Ollama daemon target is consistently set in the shell session
       OLLAMA_HOST = "http://localhost:11434";
-      OLLAMA_API_KEY_FILE= "/run/secrets/OLLAMA_API_KEY";
+      OLLAMA_API_KEY_FILE = "/run/secrets/OLLAMA_API_KEY";
+      XDG_DATA_HOME = mkForce "/mnt/wsl/projects/data";
     };
   };
 
   xdg = {
+    enable = true;
     mimeApps = {
       enable = true;
       defaultApplications = {
@@ -36,7 +36,28 @@ in
         "x-scheme-handler/unknown" = browser;
       };
     };
-
+    desktopEntries = {
+      firefox = {
+        name = "Firefox";
+        genericName = "Web Browser";
+        comment = "Browse the World Wide Web";
+        exec = "firefox %u";
+        icon = "firefox";
+        terminal = false;
+        type = "Application";
+        categories = [
+          "Network"
+          "WebBrowser"
+        ];
+        mimeType = [
+          "text/html"
+          "text/xml"
+          "application/xhtml+xml"
+          "x-scheme-handler/http"
+          "x-scheme-handler/https"
+        ];
+      };
+    };
   };
 
   # This value determines the Home Manager release that your configuration is
@@ -53,15 +74,17 @@ in
 
   # Installs tools directly inside the user's execution profile path
   home.packages = with pkgs; [
-    pkgs.aider-chat
+    aider-chat
     atool
     shellcheck # Required backend linter utilized by the Bash LSP
     black # Python formatters & linters
     bubblewrap # Sandboxing toolkit utility used for security boundaries
     chafa
+    unstable.claude-code
     codex
     unstable.elan # Install latest Lean theorem prover.
     fd # Fast user directory scanner dependency
+    fzf
     file # Provides the core `file` utility binary
     fortune
     gemini-cli
@@ -73,16 +96,31 @@ in
     isort # Python formatters & linters
     jq # Essential CLI JSON processor
     kitty
+    lua5_1
+    luarocks
     lazygit
     lmstudio
     lua-language-server
     lsof
+    neovide
+    unstable.neovim
+    nerdfix
+    nodejs_26
     nil # fast, lightweight nix language server
     nixd # nix langiage server with deep-introspection features
     nixfmt
+    inputs.nix-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
+    inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.default
+    nix-ld
+    nix-index # locate the package providing a certain file in nixpkgs
     obsidian
+    unstable.ollama
+    openai
+    unstable.opencode # Official Nixpkgs unstable derivation
+    unstable.opencode-desktop
     pandoc
     patchelf # Small utility to modify the dynamic linker and RPATH of ELF executables.
+    pnpm
     prettier # Web/JavaScript formatters
     prettierd
     (python314.withPackages (ps: [
@@ -104,43 +142,23 @@ in
     sqlite # Provides both the CLI utility and sqlite3 libraries
     stylua
     imagemagick
-    unstable.opencode # Official Nixpkgs unstable derivation
-    unstable.opencode-desktop
+    tmux
+    trash-cli
     tree-sitter
+    ueberzugpp
     unstable.warp-terminal
+    unzip
+    viu
+    vscode-langservers-extracted
+    unstable.vscodium-fhs
     wayland
     wayland-utils
     wezterm
-    viu
-    ueberzugpp
+    xdg-utils
+    yarn
     yq-go # Provides a reliable YAML processor/parser
     # Migrated from configuration.nix
-    fd
-    fzf
-    git
-    unstable.claude-code
     # inputs.claude-code-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
-    lua5_1
-    luarocks
-    nerdfix
-    nodejs_26
-    openai
-    vscode-langservers-extracted
-    unstable.vscodium-fhs
-    neovide
-    pnpm
-    yarn
-    ripgrep
-    tmux
-    unzip
-    unstable.neovim
-    unstable.ollama
-    trash-cli
-    xdg-utils
-    inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.default
-    inputs.nix-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
-    nix-ld
-    nix-index # locate the package providing a certain file in nixpkgs
     unstable.zed-editor
   ];
 
@@ -221,40 +239,174 @@ in
     };
   };
 
+  # [Firefox](https://wiki.nixos.org/wiki/Firefox)
   programs.firefox = {
     enable = true;
 
-    # Global enterprise-level policies
+    languagePacks = [ "en-US" ];
+
     policies = {
-      DisableTelemetry = true;
+      # Updates & Background Services
+      AppAutoUpdate = false;
+      BackgroundAppUpdate = false;
+
+      # Feature Disabling
+      DisableBuiltinPDFViewer = true;
       DisableFirefoxStudies = true;
+      DisableFirefoxAccounts = true;
+      DisableFirefoxScreenshots = true;
+      DisableForgetButton = true;
+      DisableMasterPasswordCreation = true;
+      DisableProfileImport = true;
+      DisableProfileRefresh = true;
+      DisableSetDesktopBackground = true;
+      DisablePocket = true;
+      DisableTelemetry = true;
+      DisableFormHistory = true;
+      DisablePasswordReveal = true;
+
+      # Access Restrictions
+      BlockAboutConfig = false;
+      BlockAboutProfiles = true;
+      BlockAboutSupport = true;
+
+      # UI and Behavior
+      DisplayMenuBar = "never";
       DontCheckDefaultBrowser = true;
-      OfferToSaveLogins = false; # If using an external password manager
+      HardwareAcceleration = false;
+      OfferToSaveLogins = false;
+      DefaultDownloadDirectory = "${home}/Downloads";
+
+      # Extensions
+      ExtensionSettings =
+        let
+          moz = short: "https://addons.mozilla.org/firefox/downloads/latest/${short}/latest.xpi";
+        in
+        {
+          "*".installation_mode = "blocked";
+
+          "uBlock0@raymondhill.net" = {
+            install_url = moz "ublock-origin";
+            installation_mode = "force_installed";
+            updates_disabled = true;
+          };
+
+          "{f3b4b962-34b4-4935-9eee-45b0bce58279}" = {
+            install_url = moz "animated-purple-moon-lake";
+            installation_mode = "force_installed";
+            updates_disabled = true;
+          };
+
+          "{73a6fe31-595d-460b-a920-fcc0f8843232}" = {
+            install_url = moz "noscript";
+            installation_mode = "force_installed";
+            updates_disabled = true;
+          };
+        };
+
+      # Extension configuration
+      "3rdparty".Extensions = {
+        "uBlock0@raymondhill.net".adminSettings = {
+          userSettings = rec {
+            uiTheme = "dark";
+            uiAccentCustom = true;
+            uiAccentCustom0 = "#8300ff";
+            cloudStorageEnabled = mkForce false;
+
+            importedLists = [
+              "https://filters.adtidy.org/extension/ublock/filters/3.txt"
+              "https://github.com/DandelionSprout/adfilt/raw/master/LegitimateURLShortener.txt"
+            ];
+
+            externalLists = lib.concatStringsSep "\n" importedLists;
+          };
+
+          selectedFilterLists = [
+            "CZE-0"
+            "adguard-generic"
+            "adguard-annoyance"
+            "adguard-social"
+            "adguard-spyware-url"
+            "easylist"
+            "easyprivacy"
+            "https://github.com/DandelionSprout/adfilt/raw/master/LegitimateURLShortener.txt"
+            "plowe-0"
+            "ublock-abuse"
+            "ublock-badware"
+            "ublock-filters"
+            "ublock-privacy"
+            "ublock-quick-fixes"
+            "ublock-unbreak"
+            "urlhaus-1"
+          ];
+        };
+      };
     };
 
-    profiles.default = {
-      id = 0;
-      name = "default";
-      isDefault = true;
+    profiles.default.search = {
+      force = true;
+      default = "ddg";
+      privateDefault = "ddg";
 
-      # Declarative extension management
-      extensions.packages = with pkgs.nubank.vscode-extensions; [
-        # or pkgs.nur.repos.rycee.firefox-addons
-        # pkgs.firefox-addons.ublock-origin
-        # pkgs.firefox-addons.bitwarden
-      ];
+      engines = {
+        "Nix Packages" = {
+          urls = [
+            {
+              template = "https://search.nixos.org/packages";
+              params = [
+                {
+                  name = "channel";
+                  value = "unstable";
+                }
+                {
+                  name = "query";
+                  value = "{searchTerms}";
+                }
+              ];
+            }
+          ];
+          icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+          definedAliases = [ "@np" ];
+        };
 
-      # Native firefox user preferences (about:config)
-      settings = {
-        "browser.startup.page" = 3; # Resume previous session
-        "privacy.trackingprotection.enabled" = true;
-        "signon.rememberSignons" = false;
-        "toolkit.legacyUserProfileCustomizations.stylesheets" = true; # For custom userChrome.css
+        "Nix Options" = {
+          urls = [
+            {
+              template = "https://search.nixos.org/options";
+              params = [
+                {
+                  name = "channel";
+                  value = "unstable";
+                }
+                {
+                  name = "query";
+                  value = "{searchTerms}";
+                }
+              ];
+            }
+          ];
+          icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+          definedAliases = [ "@no" ];
+        };
+
+        "NixOS Wiki" = {
+          urls = [
+            {
+              template = "https://wiki.nixos.org/w/index.php";
+              params = [
+                {
+                  name = "search";
+                  value = "{searchTerms}";
+                }
+              ];
+            }
+          ];
+          icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+          definedAliases = [ "@nw" ];
+        };
       };
     };
   };
 
-  # Let Home Manager install and manage itself declaratively
-  # This option installs the home-manager CLI tool matching your configuration
   programs.home-manager.enable = true;
 }
