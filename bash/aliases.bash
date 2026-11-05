@@ -167,7 +167,7 @@ Win32)
     ;;
 
 *)
-    alias firefox='firefox -P &'
+    alias firefox='firefox -P default &'
     alias chrome="/home/utils/chrome-58.0.3029.110/opt/google/chrome/google-chrome &"
     alias py=python3
     ;;

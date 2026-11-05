@@ -8,6 +8,9 @@
 }:
 let
   home = config.home.homeDirectory;
+  projects_root = "/mnt/wsl/projects";
+  git_root = "${projects_root}/git";
+  xdg_data = "${projects_root}/data";
   browser = "firefox.desktop"; # Or "chromium-browser.desktop", "brave-browser.desktop"
   inherit (lib) mkForce;
 in
@@ -20,12 +23,13 @@ in
       # Ensure Ollama daemon target is consistently set in the shell session
       OLLAMA_HOST = "http://localhost:11434";
       OLLAMA_API_KEY_FILE = "/run/secrets/OLLAMA_API_KEY";
-      XDG_DATA_HOME = mkForce "/mnt/wsl/projects/data";
+      XDG_DATA_HOME = mkForce "${xdg_data}";
     };
   };
 
   xdg = {
     enable = true;
+    configHome = "${git_root}/dotfiles";
     mimeApps = {
       enable = true;
       defaultApplications = {
@@ -61,8 +65,6 @@ in
   };
 
   # This value determines the Home Manager release that your configuration is
-  # compatible with. Must map to your stable system state variant.
-  # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release
   # introduces backwards incompatible changes.
   #
@@ -78,6 +80,7 @@ in
     atool
     shellcheck # Required backend linter utilized by the Bash LSP
     black # Python formatters & linters
+    btop
     bubblewrap # Sandboxing toolkit utility used for security boundaries
     chafa
     unstable.claude-code
@@ -109,15 +112,31 @@ in
     nil # fast, lightweight nix language server
     nixd # nix langiage server with deep-introspection features
     nixfmt
-    inputs.nix-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
-    inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.default
+    # inputs.nix-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
+    # inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.default
     nix-ld
     nix-index # locate the package providing a certain file in nixpkgs
     obsidian
     unstable.ollama
-    openai
-    unstable.opencode # Official Nixpkgs unstable derivation
-    unstable.opencode-desktop
+    python3Packages.openai
+    # TODO: getting hash mismatch switching to stable branch
+    opencode
+    # unstable.opencode # Official Nixpkgs unstable derivation
+    # (pkgs.opencode.override {
+    # npmDepsHash = "sha256-prx9dX7kUvs/E3zopkaPk5LXh3xJAy5sZeum/W8L7cA=";
+    # })
+      # (pkgs.opencode.overrideAttrs (oldAttrs: {
+      # npmDeps = oldAttrs.npmDeps.overrideAttrs (_: {
+    # outputHash = "sha256-prx9dX7kUvs/E3zopkaPk5LXh3xJAy5sZeum/W8L7cA=";
+    # });
+    # }))
+      # (unstable.opencode.overrideAttrs (oldAttrs: {
+      # npmDeps = oldAttrs.passthru.npmDeps.overrideAttrs (_: {
+    # outputHash = "sha256-prx9dX7kUvs/E3zopkaPk5LXh3xJAy5sZeum/W8L7cA=";
+    # });
+    # }))
+    # unstable.opencode-desktop
+    opencode-desktop
     pandoc
     patchelf # Small utility to modify the dynamic linker and RPATH of ELF executables.
     pnpm
@@ -162,6 +181,8 @@ in
     unstable.zed-editor
   ];
 
+  programs.home-manager.enable = true;
+
   # 3. Automated Git Architecture Configurations
   # Ties directly into your upstream tracking layout definitions
   programs.git = {
@@ -195,8 +216,8 @@ in
     # This works perfectly here because it's wrapped safely inside user 'eve' [1.2.5]
     initExtra = ''
       # Dynamically search for the file path on your file system
-      if [ -f "/mnt/wsl/projects/git/dotfiles/bash/init.bash" ]; then
-        source "/mnt/wsl/projects/git/dotfiles/bash/init.bash"
+      if [ -f "${config.xdg.configHome}/bash/init.bash" ]; then
+        source "${config.xdg.configHome}/bash/init.bash"
       fi
     '';
 
@@ -242,7 +263,7 @@ in
   # [Firefox](https://wiki.nixos.org/wiki/Firefox)
   programs.firefox = {
     enable = true;
-
+    configPath = "${xdg_data}/mozilla/firefox"; # force profile location
     languagePacks = [ "en-US" ];
 
     policies = {
@@ -251,30 +272,30 @@ in
       BackgroundAppUpdate = false;
 
       # Feature Disabling
-      DisableBuiltinPDFViewer = true;
-      DisableFirefoxStudies = true;
-      DisableFirefoxAccounts = true;
-      DisableFirefoxScreenshots = true;
-      DisableForgetButton = true;
-      DisableMasterPasswordCreation = true;
-      DisableProfileImport = true;
-      DisableProfileRefresh = true;
-      DisableSetDesktopBackground = true;
-      DisablePocket = true;
+      # DisableBuiltinPDFViewer = true;
+      # DisableFirefoxStudies = true;
+      # DisableFirefoxAccounts = true;
+      # DisableFirefoxScreenshots = true;
+      # DisableForgetButton = true;
+      # DisableMasterPasswordCreation = true;
+      # DisableProfileImport = true;
+      # DisableProfileRefresh = true;
+      # DisableSetDesktopBackground = true;
+      # DisablePocket = true;
       DisableTelemetry = true;
-      DisableFormHistory = true;
-      DisablePasswordReveal = true;
+      # DisableFormHistory = true;
+      # DisablePasswordReveal = true;
 
       # Access Restrictions
-      BlockAboutConfig = false;
-      BlockAboutProfiles = true;
-      BlockAboutSupport = true;
+      # BlockAboutConfig = false;
+      # BlockAboutProfiles = true;
+      # BlockAboutSupport = true;
 
       # UI and Behavior
       DisplayMenuBar = "never";
       DontCheckDefaultBrowser = true;
       HardwareAcceleration = false;
-      OfferToSaveLogins = false;
+      # OfferToSaveLogins = false;
       DefaultDownloadDirectory = "${home}/Downloads";
 
       # Extensions
@@ -301,6 +322,13 @@ in
             install_url = moz "noscript";
             installation_mode = "force_installed";
             updates_disabled = true;
+          };
+
+          # NordPass – password manager
+          "nordpass@mozilla.org" = {
+            install_url = moz "nordpass";
+            installation_mode = "force_installed";
+            updates_disabled = false;
           };
         };
 
@@ -343,70 +371,82 @@ in
       };
     };
 
-    profiles.default.search = {
-      force = true;
-      default = "ddg";
-      privateDefault = "ddg";
+    # Firefox profile = a complete, isolated user data store for the browser.
+    # Profiles let you have separate sets of bookmarks, extensions, preferences, etc.
+    profiles = {
+      default = {
+        id = 0;
+        search = {
+          force = true;
+          default = "ddg";
+          privateDefault = "ddg";
 
-      engines = {
-        "Nix Packages" = {
-          urls = [
-            {
-              template = "https://search.nixos.org/packages";
-              params = [
+          engines = {
+            "Nix Packages" = {
+              urls = [
                 {
-                  name = "channel";
-                  value = "unstable";
-                }
-                {
-                  name = "query";
-                  value = "{searchTerms}";
+                  template = "https://search.nixos.org/packages";
+                  params = [
+                    {
+                      name = "channel";
+                      value = "unstable";
+                    }
+                    {
+                      name = "query";
+                      value = "{searchTerms}";
+                    }
+                  ];
                 }
               ];
-            }
-          ];
-          icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
-          definedAliases = [ "@np" ];
+              icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+              definedAliases = [ "@np" ];
+            };
+
+            "Nix Options" = {
+              urls = [
+                {
+                  template = "https://search.nixos.org/options";
+                  params = [
+                    {
+                      name = "channel";
+                      value = "unstable";
+                    }
+                    {
+                      name = "query";
+                      value = "{searchTerms}";
+                    }
+                  ];
+                }
+              ];
+              icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+              definedAliases = [ "@no" ];
+            };
+
+            "NixOS Wiki" = {
+              urls = [
+                {
+                  template = "https://wiki.nixos.org/w/index.php";
+                  params = [
+                    {
+                      name = "search";
+                      value = "{searchTerms}";
+                    }
+                  ];
+                }
+              ];
+              icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+              definedAliases = [ "@nw" ];
+            };
+          };
         };
-
-        "Nix Options" = {
-          urls = [
-            {
-              template = "https://search.nixos.org/options";
-              params = [
-                {
-                  name = "channel";
-                  value = "unstable";
-                }
-                {
-                  name = "query";
-                  value = "{searchTerms}";
-                }
-              ];
-            }
-          ];
-          icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
-          definedAliases = [ "@no" ];
-        };
-
-        "NixOS Wiki" = {
-          urls = [
-            {
-              template = "https://wiki.nixos.org/w/index.php";
-              params = [
-                {
-                  name = "search";
-                  value = "{searchTerms}";
-                }
-              ];
-            }
-          ];
-          icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
-          definedAliases = [ "@nw" ];
+      };
+      "work" = {
+        id = 1;
+        path = "/home/mwoodpatrick/config/.mozilla/firefox/work";
+        settings = {
+          "privacy.resistFingerprinting" = true;
         };
       };
     };
   };
-
-  programs.home-manager.enable = true;
 }

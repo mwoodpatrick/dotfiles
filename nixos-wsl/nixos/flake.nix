@@ -23,7 +23,7 @@
     claude-code-nix.url = "github:sadjow/claude-code-nix";
 
     # nixai: AI-Powered NixOS Assistant
-    nix-ai.url = "github:olafkfreund/nix-ai-help";
+    # nix-ai.url = "github:olafkfreund/nix-ai-help";
 
     # nix-agent
     nix-agent.url = "github:JEFF7712/nix-agent";
@@ -61,10 +61,10 @@
     in
     {
       nixosConfigurations = {
-        inherit system;
-        specialArgs = { inherit inputs unstable; };
+        # specialArgs = { inherit inputs unstable; };
         # This string must match your target system identifier attribute node
         nixos = nixpkgs.lib.nixosSystem {
+          inherit system;
           # Makes external input channels cleanly available down within evaluation modules
           specialArgs = { inherit inputs unstable; };
 

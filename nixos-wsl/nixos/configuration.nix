@@ -7,7 +7,7 @@
 
 # access unstable packages via pkgs.pkgs-unstable
 {
-# config,
+  # config,
   lib,
   pkgs,
   inputs,
@@ -37,7 +37,7 @@
   # [nix.gc](https://mynixos.com/nixpkgs/options/nix.gc)
   nix.gc = {
     automatic = true;
-    dates = "weekly"; # or "daily"
+    dates = [ "weekly" ];
     options = "--delete-older-than 30d";
     # fred = 23; # enable for flake check
   };
@@ -223,6 +223,7 @@
     libxrandr
     libxi
     libGL
+    fontconfig
   ];
 
   # Mask the WSL-generated mount guard unit
@@ -241,11 +242,6 @@
   # Ensure the systemd user manager is properly configured to linger
   # This allows systemd to manage user services even when you aren't logged in
   systemd.user.services.nix-daemon.wantedBy = [ "multi-user.target" ];
-
-  # Force systemd to instantiate user-space session buses automatically
-  systemd.user.extraConfig = ''
-    DefaultEnvironment="XDG_RUNTIME_DIR=/run/user/%U"
-  '';
 
   # Workaround for NixOS 26.05 activation bug under headless WSL states
   # Bypasses the broken user-space systemd reload loop during nixos-rebuild switch
@@ -277,12 +273,26 @@
   };
 
   #  Enable the Unfree licenses required for proprietary GPU acceleration hooks
-  nixpkgs.config.allowUnfree = true;
-  nixpkgs.config.allowUnfreePredicate =
-    pkg:
-    builtins.elem (lib.getName pkg) [
-      "claude-code"
+  nixpkgs.config = {
+    allowUnfree = true;
+
+    problems.handlers = {
+      # Pass an attribute set specifying how to handle broken packages
+      broken = {
+        action = "warn";
+      };
+    };
+
+    allowUnfreePredicate =
+      pkg:
+      builtins.elem (lib.getName pkg) [
+        "claude-code"
+      ];
+
+    permittedInsecurePackages = [
+      "electron-41.10.7"
     ];
+  };
 
   # Enable the Ollama Service
   # Enable the background daemon service
