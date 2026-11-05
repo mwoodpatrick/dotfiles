@@ -107,24 +107,24 @@
   # Essential build tools and utilities required by modern Neovim plugins
   # (e.g., Mason compilation, Treesitter parsers, and Telescope searching)
   environment.systemPackages = with pkgs; [
-    pciutils
+    age # Provides age and age-keygen
+    at-spi2-core
+    chafa
     gcc
     ghostscript
+    glib # C library of programming buildings blocks
     gnumake
+    kmod # Provides lsmod, modprobe, rmmod, etc
     inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
     mermaid-cli
-    tectonic
-    wget
-    kmod # Provides lsmod, modprobe, rmmod, etc
-    age # Provides age and age-keygen
-    ssh-to-age # Convert ssh private keys in ed25519 format to age keys
-    sops # Secrets management CLI
-    at-spi2-core
-    glib # C library of programming buildings blocks
-    xdotool # Fake keyboard/mouse input, window management, and more.if using X11 routing fallback
     mesa-demos
-    chafa
+    pciutils
+    sops # Secrets management CLI
+    ssh-to-age # Convert ssh private keys in ed25519 format to age keys
+    tectonic
     timg
+    wget
+    xdotool # Fake keyboard/mouse input, window management, and more.if using X11 routing fallback
   ];
 
   # Secrets Management (sops-nix)

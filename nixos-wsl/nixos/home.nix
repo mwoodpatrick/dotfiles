@@ -105,6 +105,7 @@ in
     lmstudio
     lua-language-server
     lsof
+    mesa-demos # [Collection of demos and test programs for OpenGL and Mesa](https://github.com/mirror/mesa-demos)
     neovide
     unstable.neovim
     nerdfix
@@ -172,6 +173,7 @@ in
     unstable.vscodium-fhs
     wayland
     wayland-utils
+    wl-clipboard
     wezterm
     xdg-utils
     yarn
