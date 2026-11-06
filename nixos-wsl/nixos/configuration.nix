@@ -34,6 +34,25 @@
     enable32Bit = true;
   };
 
+  # Enable X11 and Plasma 6
+  # instruct NixOS to pull in foundational graphical requirements:
+  # Fontconfig default font directories,
+  # D-Bus desktop services,
+  # Polkit authentication agents,
+  # OpenGL/Mesa driver hooks, and
+  # XDG desktop integration rules.
+  services.xserver.enable = true;
+  services.desktopManager.plasma6.enable = true;
+
+  # Core audio routing
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+  };
+
   # [nix.gc](https://mynixos.com/nixpkgs/options/nix.gc)
   nix.gc = {
     automatic = true;
@@ -116,6 +135,9 @@
     gnumake
     kmod # Provides lsmod, modprobe, rmmod, etc
     inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
+    kdePackages.dolphin
+    kdePackages.konsole
+    kdePackages.kate
     mermaid-cli
     mesa-demos
     pciutils
@@ -229,8 +251,6 @@
   # Mask the WSL-generated mount guard unit
   systemd.units."wsl-mnt-guard.service".enable = false;
   systemd.services.wsl-mnt-guard.enable = false;
-  services.xserver.enable = true;
-  services.desktopManager.plasma6.enable = true;
 
   # running a lightweight notification daemon to satisfy GLFW
   # (the windowing/input C library Kitty links against).

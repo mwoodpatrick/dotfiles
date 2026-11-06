@@ -348,7 +348,7 @@ Win32)
 
     ;;
 
-Linux|linux-gnu)
+Linux | linux-gnu)
     export GIT_ROOT=/mnt/wsl/projects/git
     # environment variable defined by the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/latest/] (created by freedesktop.org)
     # base directory relative to which user-specific configuration files should be stored.
@@ -373,9 +373,18 @@ Linux|linux-gnu)
     # Inform your global login shells where to locate the user socket channel
     export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus"
     export DONT_PROMPT_WSL_INSTALL="1"
+
+    # WSL injects the following display environment variables by default into every user session:
+    # WAYLAND_DISPLAY="wayland-0"
+    # DISPLAY=":0"
+    # PULSE_SERVER="/mnt/wslg/PulseServer"
     # needed for warp-terminal which currenly does not appear to work with Wayland
     # GDK_BACKEND = "x11"
     # WAYLAND_DISPLAY = ""
+
+    # Direct GTK and Qt to prefer native Wayland over XWayland
+    export GDK_BACKEND="wayland,x11"
+    export QT_QPA_PLATFORM="wayland;xcb"
 
     # Commit to perlbrew
     # use perlbrew use 5.20.1-007 to switch version
