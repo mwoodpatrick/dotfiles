@@ -14,20 +14,25 @@
   unstable,
   ...
 }:
+let
+  user = "mwoodpatrick";
+in
 {
-
   imports = [
     # include NixOS-WSL modules
     # ./hardware-configuration.nix
     # <nixos-wsl/modules>
   ];
 
+  # [NixOS-WSL](https://nix-community.github.io/NixOS-WSL)
   # Core architecture switches mapping the guest VM parameters
-  wsl.enable = true;
-  wsl.defaultUser = "mwoodpatrick";
-  # This tells the NixOS-WSL builder to dynamically generate
-  # a valid wsl.conf with interop turned off during system activation
-  wsl.interop.includePath = false;
+  wsl = {
+    enable = true; # Whether to enable support for running NixOS as a WSL distribution.
+    defaultUser = "${user}"; # The name of the default user
+    # This tells the NixOS-WSL builder to dynamically generate
+    # a valid wsl.conf with interop turned off during system activation
+    interop.includePath = true; # Include Windows PATH in WSL PATH
+  };
 
   hardware.graphics = {
     enable = true;
@@ -41,17 +46,21 @@
   # Polkit authentication agents,
   # OpenGL/Mesa driver hooks, and
   # XDG desktop integration rules.
-  services.xserver.enable = true;
-  services.desktopManager.plasma6.enable = true;
+  # [X Window System](https://nixos.org/manual/nixos/stable/#sec-x11)
+  # Not needed for individual GUI apps (server provided by WSL-2)
+  services.xserver.enable = false; # Whether to enable the X server.
+
+  # [services.desktopManager](https://mynixos.com/nixpkgs/options/services.desktopManager)
+  # services.desktopManager.plasma6.enable = true;
 
   # Core audio routing
-  security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-  };
+  #  security.rtkit.enable = true;
+  #  services.pipewire = {
+  #    enable = true;
+  #    alsa.enable = true;
+  #    alsa.support32Bit = true;
+  #    pulse.enable = true;
+  #  };
 
   # [nix.gc](https://mynixos.com/nixpkgs/options/nix.gc)
   nix.gc = {
@@ -68,23 +77,6 @@
     extraOptions = ''
       --bip=192.168.150.1/24
     '';
-  };
-
-  xdg = {
-    autostart.enable = true;
-    portal = {
-      enable = true;
-      extraPortals = [
-        pkgs.xdg-desktop-portal
-        pkgs.xdg-desktop-portal-gtk
-      ];
-
-      config = {
-        common = {
-          default = [ "gtk" ];
-        };
-      };
-    };
   };
 
   # [Fonts](https://nixos.wiki/wiki/Fonts)
@@ -123,31 +115,43 @@
     };
   };
 
-  # Essential build tools and utilities required by modern Neovim plugins
-  # (e.g., Mason compilation, Treesitter parsers, and Telescope searching)
-  environment.systemPackages = with pkgs; [
-    age # Provides age and age-keygen
-    at-spi2-core
-    chafa
-    gcc
-    ghostscript
-    glib # C library of programming buildings blocks
-    gnumake
-    kmod # Provides lsmod, modprobe, rmmod, etc
-    inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
-    kdePackages.dolphin
-    kdePackages.konsole
-    kdePackages.kate
-    mermaid-cli
-    mesa-demos
-    pciutils
-    sops # Secrets management CLI
-    ssh-to-age # Convert ssh private keys in ed25519 format to age keys
-    tectonic
-    timg
-    wget
-    xdotool # Fake keyboard/mouse input, window management, and more.if using X11 routing fallback
-  ];
+  environment = {
+    # Link application desktop entries and portal definitions
+    pathsToLink = [
+      "/share/applications"
+      "/share/xdg-desktop-portal"
+    ];
+
+    sessionVariables = {
+      # OLLAMA_API_KEY_FILE = config.sops.secrets.OLLAMA_API_KEY.path;
+    };
+
+    # Essential build tools and utilities required by modern Neovim plugins
+    # (e.g., Mason compilation, Treesitter parsers, and Telescope searching)
+    systemPackages = with pkgs; [
+      age # Provides age and age-keygen
+      at-spi2-core
+      chafa
+      gcc
+      ghostscript
+      glib # C library of programming buildings blocks
+      gnumake
+      kmod # Provides lsmod, modprobe, rmmod, etc
+      inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
+      kdePackages.dolphin
+      kdePackages.konsole
+      kdePackages.kate
+      mermaid-cli
+      mesa-demos
+      pciutils
+      sops # Secrets management CLI
+      ssh-to-age # Convert ssh private keys in ed25519 format to age keys
+      tectonic
+      timg
+      wget
+      xdotool # Fake keyboard/mouse input, window management, and more.if using X11 routing fallback
+    ];
+  };
 
   # Secrets Management (sops-nix)
   # [Sops-Nix encrypted secrets](https://saylesss88.github.io/installation/enc/sops-nix.html)
@@ -205,10 +209,6 @@
     };
   };
 
-  environment.sessionVariables = {
-    # OLLAMA_API_KEY_FILE = config.sops.secrets.OLLAMA_API_KEY.path;
-  };
-
   # Centralized tool management frameworks
   programs = {
     # source .envrc files
@@ -248,9 +248,21 @@
     fontconfig
   ];
 
-  # Mask the WSL-generated mount guard unit
-  systemd.units."wsl-mnt-guard.service".enable = false;
-  systemd.services.wsl-mnt-guard.enable = false;
+  systemd = {
+    # Mask the WSL-generated mount guard unit
+    units."wsl-mnt-guard.service".enable = false;
+    services.wsl-mnt-guard.enable = false;
+
+    # Create a symlink /usr/share/applications -> /run/current-system/sw/share/applications
+    # 'L+' creates or overrides a symbolic link:
+    # L+  <target-path>  <mode>  <uid>  <gid>  <age>  <source-path>
+    tmpfiles.rules = [
+      "L+ /usr/share/applications - - - - /run/current-system/sw/share/applications"
+      "L+ /home/${user}/.local/share/applications/ - - - - /etc/profiles/per-user/${user}/share/applications"
+      "L+ /usr/share/icons - - - - /run/current-system/sw/share/icons"
+      "L+ /home/${user}/.local/share/icons/ - - - - /etc/profiles/per-user/${user}/share/icons"
+    ];
+  };
 
   # running a lightweight notification daemon to satisfy GLFW
   # (the windowing/input C library Kitty links against).

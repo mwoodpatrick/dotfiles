@@ -348,7 +348,7 @@ Win32)
 
     ;;
 
-Linux | linux-gnu)
+Linux|linux-gnu)
     export GIT_ROOT=/mnt/wsl/projects/git
     # environment variable defined by the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/latest/] (created by freedesktop.org)
     # base directory relative to which user-specific configuration files should be stored.

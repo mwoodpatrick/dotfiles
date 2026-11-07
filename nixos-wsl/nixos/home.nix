@@ -28,38 +28,47 @@ in
   };
 
   xdg = {
-    enable = true;
+    enable = true; # Whether to enable management of XDG base directories
+    # standard .desktop files configured to launch background utilities, 
+    # tray applets, or services automatically when a user logs into a 
+    # graphical desktop session (such as GNOME, KDE Plasma, or XFCE).
+    # TODO disable for now, enabled when we add a graphical-desktop 
+    autostart = {
+      enable = false; 
+    };
+    # Controls where ~/.config files go
     configHome = "${git_root}/dotfiles";
-    mimeApps = {
+    # Controls where ~/.local/share files (and applications/) go
+    dataHome = "${projects_root}/data";
+
+    # desktop-agnostic D-Bus bridge that lets applications—especially sandboxed, 
+    # wrapped, or containerized software (such as Flatpak, Snap, VS Code inside 
+    # FHS wrappers, and web browsers)—interact safely with the host 
+    # desktop environment.
+    portal = {
       enable = true;
+      extraPortals = [
+        pkgs.xdg-desktop-portal
+        pkgs.xdg-desktop-portal-gtk
+      ];
+
+      config = {
+        common = {
+          default = [ "gtk" ];
+        };
+      };
+    };
+
+    # conflict with nixos/modules/services/misc/graphical-desktop.nix
+    mime.enable = mkForce false; # wants to put file in /home/${user}/.local/share/applications/mimeapps.list
+    mimeApps = {
+      enable = false;
       defaultApplications = {
         "text/html" = browser;
         "x-scheme-handler/http" = browser;
         "x-scheme-handler/https" = browser;
         "x-scheme-handler/about" = browser;
         "x-scheme-handler/unknown" = browser;
-      };
-    };
-    desktopEntries = {
-      firefox = {
-        name = "Firefox";
-        genericName = "Web Browser";
-        comment = "Browse the World Wide Web";
-        exec = "firefox %u";
-        icon = "firefox";
-        terminal = false;
-        type = "Application";
-        categories = [
-          "Network"
-          "WebBrowser"
-        ];
-        mimeType = [
-          "text/html"
-          "text/xml"
-          "application/xhtml+xml"
-          "x-scheme-handler/http"
-          "x-scheme-handler/https"
-        ];
       };
     };
   };
@@ -126,13 +135,13 @@ in
     # (pkgs.opencode.override {
     # npmDepsHash = "sha256-prx9dX7kUvs/E3zopkaPk5LXh3xJAy5sZeum/W8L7cA=";
     # })
-      # (pkgs.opencode.overrideAttrs (oldAttrs: {
-      # npmDeps = oldAttrs.npmDeps.overrideAttrs (_: {
+    # (pkgs.opencode.overrideAttrs (oldAttrs: {
+    # npmDeps = oldAttrs.npmDeps.overrideAttrs (_: {
     # outputHash = "sha256-prx9dX7kUvs/E3zopkaPk5LXh3xJAy5sZeum/W8L7cA=";
     # });
     # }))
-      # (unstable.opencode.overrideAttrs (oldAttrs: {
-      # npmDeps = oldAttrs.passthru.npmDeps.overrideAttrs (_: {
+    # (unstable.opencode.overrideAttrs (oldAttrs: {
+    # npmDeps = oldAttrs.passthru.npmDeps.overrideAttrs (_: {
     # outputHash = "sha256-prx9dX7kUvs/E3zopkaPk5LXh3xJAy5sZeum/W8L7cA=";
     # });
     # }))
