@@ -94,6 +94,7 @@ in
     chafa
     unstable.claude-code
     codex
+    cowsay
     unstable.elan # Install latest Lean theorem prover.
     fd # Fast user directory scanner dependency
     fzf
@@ -128,6 +129,7 @@ in
     nix-index # locate the package providing a certain file in nixpkgs
     obsidian
     unstable.ollama
+    ponysay
     python3Packages.openai
     # TODO: getting hash mismatch switching to stable branch
     opencode
