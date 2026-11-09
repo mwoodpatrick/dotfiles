@@ -6,7 +6,8 @@ kitty() {
 }
 
 ghostty() {
-    command ghostty "$@" &
+    # use software rendering on WSL-2, disable internal logging
+    LIBGL_ALWAYS_SOFTWARE=1 command ghostty "$@" >/dev/null 2>&1 &
 }
 
 alias c='clear'
@@ -55,9 +56,9 @@ function nix-gc() {
 
 function nix-update() {
     nix flake update --flake "$NIXOS_CONFIG_ROOT" nixpkgs-unstable &&
-    nix-check &&
-    nix-switch &&
-    nix-gc
+        nix-check &&
+        nix-switch &&
+        nix-gc
 }
 
 alias g="git"
@@ -74,7 +75,6 @@ ff() {
     fi
     find "$dir" -type f -exec grep -si -- "$pattern" {} + -print
 }
-
 
 #   nvrun projectteam
 #   nvprojectname resolve_validate

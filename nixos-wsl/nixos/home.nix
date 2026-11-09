@@ -89,6 +89,7 @@ in
     atool
     shellcheck # Required backend linter utilized by the Bash LSP
     black # Python formatters & linters
+    bun
     btop
     bubblewrap # Sandboxing toolkit utility used for security boundaries
     chafa
@@ -213,7 +214,7 @@ in
   };
 
   programs.starship = {
-    enable = false;
+    enable = true;
     enableBashIntegration = true; # Automatically hooks it into Bash initExtra [2]
   };
 

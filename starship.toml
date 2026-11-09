@@ -1,0 +1,6 @@
+# Increase scan timeout globally from 500ms to 2000ms
+scan_timeout = 2000
+
+# Optional: Disable git scanning on slow Windows NTFS mounts
+[git_status]
+disabled = false

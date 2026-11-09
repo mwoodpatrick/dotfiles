@@ -39,6 +39,14 @@ in
     enable32Bit = true;
   };
 
+  # WSL-2 does not use a direct physical monitor, virtual GPU, or
+  # display seat (/dev/tty0). Instead, Windows 11 handles GUI rendering
+  # through WSLg, which bridges Wayland and X11 calls directly to your Windows
+  # desktop as floating windows.
+  # Disable desktop manager / display manager modules
+  services.xserver.enable = false;
+  services.greetd.enable = false;
+
   # Enable X11 and Plasma 6
   # instruct NixOS to pull in foundational graphical requirements:
   # Fontconfig default font directories,
@@ -48,7 +56,6 @@ in
   # XDG desktop integration rules.
   # [X Window System](https://nixos.org/manual/nixos/stable/#sec-x11)
   # Not needed for individual GUI apps (server provided by WSL-2)
-  services.xserver.enable = false; # Whether to enable the X server.
 
   # [services.desktopManager](https://mynixos.com/nixpkgs/options/services.desktopManager)
   # services.desktopManager.plasma6.enable = true;
@@ -129,6 +136,9 @@ in
     # Essential build tools and utilities required by modern Neovim plugins
     # (e.g., Mason compilation, Treesitter parsers, and Telescope searching)
     systemPackages = with pkgs; [
+      # [adwaita](https://gnome.pages.gitlab.gnome.org/libadwaita/)
+      # Building blocks for modern adaptive GNOME applications.
+      adwaita-icon-theme
       age # Provides age and age-keygen
       at-spi2-core
       chafa
@@ -136,6 +146,11 @@ in
       ghostscript
       glib # C library of programming buildings blocks
       gnumake
+      # Collection of GSettings schemas for settings shared by various components of a desktop
+      gsettings-desktop-schemas
+      # [default-icon-theme](https://www.freedesktop.org/wiki/Software/icon-theme)
+      # icon-theme contains the standard also references the default icon theme called hicolor.
+      hicolor-icon-theme
       kmod # Provides lsmod, modprobe, rmmod, etc
       inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
       kdePackages.dolphin
@@ -211,6 +226,9 @@ in
 
   # Centralized tool management frameworks
   programs = {
+    # Enables GSettings/dconf backend and schemas
+    dconf.enable = true;
+
     # source .envrc files
     direnv.enable = true;
     direnv.nix-direnv.enable = true;
@@ -220,14 +238,6 @@ in
       defaultEditor = true; # Automatically assigns $EDITOR and $VISUAL to nvim
       viAlias = true; # Maps 'vi' command to nvim
       vimAlias = true; # Maps 'vim' command to nvim
-    };
-
-    bash = {
-      interactiveShellInit = ''
-        if [ -f $GIT_ROOT/dotfiles/bash/init.bash ]; then
-          source $GIT_ROOT/dotfiles/bash/init.bash
-        fi
-      '';
     };
   };
 

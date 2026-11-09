@@ -6,6 +6,38 @@
 
 # If not running interactively, don't do anything
 
+# Check if the script is being sourced or executed directly
+function caller() {
+    if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+        calling_file="${BASH_SOURCE[1]}"
+        calling_line="${BASH_LINENO[0]}"
+        echo "Sourced from: ${calling_file} at line ${calling_line}"
+    else
+        echo "Executed directly, not sourced."
+    fi
+    echo "IN_NIX_SHELL=$IN_NIX_SHELL"
+}
+
+# starship is managing our prompt now so this function is not being called
+function update_prompt() {
+    if [ "$color_prompt" = yes ]; then
+        # PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+        PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+        # PS1='$ '
+    else
+        PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+    fi
+    unset color_prompt force_color_prompt
+
+    # Add a (nix) badge to PS1 when inside nix develop or nix-shell
+    if [ -n "$IN_NIX_SHELL" ]; then
+        echo "In Nix dev shell"
+        PS1="\[\e[1;34m\](nix)\[\e[0m\] $PS1"
+    else
+        echo "In Standard shell"
+    fi
+}
+
 case $- in
 *i*) ;;
 *) [[ "${BASH_SOURCE[0]}" == "$0" ]] && exit 0 || return ;;
@@ -84,23 +116,7 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
-if [ "$color_prompt" = yes ]; then
-    # PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-    PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-    # PS1='$ '
-else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-fi
-unset color_prompt force_color_prompt
-
-# If this is an xterm set the title to user@host:dir
-case "$TERM" in
-xterm* | rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
-    ;;
-*)
-    ;;
-esac
+# update_prompt
 
 # xhost +
 
@@ -348,7 +364,7 @@ Win32)
 
     ;;
 
-Linux|linux-gnu)
+Linux | linux-gnu)
     export GIT_ROOT=/mnt/wsl/projects/git
     # environment variable defined by the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/latest/] (created by freedesktop.org)
     # base directory relative to which user-specific configuration files should be stored.

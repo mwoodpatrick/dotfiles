@@ -1,0 +1,28 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // Primary model for this repository (provider/model)
+  "model": "ollama/gpt-oss:120b-cloud",
+
+  // OpenCode v2 agent model assignment (e.g., lightweight title generation)
+  "agents": {
+    "title": {
+      "model": "ollama/qwen2.5-coder:7b"
+    }
+  },
+
+  // Default mode when starting a session ("plan" or "build")
+  "default_agent": "plan",
+
+  // Automatically format files modified by OpenCode
+  "formatter": true,
+
+  // Optional: Provider overrides specific to this repository
+  "providers": {
+    "ollama": {
+      "settings": {
+        "baseURL": "{env:OLLAMA_HOST}"
+      }
+    }
+  }
+}
