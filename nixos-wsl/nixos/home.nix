@@ -16,6 +16,7 @@ let
 in
 {
   home = {
+    # Optional: Only needed if you install GUI apps in home.packages rather than configuration.nix
     username = "mwoodpatrick";
     homeDirectory = "/home/mwoodpatrick";
 
@@ -29,21 +30,22 @@ in
 
   xdg = {
     enable = true; # Whether to enable management of XDG base directories
-    # standard .desktop files configured to launch background utilities, 
-    # tray applets, or services automatically when a user logs into a 
+    mime.enable = mkForce false; # wants to put file in /home/${user}/.local/share/applications/mimeapps.list
+    # standard .desktop files configured to launch background utilities,
+    # tray applets, or services automatically when a user logs into a
     # graphical desktop session (such as GNOME, KDE Plasma, or XFCE).
-    # TODO disable for now, enabled when we add a graphical-desktop 
+    # TODO disable for now, enabled when we add a graphical-desktop
     autostart = {
-      enable = false; 
+      enable = false;
     };
     # Controls where ~/.config files go
     configHome = "${git_root}/dotfiles";
     # Controls where ~/.local/share files (and applications/) go
     dataHome = "${projects_root}/data";
 
-    # desktop-agnostic D-Bus bridge that lets applications—especially sandboxed, 
-    # wrapped, or containerized software (such as Flatpak, Snap, VS Code inside 
-    # FHS wrappers, and web browsers)—interact safely with the host 
+    # desktop-agnostic D-Bus bridge that lets applications—especially sandboxed,
+    # wrapped, or containerized software (such as Flatpak, Snap, VS Code inside
+    # FHS wrappers, and web browsers)—interact safely with the host
     # desktop environment.
     portal = {
       enable = true;
@@ -60,7 +62,6 @@ in
     };
 
     # conflict with nixos/modules/services/misc/graphical-desktop.nix
-    mime.enable = mkForce false; # wants to put file in /home/${user}/.local/share/applications/mimeapps.list
     mimeApps = {
       enable = false;
       defaultApplications = {
@@ -72,6 +73,15 @@ in
       };
     };
   };
+
+  # (Optional) Declare the GTK icon theme if using GTK/GNOME apps
+  #  gtk = {
+  #    enable = true;
+  #    iconTheme = {
+  #      name = "Adwaita";
+  #      package = pkgs.adwaita-icon-theme;
+  #    };
+  #  };
 
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release
@@ -85,6 +95,9 @@ in
 
   # Installs tools directly inside the user's execution profile path
   home.packages = with pkgs; [
+    # [adwaita](https://gnome.pages.gitlab.gnome.org/libadwaita/)
+    # Building blocks for modern adaptive GNOME applications.
+    adwaita-icon-theme # a modern theme used by many apps
     aider-chat
     atool
     shellcheck # Required backend linter utilized by the Bash LSP
@@ -105,6 +118,9 @@ in
     git
     gh # GitHub official CLI engine
     ghostty
+    # [default-icon-theme](https://www.freedesktop.org/wiki/Software/icon-theme)
+    # icon-theme contains the standard also references the default icon theme called hicolor.
+    hicolor-icon-theme # contains the fallback “hicolor” icons
     httpie
     htop
     isort # Python formatters & linters
@@ -116,6 +132,143 @@ in
     lmstudio
     lua-language-server
     lsof
+    lswt
+    mesa-demos # [Collection of demos and test programs for OpenGL and Mesa](https://github.com/mirror/mesa-demos)
+    neovide
+    unstable.neovim
+    nerdfix
+    nodejs_26
+    nil # fast, lightweight nix language server
+    nixd # nix langiage server with deep-introspection features
+    nixfmt
+    # inputs.nix-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
+    # inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.default
+    ni
+    adwaita-icon-theme # a modern theme used by many apps
+    aider-chat
+    atool
+    shellcheck # Required backend linter utilized by the Bash LSP
+    black # Python formatters & linters
+    bun
+    btop
+    bubblewrap # Sandboxing toolkit utility used for security boundaries
+    chafa
+    unstable.claude-code
+    codex
+    cowsay
+    unstable.elan # Install latest Lean theorem prover.
+    fd # Fast user directory scanner dependency
+    fzf
+    file # Provides the core `file` utility binary
+    fortune
+    gemini-cli
+    git
+    gh # GitHub official CLI engine
+    ghostty
+    hicolor-icon-theme # contains the fallback “hicolor” icons
+    httpie
+    htop
+    isort # Python formatters & linters
+    jq # Essential CLI JSON processor
+    kitty
+    lua5_1
+    luarocks
+    lazygit
+    lmstudio
+    lua-language-server
+    lsof
+    lswt
+    mesa-demos # [Collection of demos and test programs for OpenGL and Mesa](https://github.com/mirror/mesa-demos)
+    neovide
+    unstable.neovim
+    nerdfix
+    nodejs_26
+    nil # fast, lightweight nix language server
+    nixd # nix langiage server with deep-introspection features
+    nixfmt
+    # inputs.nix-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
+    # inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.default
+    ni
+    adwaita-icon-theme # a modern theme used by many apps
+    aider-chat
+    atool
+    shellcheck # Required backend linter utilized by the Bash LSP
+    black # Python formatters & linters
+    bun
+    btop
+    bubblewrap # Sandboxing toolkit utility used for security boundaries
+    chafa
+    unstable.claude-code
+    codex
+    cowsay
+    unstable.elan # Install latest Lean theorem prover.
+    fd # Fast user directory scanner dependency
+    fzf
+    file # Provides the core `file` utility binary
+    fortune
+    gemini-cli
+    git
+    gh # GitHub official CLI engine
+    ghostty
+    hicolor-icon-theme # contains the fallback “hicolor” icons
+    httpie
+    htop
+    isort # Python formatters & linters
+    jq # Essential CLI JSON processor
+    kitty
+    lua5_1
+    luarocks
+    lazygit
+    lmstudio
+    lua-language-server
+    lsof
+    lswt
+    mesa-demos # [Collection of demos and test programs for OpenGL and Mesa](https://github.com/mirror/mesa-demos)
+    neovide
+    unstable.neovim
+    nerdfix
+    nodejs_26
+    nil # fast, lightweight nix language server
+    nixd # nix langiage server with deep-introspection features
+    nixfmt
+    # inputs.nix-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
+    # inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.default
+    ni
+    adwaita-icon-theme # a modern theme used by many apps
+    aider-chat
+    atool
+    shellcheck # Required backend linter utilized by the Bash LSP
+    black # Python formatters & linters
+    bun
+    btop
+    bubblewrap # Sandboxing toolkit utility used for security boundaries
+    chafa
+    unstable.claude-code
+    codex
+    cowsay
+    unstable.elan # Install latest Lean theorem prover.
+    fd # Fast user directory scanner dependency
+    fzf
+    file # Provides the core `file` utility binary
+    fortune
+    gedit
+    gemini-cli
+    git
+    gh # GitHub official CLI engine
+    ghostty
+    hicolor-icon-theme # contains the fallback “hicolor” icons
+    httpie
+    htop
+    isort # Python formatters & linters
+    jq # Essential CLI JSON processor
+    kitty
+    lua5_1
+    luarocks
+    lazygit
+    lmstudio
+    lua-language-server
+    lsof
+    lswt
     mesa-demos # [Collection of demos and test programs for OpenGL and Mesa](https://github.com/mirror/mesa-demos)
     neovide
     unstable.neovim
@@ -132,8 +285,13 @@ in
     unstable.ollama
     ponysay
     python3Packages.openai
-    # TODO: getting hash mismatch switching to stable branch
-    opencode
+    # opencode
+    # Local OpenCode build via flake input:
+    # OpenCode CLI target
+    # inputs.opencode.packages.${pkgs.stdenv.hostPlatform.system}.opencode
+    # inputs.opencode.packages.${pkgs.stdenv.hostPlatform.system}.opencode-desktop
+    # OpenCode Desktop (Electron/GUI) target
+    # inputs.opencode.packages.${pkgs.system}.desktop
     # unstable.opencode # Official Nixpkgs unstable derivation
     # (pkgs.opencode.override {
     # npmDepsHash = "sha256-prx9dX7kUvs/E3zopkaPk5LXh3xJAy5sZeum/W8L7cA=";
@@ -149,7 +307,7 @@ in
     # });
     # }))
     # unstable.opencode-desktop
-    opencode-desktop
+    # opencode-desktop
     pandoc
     patchelf # Small utility to modify the dynamic linker and RPATH of ELF executables.
     pnpm
@@ -185,9 +343,16 @@ in
     unstable.vscodium-fhs
     wayland
     wayland-utils
+    waylevel
     wl-clipboard
+    wmctrl
     wezterm
+    xclock
     xdg-utils
+    xdotool
+    xlsfonts
+    xprop
+    xwininfo
     yarn
     yq-go # Provides a reliable YAML processor/parser
     # Migrated from configuration.nix

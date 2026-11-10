@@ -133,12 +133,16 @@ in
       # OLLAMA_API_KEY_FILE = config.sops.secrets.OLLAMA_API_KEY.path;
     };
 
+    # Make the icon directories visible to WSLg/GTK.
+    # XDG_DATA_DIRS is what Gtk looks at when it needs an icon.
+    variables.XDG_DATA_DIRS = lib.mkForce "/usr/share:/run/current-system/sw/share:/etc/profiles/per-user/mwoodpatrick/share";
+
     # Essential build tools and utilities required by modern Neovim plugins
     # (e.g., Mason compilation, Treesitter parsers, and Telescope searching)
     systemPackages = with pkgs; [
       # [adwaita](https://gnome.pages.gitlab.gnome.org/libadwaita/)
       # Building blocks for modern adaptive GNOME applications.
-      adwaita-icon-theme
+      adwaita-icon-theme # a modern theme used by many apps
       age # Provides age and age-keygen
       at-spi2-core
       chafa
@@ -150,7 +154,7 @@ in
       gsettings-desktop-schemas
       # [default-icon-theme](https://www.freedesktop.org/wiki/Software/icon-theme)
       # icon-theme contains the standard also references the default icon theme called hicolor.
-      hicolor-icon-theme
+      hicolor-icon-theme # contains the fallback “hicolor” icons
       kmod # Provides lsmod, modprobe, rmmod, etc
       inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
       kdePackages.dolphin

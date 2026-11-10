@@ -16,6 +16,12 @@
     home-manager.url = "github:nix-community/home-manager/release-26.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
+    # Local OpenCode repository
+    opencode = {
+      url = "path:/mnt/wsl/projects/git/opencode";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Nix packages for AI coding agents and development tools. Automatically updated daily.
     llm-agents.url = "github:numtide/llm-agents.nix";
 

@@ -374,7 +374,7 @@ Linux | linux-gnu)
     # ordered, colon-separated list of system-wide configuration directories available to the user and applications
     export XDG_CONFIG_DIRS=$GIT_ROOT/
     # ordered, colon-separated list of system-wide data directories available to the user and applications
-    export XDG_DATA_DIRS=/mnt/wsl/projects/data
+    # export XDG_DATA_DIRS=/mnt/wsl/projects/data
     export NVIM_LOG_FILE=$XDG_DATA_HOME/nvim.log
     export DEFAULT_BROWSER=firefox
     export BROWSER=firefox

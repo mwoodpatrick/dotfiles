@@ -375,6 +375,23 @@
         "type": "github"
       }
     },
+    "opencode": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794147219,
+        "narHash": "sha256-pKhF09miXrJSftkIL3cMmGKrTa/EAATfF62B+RaiU5k=",
+        "path": "/mnt/wsl/projects/git/opencode",
+        "type": "path"
+      },
+      "original": {
+        "path": "/mnt/wsl/projects/git/opencode",
+        "type": "path"
+      }
+    },
     "pyproject-build-systems": {
       "inputs": {
         "nixpkgs": [
@@ -435,6 +452,7 @@
         "nixos-wsl": "nixos-wsl",
         "nixpkgs": "nixpkgs_5",
         "nixpkgs-unstable": "nixpkgs-unstable",
+        "opencode": "opencode",
         "sops-nix": "sops-nix"
       }
     },
