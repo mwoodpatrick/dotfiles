@@ -106,6 +106,7 @@ in
     btop
     bubblewrap # Sandboxing toolkit utility used for security boundaries
     chafa
+    clang-tools
     unstable.claude-code
     codex
     cowsay
