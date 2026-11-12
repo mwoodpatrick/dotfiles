@@ -234,8 +234,11 @@ in
     dconf.enable = true;
 
     # source .envrc files
-    direnv.enable = true;
-    direnv.nix-direnv.enable = true;
+    direnv = {
+      enable = true;
+      enableBashIntegration = true; # or enableZshIntegration / enableFishIntegration
+      nix-direnv.enable = true;
+    };
 
     neovim = {
       enable = true;

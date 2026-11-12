@@ -336,6 +336,7 @@ in
     tmux
     trash-cli
     tree-sitter
+    typescript-language-server
     ueberzugpp
     unstable.warp-terminal
     unzip
