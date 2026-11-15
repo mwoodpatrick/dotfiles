@@ -377,7 +377,7 @@ Linux | linux-gnu)
     # user-specific state data
     export XDG_STATE_HOME=$XDG_ROOT/state
     # user-specific runtime files and other file objects
-    export XDG_RUNTIME_DIR=$XDG_ROOT/runtime
+    # export XDG_RUNTIME_DIR=/run/user/<uid>
     # Where to find the XDG Desktop Portal [github.com/flatpak/xdg-desktop-portal](https://github.com/flatpak/xdg-desktop-portal)
     export NIX_XDG_DESKTOP_PORTAL_DIR=/etc/profiles/per-user/mwoodpatrick/share/xdg-desktop-portal/portals
     # base directory for user-specific data files (analogous to system-wide directories like /usr/share/
@@ -389,7 +389,7 @@ Linux | linux-gnu)
     # ordered, colon-separated list of system-wide configuration directories available to the user and applications
     export XDG_CONFIG_DIRS=$GIT_ROOT
 
-    mkdir -p $XDG_ROOT $XDG_BIN_HOME $XDG_CACHE_HOME $XDG_STATE_HOME $XDG_RUNTIME_DIR $XDG_DATA_HOME || echo "Problem creating XDG directory"
+    mkdir -p $XDG_ROOT $XDG_BIN_HOME $XDG_CACHE_HOME $XDG_STATE_HOME $XDG_DATA_HOME || echo "Problem creating XDG directory"
 
     export NVIM_LOG_FILE=$XDG_DATA_HOME/nvim.log
     export DEFAULT_BROWSER=firefox
