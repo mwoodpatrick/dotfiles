@@ -365,16 +365,32 @@ Win32)
     ;;
 
 Linux | linux-gnu)
-    export GIT_ROOT=/mnt/wsl/projects/git
+    export PROJECTS_ROOT=/mnt/wsl/projects
+    export GIT_ROOT=$PROJECTS_ROOT/git
     # environment variable defined by the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/latest/] (created by freedesktop.org)
-    # base directory relative to which user-specific configuration files should be stored.
-    export XDG_CONFIG_HOME=$GIT_ROOT/dotfiles
+    # Define to be in a user controlled volume (home directories can have size limitations)
+    export XDG_ROOT=$PROJECTS_ROOT/xdg
+    # Unoffcial location for user-specific executables
+    export XDG_BIN_HOME=$XDG_ROOT/bin
+    # user-specific non-essential (cached) data
+    export XDG_CACHE_HOME=$XDG_ROOT/cache
+    # user-specific state data
+    export XDG_STATE_HOME=$XDG_ROOT/state
+    # user-specific runtime files and other file objects
+    export XDG_RUNTIME_DIR=$XDG_ROOT/runtime
+    # Where to find the XDG Desktop Portal [github.com/flatpak/xdg-desktop-portal](https://github.com/flatpak/xdg-desktop-portal)
+    export NIX_XDG_DESKTOP_PORTAL_DIR=/etc/profiles/per-user/mwoodpatrick/share/xdg-desktop-portal/portals
     # base directory for user-specific data files (analogous to system-wide directories like /usr/share/
     export XDG_DATA_HOME=/mnt/wsl/projects/data
+    # preference-ordered set of base directories to search for data files in addition to the $XDG_DATA_HOME base directory
+    export XDG_DATA_DIRS=/usr/share:/run/current-system/sw/share:/etc/profiles/per-user/mwoodpatrick/share:/home/mwoodpatrick/.nix-profile/share:/nix/profile/share:/home/mwoodpatrick/.local/state/nix/profile/share:/etc/profiles/per-user/mwoodpatrick/share:/nix/var/nix/profiles/default/share:/run/current-system/sw/share
+    # base directory relative to which user-specific configuration files should be stored.
+    export XDG_CONFIG_HOME=$GIT_ROOT/dotfiles
     # ordered, colon-separated list of system-wide configuration directories available to the user and applications
-    export XDG_CONFIG_DIRS=$GIT_ROOT/
-    # ordered, colon-separated list of system-wide data directories available to the user and applications
-    # export XDG_DATA_DIRS=/mnt/wsl/projects/data
+    export XDG_CONFIG_DIRS=$GIT_ROOT
+
+    mkdir -p $XDG_ROOT $XDG_BIN_HOME $XDG_CACHE_HOME $XDG_STATE_HOME $XDG_RUNTIME_DIR $XDG_DATA_HOME || echo "Problem creating XDG directory"
+
     export NVIM_LOG_FILE=$XDG_DATA_HOME/nvim.log
     export DEFAULT_BROWSER=firefox
     export BROWSER=firefox
