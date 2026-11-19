@@ -360,6 +360,7 @@ in
     # Migrated from configuration.nix
     # inputs.claude-code-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
     unstable.zed-editor
+    tinywl
   ];
 
   programs.home-manager.enable = true;

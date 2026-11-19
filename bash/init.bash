@@ -45,12 +45,15 @@ esac
 
 interactive=1
 
-[[ -z "$LD_LIBRARY_PATH" ]] && export LD_LIBRARY_PATH=/etc/profiles/per-user/mwoodpatrick/lib
+# ensure LD_LIBRARY_PATH is unset so that the dynamic linker (ld.so) uses the 
+# binary's embedded RUNPATH which specifes the shared libraries that the binary
+# was build and tested with (and are contained in the nix store)
+unset LD_LIBRARY_PATH
 
 if [ -z "${PATH_BASE+x}" ]; then
     # echo ".bashrc: defining PATH_BASE=$PATH"
     export PATH_BASE="$PATH"
-    export LD_LIBRARY_PATH_BASE="$LD_LIBRARY_PATH"
+    export PATH="/run/wrappers/bin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/wsl/lib:/etc/profiles/per-user/mwoodpatrick/bin:/run/current-system/sw/bin"
 fi
 
 export SCRIPT_PATH=$(realpath "${BASH_SOURCE[0]}")

@@ -2,12 +2,6 @@
 # https://www.openssh.com/manual.html
 # https://docs.github.com/en/authentication/connecting-to-github-with-ssh
 
-# use latest sshpass
-export PATH=/home/utils/sshpass-1.06/bin:$PATH
-
-# use latest ssh
-export PATH=/home/utils/openssh-8.1p1/bin:$PATH
-
 # initialize ~/.gitconfig
 function git-config-init {
     git config --global user.email  "mwoodpatrick@nvidia.com"
