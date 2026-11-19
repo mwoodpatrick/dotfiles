@@ -94,7 +94,7 @@ in
   home.stateVersion = "26.05";
 
   # Installs tools directly inside the user's execution profile path
-  home.packages = with pkgs; [
+  home.packages = with pkgs;  lib.unique [
     # [adwaita](https://gnome.pages.gitlab.gnome.org/libadwaita/)
     # Building blocks for modern adaptive GNOME applications.
     adwaita-icon-theme # a modern theme used by many apps
@@ -102,7 +102,7 @@ in
     atool
     shellcheck # Required backend linter utilized by the Bash LSP
     black # Python formatters & linters
-    bun
+    unstable.bun
     btop
     bubblewrap # Sandboxing toolkit utility used for security boundaries
     chafa
@@ -150,7 +150,6 @@ in
     atool
     shellcheck # Required backend linter utilized by the Bash LSP
     black # Python formatters & linters
-    bun
     btop
     bubblewrap # Sandboxing toolkit utility used for security boundaries
     chafa
@@ -195,7 +194,6 @@ in
     atool
     shellcheck # Required backend linter utilized by the Bash LSP
     black # Python formatters & linters
-    bun
     btop
     bubblewrap # Sandboxing toolkit utility used for security boundaries
     chafa
@@ -240,7 +238,6 @@ in
     atool
     shellcheck # Required backend linter utilized by the Bash LSP
     black # Python formatters & linters
-    bun
     btop
     bubblewrap # Sandboxing toolkit utility used for security boundaries
     chafa
