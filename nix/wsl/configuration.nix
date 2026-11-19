@@ -188,7 +188,7 @@ in
     # age.keyFile = "/var/lib/sops-nix/key.txt";
     # age.keyFile = "/home/mwoodpatrick/.config/sops/age/keys.txt";
     # Path to age key file used for sops decryptio (should not be checked into repo and be an absolute path)
-    age.keyFile = "/mnt/wsl/projects/git/dotfiles/nixos-wsl/nixos/sops/age/keyFile.txt";
+    age.keyFile = "/mnt/wsl/projects/git/dotfiles/nix/wsl/sops/age/keyFile.txt";
     # This will generate a new key if the key specified above does not exist
     age.generateKey = true;
 
@@ -213,17 +213,17 @@ in
         key = "database/password";
       };
 
-      # secrets stored in json file
-      "ANTHROPIC_API_KEY" = {
-        format = "json";
-        sopsFile = ./secrets/secrets.json;
-      };
+      # secrets stored in yaml file
+      # "ANTHROPIC_API_KEY" = {
+      # format = "yaml"# ;
+      # sopsFile = ./secrets/secrets.yaml;
+      # };
 
       # Debug me
       # "redis-token" = {
-      #   format = "json";
+      #   format = "yaml";
       #   key = "services/redis";
-      #   sopsFile = ./secrets/secrets.json;
+      #   sopsFile = ./secrets/secrets.yaml;
       # };
     };
   };

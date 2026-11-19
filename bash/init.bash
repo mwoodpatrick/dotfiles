@@ -438,7 +438,7 @@ Linux | linux-gnu)
     export CDS_INST_DIR=/home/xl_98
     export XL=/home/xl_98
     export WDIR_OVERRIDE=1
-    export NIXOS_CONFIG_ROOT=$DOTFILES/nixos-wsl/nixos
+    export NIXOS_CONFIG_ROOT=$DOTFILES/nix/wsl
     export SOPS_AGE_KEY_FILE=$NIXOS_CONFIG_ROOT/sops/age/keyFile.txt
     export SOPS_SECRETS=$NIXOS_CONFIG_ROOT/secrets
     # Ollama server socket binding & native CLI targeting
