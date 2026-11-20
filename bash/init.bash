@@ -45,7 +45,7 @@ esac
 
 interactive=1
 
-# ensure LD_LIBRARY_PATH is unset so that the dynamic linker (ld.so) uses the 
+# ensure LD_LIBRARY_PATH is unset so that the dynamic linker (ld.so) uses the
 # binary's embedded RUNPATH which specifes the shared libraries that the binary
 # was build and tested with (and are contained in the nix store)
 unset LD_LIBRARY_PATH
@@ -497,6 +497,9 @@ fi
 if [ -f $DOTFILES/bash/vscode.bash ]; then
     source $DOTFILES/bash/vscode.bash
 fi
+
+# mount Google Drive
+mount_drive "/mnt/g" "G:"
 
 # echo "finished init.bash"
 # enable direnv, this should be the last line in the file

@@ -108,6 +108,25 @@ function record_projectname() {
     fi
 }
 
+function mount_drive {
+    MOUNT_POINT=$1 # e.g "/mnt/g"
+    DRIVE=$2       # e.g."G:"
+
+    # Create the mount directory if it does not exist
+    if [ ! -d "$MOUNT_POINT" ]; then
+        sudo mkdir -p "$MOUNT_POINT"
+    fi
+
+    # Check if something is already mounted at $MOUNT_POINT
+    if mountpoint -q "$MOUNT_POINT"; then
+        echo "$MOUNT_POINT is already mounted."
+    else
+        echo "Mounting $DRIVE to $MOUNT_POINT..."
+        sudo mount -t drvfs "$DRIVE" "$MOUNT_POINT"
+        echo "Mounted $DRIVE at $MOUNT_POINT."
+    fi
+}
+
 function lean_update {
     (
         local project=${1:-my_lean_project}
