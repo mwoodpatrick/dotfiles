@@ -49,7 +49,7 @@ SOPS supports encrypting the file's master data key against multiple cryptograph
 
 ### Configuration via `.sops.yaml`
 
-A `.sops.yaml` configuration file in the root of your repository defines creation rules—mapping file path regexes to the public keys allowed to encrypt/decrypt them:
+A `.sops.yaml` configuration file in the root of your configuration defines creation rules—mapping file path regexes to the public keys allowed to encrypt/decrypt them:
 
 ```yaml
 keys:

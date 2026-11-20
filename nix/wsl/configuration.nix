@@ -12,11 +12,10 @@
   pkgs,
   inputs,
   unstable,
+  username,
+  hostName,
   ...
 }:
-let
-  user = "mwoodpatrick";
-in
 {
   imports = [
     # include NixOS-WSL modules
@@ -28,7 +27,7 @@ in
   # Core architecture switches mapping the guest VM parameters
   wsl = {
     enable = true; # Whether to enable support for running NixOS as a WSL distribution.
-    defaultUser = "${user}"; # The name of the default user
+    defaultUser = "${username}"; # The name of the default user
     # This tells the NixOS-WSL builder to dynamically generate
     # a valid wsl.conf with interop turned off during system activation
     interop.includePath = true; # Include Windows PATH in WSL PATH
@@ -38,36 +37,6 @@ in
     enable = true;
     enable32Bit = true;
   };
-
-  # WSL-2 does not use a direct physical monitor, virtual GPU, or
-  # display seat (/dev/tty0). Instead, Windows 11 handles GUI rendering
-  # through WSLg, which bridges Wayland and X11 calls directly to your Windows
-  # desktop as floating windows.
-  # Disable desktop manager / display manager modules
-  services.xserver.enable = false;
-  services.greetd.enable = false;
-
-  # Enable X11 and Plasma 6
-  # instruct NixOS to pull in foundational graphical requirements:
-  # Fontconfig default font directories,
-  # D-Bus desktop services,
-  # Polkit authentication agents,
-  # OpenGL/Mesa driver hooks, and
-  # XDG desktop integration rules.
-  # [X Window System](https://nixos.org/manual/nixos/stable/#sec-x11)
-  # Not needed for individual GUI apps (server provided by WSL-2)
-
-  # [services.desktopManager](https://mynixos.com/nixpkgs/options/services.desktopManager)
-  # services.desktopManager.plasma6.enable = true;
-
-  # Core audio routing
-  #  security.rtkit.enable = true;
-  #  services.pipewire = {
-  #    enable = true;
-  #    alsa.enable = true;
-  #    alsa.support32Bit = true;
-  #    pulse.enable = true;
-  #  };
 
   # [nix.gc](https://mynixos.com/nixpkgs/options/nix.gc)
   nix.gc = {
@@ -135,7 +104,7 @@ in
 
     # Make the icon directories visible to WSLg/GTK.
     # XDG_DATA_DIRS is what Gtk looks at when it needs an icon.
-    variables.XDG_DATA_DIRS = lib.mkForce "/usr/share:/run/current-system/sw/share:/etc/profiles/per-user/mwoodpatrick/share";
+    variables.XDG_DATA_DIRS = lib.mkForce "/usr/share:/run/current-system/sw/share:/etc/profiles/per-user/${username}/share";
 
     # Essential build tools and utilities required by modern Neovim plugins
     # (e.g., Mason compilation, Treesitter parsers, and Telescope searching)
@@ -196,13 +165,13 @@ in
     secrets = {
       # This is the actual specification of the secrets.
       OLLAMA_API_KEY = {
-        owner = "mwoodpatrick";
+        owner = "${username}";
         mode = "0400";
         format = "yaml";
       };
       hello = { };
       example_array = {
-        owner = "mwoodpatrick";
+        owner = "${username}";
         mode = "0400";
         format = "yaml";
       };
@@ -275,20 +244,13 @@ in
     # L+  <target-path>  <mode>  <uid>  <gid>  <age>  <source-path>
     tmpfiles.rules = [
       "L+ /usr/share/applications - - - - /run/current-system/sw/share/applications"
-      "L+ /home/${user}/.local/share/applications/ - - - - /etc/profiles/per-user/${user}/share/applications"
+      "L+ /home/${username}/.local/share/applications/ - - - - /etc/profiles/per-user/${username}/share/applications"
       "L+ /usr/share/icons - - - - /run/current-system/sw/share/icons"
-      "L+ /home/${user}/.local/share/icons/ - - - - /etc/profiles/per-user/${user}/share/icons"
+      "L+ /home/${username}/.local/share/icons/ - - - - /etc/profiles/per-user/${username}/share/icons"
     ];
   };
 
-  # running a lightweight notification daemon to satisfy GLFW
-  # (the windowing/input C library Kitty links against).
-  services.dunst.enable = true;
-  # services.mako.enable = true;
-
-  # Enable the foundational D-Bus system services
-  services.dbus.enable = true;
-  # services.nonexistentoption.enable = true; # enable for flake check
+  networking.hostName = "${hostName}";
 
   # Ensure the systemd user manager is properly configured to linger
   # This allows systemd to manage user services even when you aren't logged in
@@ -305,7 +267,6 @@ in
   # user manager to talk to.
   # to verify run "systemctl --user status"
   # loginctl show-user mwoodpatrick | grep Linger
-  users.users.mwoodpatrick.linger = true;
 
   # Enable declarative Nix experimental features
   nix.settings.experimental-features = [
@@ -313,14 +274,15 @@ in
     "flakes"
   ];
 
-  users.users.mwoodpatrick = {
+  users.users.${username} = {
     isNormalUser = true;
-    description = "mwoodpatrick";
+    description = "${username}";
     extraGroups = [
       "networkmanager"
       "wheel"
       "docker"
     ];
+    linger = true;
   };
 
   #  Enable the Unfree licenses required for proprietary GPU acceleration hooks
@@ -345,45 +307,86 @@ in
     ];
   };
 
-  # Enable the Ollama Service
-  # Enable the background daemon service
-  services.ollama = {
-    enable = true;
+  services = {
+    # running a lightweight notification daemon to satisfy GLFW
+    # (the windowing/input C library Kitty links against).
+    dunst.enable = true;
+    # services.mako.enable = true;
 
-    # use the unstable service version
-    package = unstable.ollama;
+    # Enable the foundational D-Bus system services
+    dbus.enable = true;
 
-    # Pre-seed and pins models to download automatically in the background
-    loadModels = [
-      "gemma4:12b"
-      "deepseek-r1:14b"
-    ];
+    # WSL-2 does not use a direct physical monitor, virtual GPU, or
+    # display seat (/dev/tty0). Instead, Windows 11 handles GUI rendering
+    # through WSLg, which bridges Wayland and X11 calls directly to your Windows
+    # desktop as floating windows.
+    # Disable desktop manager / display manager modules
 
-    # Expose the API surface cleanly across internal WSL networking layers if needed
-    host = "0.0.0.0";
-    port = 11434;
-  };
+    xserver.enable = false;
+    greetd.enable = false;
 
-  services.hermes-agent = {
-    enable = true;
+    # Enable X11 and Plasma 6
+    # instruct NixOS to pull in foundational graphical requirements:
+    # Fontconfig default font directories,
+    # D-Bus desktop services,
+    # Polkit authentication agents,
+    # OpenGL/Mesa driver hooks, and
+    # XDG desktop integration rules.
+    # [X Window System](https://nixos.org/manual/nixos/stable/#sec-x11)
+    # Not needed for individual GUI apps (server provided by WSL-2)
 
-    # Choose your default model (e.g., routing through local Ollama or OpenRouter)
-    settings = {
-      model.default = "ollama/gemma4";
-      toolsets = [ "all" ];
-      terminal = {
-        backend = "local";
-        timeout = 180;
-      };
-      # Use the decrypted sops secret for authentication
-      env.OLLAMA_API_KEY = "/run/secrets/OLLAMA_API_KEY";
+    # [services.desktopManager](https://mynixos.com/nixpkgs/options/services.desktopManager)
+    # services.desktopManager.plasma6.enable = true;
+
+    # Core audio routing
+    #  security.rtkit.enable = true;
+    #  services.pipewire = {
+    #    enable = true;
+    #    alsa.enable = true;
+    #    alsa.support32Bit = true;
+    #    pulse.enable = true;
+    #  };
+
+    # Enable the Ollama Service
+    # Enable the background daemon service
+    ollama = {
+      enable = true;
+
+      # use the unstable service version
+      package = unstable.ollama;
+
+      # Pre-seed and pins models to download automatically in the background
+      loadModels = [
+        "gemma4:12b"
+        "deepseek-r1:14b"
+      ];
+
+      # Expose the API surface cleanly across internal WSL networking layers if needed
+      host = "0.0.0.0";
+      port = 11434;
     };
 
-    # Exposes the 'hermes' CLI tool globally in your system PATH
-    addToSystemPackages = true;
+    hermes-agent = {
+      enable = true;
 
-    # Optional: Enable container mode if the agent needs to run arbitrary package managers
-    # container.enable = true;
+      # Choose your default model (e.g., routing through local Ollama or OpenRouter)
+      settings = {
+        model.default = "ollama/gemma4";
+        toolsets = [ "all" ];
+        terminal = {
+          backend = "local";
+          timeout = 180;
+        };
+        # Use the decrypted sops secret for authentication
+        env.OLLAMA_API_KEY = "/run/secrets/OLLAMA_API_KEY";
+      };
+
+      # Exposes the 'hermes' CLI tool globally in your system PATH
+      addToSystemPackages = true;
+
+      # Optional: Enable container mode if the agent needs to run arbitrary package managers
+      # container.enable = true;
+    };
   };
 
   # This value determines the NixOS release from which the default
