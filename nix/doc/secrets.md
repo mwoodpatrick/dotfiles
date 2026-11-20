@@ -104,7 +104,7 @@ sops updatekeys secrets/secrets.yaml
 
 ### Usage with Nix & NixOS (`sops-nix`)
 
-In Nix and NixOS, SOPS is used primarily through **`sops-nix`** (`github:Mic92/sops-nix`). Because anything evaluated by Nix is copied into the world-readable `/nix/store`, putting plaintext secrets in `.nix` files exposes them to all local users. `sops-nix` keeps the encrypted files safe in Git and `/nix/store`, then decrypts them at system activation or login into an in-memory `tmpfs` (`/run/secrets` for NixOS system services, or `$XDG_RUNTIME_DIR/secrets.d` for Home Manager) with strict permissions.
+In Nix and NixOS, SOPS is used primarily through **`sops-nix`** ([github:Mic92/sops-nix](https://github.com/Mic92/sops-nix)). Because anything evaluated by Nix is copied into the world-readable `/nix/store`, putting plaintext secrets in `.nix` files exposes them to all local users. `sops-nix` keeps the encrypted files safe in Git and `/nix/store`, then decrypts them at system activation or login into an in-memory `tmpfs` (`/run/secrets` for NixOS system services, or `$XDG_RUNTIME_DIR/secrets.d` for Home Manager) with strict permissions.
 
 Would you like to dive deeper into standalone SOPS usage (such as CLI workflows, KMS integration, or CI/CD decryption) or a specific `sops-nix` scenario?
 # NixOs & sops
