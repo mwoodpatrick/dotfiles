@@ -1,5 +1,5 @@
 {
-  description = "NixOS WSL-2 System Configuration Flake";
+  description = "Multi-host NixOS WSL-2 System Configuration Flake";
 
   inputs = {
     # Pinned stable package stream for NixOS 26.05
@@ -40,8 +40,10 @@
     # Secrets management for NixOS
     # sops-nix.url = "github:convolutional/sops-nix";
     # Add sops-nix input
-    sops-nix.url = "github:Mic92/sops-nix";
-    sops-nix.inputs.nixpkgs.follows = "nixpkgs";
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   # system' has been renamed to/replaced by 'stdenv.hostPlatform.system'
@@ -57,23 +59,49 @@
       ...
     }@inputs:
     let
-      system = "x86_64-linux";
-      # pkgs-unstable = inputs.nixpkgs-unstable.legacyPackages.${system};
-      # Create an 'unstable' package set from the input
-      unstable = import inputs.nixpkgs-unstable {
-        inherit system;
-        config.allowUnfree = true;
-      };
-    in
-    {
-      nixosConfigurations = {
-        # specialArgs = { inherit inputs unstable; };
-        # This string must match your target system identifier attribute node
-        nixos = nixpkgs.lib.nixosSystem {
-          inherit system;
-          # Makes external input channels cleanly available down within evaluation modules
-          specialArgs = { inherit inputs unstable; };
+      username = "mwoodpatrick";
 
+      # Per-host differences only
+      hosts = {
+        mlwpenvy-nixos = {
+          system = "x86_64-linux";
+          extraModules = [
+          ];
+        };
+
+        mlwpenvy360-nixos = {
+          system = "x86_64-linux";
+          extraModules = [
+          ];
+        };
+      };
+
+      mkHost =
+        hostName:
+        {
+          system,
+          extraModules ? [ ],
+        }:
+        let
+          # pkgs-unstable = inputs.nixpkgs-unstable.legacyPackages.${system};
+          # Create an 'unstable' package set from the input
+          unstable = import inputs.nixpkgs-unstable {
+            inherit system;
+            config.allowUnfree = true;
+          };
+        in
+        nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = {
+            inherit
+              inputs
+              username
+              hostName
+              unstable
+              ;
+          };
+
+          # Shared NixOS configuration & modules
           modules = [
             # Set host platform explicitly in module config
             { nixpkgs.hostPlatform = system; }
@@ -93,20 +121,33 @@
             # Machine-specific storage block mounts mapping file
             # ./hardware-configuration.nix
 
-            # Home Manager inline integration mapping (omit if using standalone runner)
+            # Shared Home Manager setup (omit if using standalone runner)
             home-manager.nixosModules.home-manager
             {
               home-manager = {
                 useGlobalPkgs = true;
                 useUserPackages = true;
                 # This makes 'inputs' available specifically to your home.nix
-                extraSpecialArgs = { inherit inputs unstable; };
+                extraSpecialArgs = {
+                  inherit
+                    inputs
+                    username
+                    hostName
+                    unstable
+                    ;
+                };
+                sharedModules = [
+                  sops-nix.homeManagerModules.sops
+                ];
                 # Replace with your local system user name string
-                users.mwoodpatrick = import ./home.nix;
+                users.${username} = import ./home.nix;
               };
             }
-          ];
+          ]
+          ++ extraModules;
         };
-      };
+    in
+    {
+      nixosConfigurations = nixpkgs.lib.mapAttrs mkHost hosts;
     };
 }

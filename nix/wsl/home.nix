@@ -4,6 +4,7 @@
   pkgs,
   inputs,
   unstable,
+  username,
   ...
 }:
 let
@@ -17,8 +18,7 @@ in
 {
   home = {
     # Optional: Only needed if you install GUI apps in home.packages rather than configuration.nix
-    username = "mwoodpatrick";
-    homeDirectory = "/home/mwoodpatrick";
+    homeDirectory = "/home/${username}";
 
     sessionVariables = {
       # Ensure Ollama daemon target is consistently set in the shell session
@@ -368,8 +368,8 @@ in
     enable = true;
     settings = {
       user = {
-        name = "mwoodpatrick";
-        email = "mwoodpatrick@gmail.com";
+        name = "${username}";
+        email = "${username}@gmail.com";
       };
       init = {
         defaultBranch = "main";
@@ -621,7 +621,7 @@ in
       };
       "work" = {
         id = 1;
-        path = "/home/mwoodpatrick/config/.mozilla/firefox/work";
+        path = "/home/${username}/config/.mozilla/firefox/work";
         settings = {
           "privacy.resistFingerprinting" = true;
         };
