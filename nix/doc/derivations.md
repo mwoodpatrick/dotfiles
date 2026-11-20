@@ -678,3 +678,328 @@ env -i ./result/bin/my-app
 ```
 
 If the executable runs cleanly with an empty `PATH`, all runtime binaries and libraries are completely self-contained in `/nix/store`.
+
+# Using age with SOPS
+
+**`age`** (short for **A**ctually **G**ood **E**ncryption, designed by Filippo Valsorda) is intentionally stylized in all lowercase—and pronounced like the Italian word *"aghe"* (`/ˈaɡe/`), rather than the English word "age"—for a few practical and stylistic reasons:
+
+* **Not an All-Caps Acronym:** Unlike `GPG` (GNU Privacy Guard) or `PGP` (Pretty Good Privacy), `age` is treated as a proper name/word rather than a traditional all-caps technical acronym.
+* **Unix CLI & File Format Consistency:** Its command-line binaries (`age`, `age-keygen`), Bech32 public key prefix (`age1...`), and SOPS configuration keys (`age:`) are all lowercase, matching standard Unix naming conventions where command names match the tool's stylized brand name (similar to `git`, `jq`, or `curl`).
+* **Intentional Minimalism:** The lowercase styling reflects the tool's core design philosophy—small, simple, modern, and free of the heavy legacy conventions associated with uppercase cryptography standards like `PGP` or `RSA`.
+
+**age** is a modern, lightweight asymmetric encryption tool that serves as the default cryptographic backend for **SOPS** (especially in Nix/NixOS workflows via `sops-nix`). Instead of complex keyrings or agent daemons like GPG, `age` uses simple keyfiles containing a private key (`AGE-SECRET-KEY-1...`) and a corresponding public recipient key (`age1...`).
+
+---
+
+### 1. Generating and Managing `age` Keys
+
+You can generate a new `age` keypair using `age-keygen`:
+
+```bash
+# Generate a private key file (default location SOPS checks automatically)
+mkdir -p ~/.config/sops/age
+age-keygen -o ~/.config/sops/age/keys.txt
+
+# Extract and print the public key (starts with age1...)
+age-keygen -y ~/.config/sops/age/keys.txt
+
+```
+
+* **Private Key (`keys.txt`):** Keep this strictly secret and out of Git (e.g., `~/.config/sops/age/keys.txt` for a user, or `/var/lib/sops-nix/key.txt` for a root NixOS host).
+
+
+* **Public Key (`age1...`):** Safe to share and commit to `.sops.yaml`.
+
+
+
+(Alternative for Servers: If a machine already has an Ed25519 SSH host key, you can convert its public key into an `age1...` recipient using `ssh-to-age < /etc/ssh/ssh_host_ed25519_key.pub`.)
+
+---
+
+### 2. Configuring `.sops.yaml` with `age` Recipients
+
+Create a `.sops.yaml` file in the root of your repository to map file paths to the `age` public keys permitted to encrypt and decrypt them:
+
+```yaml
+keys:
+  - &user_admin age1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  - &host_server age1yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+
+creation_rules:
+  - path_regex: secrets/.*\.yaml$
+    key_groups:
+      - age:
+          - *user_admin
+          - *host_server
+
+```
+
+* **Multiple Recipients:** Listing multiple `age` keys under a rule tells SOPS to encrypt the file's master AES-256 data key once for each public key. Any single corresponding private key can decrypt the file.
+
+
+
+---
+
+### 3. How SOPS Locates Your `age` Private Key
+
+When running `sops` commands, SOPS automatically looks for your private key in the following order:
+
+1. **`SOPS_AGE_KEY` environment variable:** Raw `AGE-SECRET-KEY-1...` string (useful in CI/CD pipelines).
+2. **`SOPS_AGE_KEY_FILE` environment variable:** Custom path to a keyfile (e.g., `export SOPS_AGE_KEY_FILE=/var/lib/sops-nix/key.txt`).
+3. **Default user config path:** `~/.config/sops/age/keys.txt` on Linux (or `~/Library/Application Support/sops/age/keys.txt` on macOS).
+
+
+
+---
+
+### 4. Common `sops` + `age` Operations
+
+* **Create or edit an encrypted file** (opens decrypted contents in `$EDITOR`, re-encrypts on save):
+
+
+```bash
+sops secrets/secrets.yaml
+
+```
+
+
+* **Encrypt an existing plaintext file in place:**
+```bash
+sops -e -i secrets/secrets.yaml
+
+```
+
+
+* **Decrypt a file to stdout** (without modifying the file on disk):
+
+
+```bash
+sops -d secrets/secrets.yaml
+
+```
+
+
+* **Update keys after modifying `.sops.yaml**` (adds or revokes `age` recipients on existing files):
+
+
+```bash
+sops updatekeys secrets/secrets.yaml
+
+```
+
+
+* **Bypass `.sops.yaml` for a one-off encryption** using a specific public key:
+```bash
+sops --age age1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -e plaintext.yaml > encrypted.yaml
+
+```
+
+
+**`sops-nix`** (`github:Mic92/sops-nix`) is the standard secrets management module for NixOS and Home Manager. Because every file evaluated by Nix is copied into the world-readable `/nix/store`, putting plaintext secrets in `.nix` files exposes them to every user on the system. `sops-nix` allows you to commit `age`-encrypted secret files directly to your Git repo, copy them safely into `/nix/store`, and decrypt them at system activation or user login into an in-memory `tmpfs` with strict file permissions.
+
+---
+
+### 1. Generate `age` Keys and Configure `.sops.yaml`
+
+You typically use **two keys** when managing both NixOS system services and Home Manager user secrets:
+
+* **Admin / User Key (`~/.config/sops/age/keys.txt`):** Used to edit secrets from your workstation and by Home Manager at login.
+
+
+* **Machine Host Key (`/var/lib/sops-nix/key.txt`):** Used by root during boot and `nixos-rebuild switch`. (Alternatively, `sops-nix` can derive this automatically from `/etc/ssh/ssh_host_ed25519_key`.)
+
+
+
+```bash
+# 1. Generate user age key
+mkdir -p ~/.config/sops/age
+nix-shell -p age --run "age-keygen -o ~/.config/sops/age/keys.txt"
+nix-shell -p age --run "age-keygen -y ~/.config/sops/age/keys.txt"
+
+# 2. Generate system host age key
+sudo mkdir -p /var/lib/sops-nix
+nix-shell -p age --run "sudo age-keygen -o /var/lib/sops-nix/key.txt"
+sudo nix-shell -p age --run "age-keygen -y /var/lib/sops-nix/key.txt"
+
+```
+
+Create `.sops.yaml` at the root of your flake repository so system secrets are encrypted for both your user key and the host key, while user secrets are encrypted for your user key:
+
+```yaml
+keys:
+  - &user_admin age1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  - &host_nixos age1yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+
+creation_rules:
+  - path_regex: secrets/system\.yaml$
+    key_groups:
+      - age:
+          - *user_admin
+          - *host_nixos
+
+  - path_regex: secrets/user\.yaml$
+    key_groups:
+      - age:
+          - *user_admin
+
+```
+
+Create your encrypted files and stage them so Nix Flakes sees them:
+
+```bash
+mkdir -p secrets
+nix-shell -p sops --run "sops secrets/system.yaml"
+nix-shell -p sops --run "sops secrets/user.yaml"
+git add .sops.yaml secrets/system.yaml secrets/user.yaml
+
+```
+
+---
+
+### 2. Add `sops-nix` to `flake.nix`
+
+Import `sops-nix.nixosModules.sops` for NixOS system secrets and `sops-nix.homeManagerModules.sops` for Home Manager user secrets:
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = { self, nixpkgs, home-manager, sops-nix, ... }: {
+    nixosConfigurations.my-host = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        ./configuration.nix
+        sops-nix.nixosModules.sops
+        home-manager.nixosModules.home-manager
+        {
+          home-manager.sharedModules = [ sops-nix.homeManagerModules.sops ];
+          home-manager.users.alice = import ./home.nix;
+        }
+      ];
+    };
+  };
+}
+
+```
+
+---
+
+### 3. Configure NixOS System Secrets (`configuration.nix`)
+
+System secrets decrypt to `/run/secrets/<name>` (or a custom `path`) with `0400` permissions by default:
+
+```nix
+{ config, ... }:
+
+{
+  sops = {
+    defaultSopsFile = ./secrets/system.yaml;
+    age.keyFile = "/var/lib/sops-nix/key.txt";
+    # Alternative: reuse existing SSH host key instead of a separate age keyFile:
+    # age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+
+    secrets = {
+      # Must be decrypted early before users are created
+      user_password.neededForUsers = true;
+
+      # Owned by a specific service user
+      db_password = {
+        owner = "postgres";
+        group = "postgres";
+        mode = "0400";
+      };
+
+      # Nested YAML keys use "/"
+      "wifi/psk" = {};
+    };
+
+    # Render a config/env file containing secret placeholders at activation
+    templates."app.env" = {
+      owner = "my-app";
+      content = ''
+        DATABASE_URL=postgres://user:${config.sops.placeholder.db_password}@localhost/mydb
+      '';
+    };
+  };
+
+  users.mutableUsers = false;
+  users.users.alice = {
+    isNormalUser = true;
+    hashedPasswordFile = config.sops.secrets.user_password.path;
+  };
+
+  systemd.services.my-app.serviceConfig.EnvironmentFile = config.sops.templates."app.env".path;
+}
+
+```
+
+---
+
+### 4. Configure Home Manager Secrets (`home.nix`)
+
+Home Manager runs a `systemd --user` service (`sops-nix.service`) that decrypts secrets into `$XDG_RUNTIME_DIR/secrets.d/` (symlinked at `~/.config/sops-nix/secrets/<name>`):
+
+```nix
+{ config, ... }:
+
+{
+  sops = {
+    defaultSopsFile = ./secrets/user.yaml;
+    age.keyFile = "${config.home.homeDirectory}/.config/sops/age/keys.txt";
+
+    secrets = {
+      github_token = {};
+
+      # Extract an SSH private key directly into ~/.ssh with strict permissions
+      "ssh/github_ed25519" = {
+        path = "${config.home.homeDirectory}/.ssh/id_github_ed25519";
+        mode = "0600";
+      };
+    };
+
+    templates."api-keys.env".content = ''
+      export GITHUB_TOKEN="${config.sops.placeholder.github_token}"
+    '';
+  };
+}
+
+```
+
+---
+
+### Key Differences: NixOS vs. Home Manager Modules
+
+| Feature | NixOS (`nixosModules.sops`) | Home Manager (`homeManagerModules.sops`) |
+| --- | --- | --- |
+| **Default Output Path** | `/run/secrets/<name>`
+
+ | `$XDG_RUNTIME_DIR/secrets.d/...` (`~/.config/sops-nix/secrets/<name>`)
+
+ |
+| **Activation Mechanism** | NixOS system activation script (root at boot/switch)
+
+ | `systemd --user` unit (`sops-nix.service`)
+
+ |
+| **Ownership** | Configurable `owner`, `group`, and `mode`
+
+ | Always owned by your user (only `mode` and `path` apply)
+
+ |
+| **Boot-Time Users** | Supports `neededForUsers = true` for `hashedPasswordFile`
+
+ | Runs after user session starts
+
+ |
+
+Are you looking to configure a specific use case next—such as bootstrapping keys onto a fresh host (`nixos-anywhere`), multi-host secret sharing, or encrypting binary/JSON/`.env` files directly?
