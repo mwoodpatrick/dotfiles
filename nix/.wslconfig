@@ -41,3 +41,6 @@ dnsTunneling=true
 # Allow the Windows Firewall rules, as well as rules specific to Hyper-V traffic, to filter WSL network traffic.
 firewall=true
 
+# automatically mirror your Windows host's HTTP/HTTPS proxy settings into your Linux environment.
+autoProxy=true 
+
