@@ -7,7 +7,7 @@
 
 # access unstable packages via pkgs.pkgs-unstable
 {
-  # config,
+  config,
   lib,
   pkgs,
   inputs,
@@ -126,11 +126,13 @@
       hicolor-icon-theme # contains the fallback “hicolor” icons
       kmod # Provides lsmod, modprobe, rmmod, etc
       inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
-      kdePackages.dolphin
       kdePackages.konsole
+      kdePackages.dolphin
       kdePackages.kate
+      xclip
       mermaid-cli
       mesa-demos
+      mkpasswd
       pciutils
       sops # Secrets management CLI
       ssh-to-age # Convert ssh private keys in ed25519 format to age keys
@@ -157,12 +159,18 @@
     # age.keyFile = "/var/lib/sops-nix/key.txt";
     # age.keyFile = "/home/mwoodpatrick/.config/sops/age/keys.txt";
     # Path to age key file used for sops decryptio (should not be checked into repo and be an absolute path)
+    # Or if deriving from your SSH host key instead:
+    # age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
     age.keyFile = "/mnt/wsl/projects/git/dotfiles/nix/wsl/sops/age/keyFile.txt";
     # This will generate a new key if the key specified above does not exist
     age.generateKey = true;
 
     # Declare every key from your YAML file you want extracted:
     secrets = {
+      mlwp_password = {
+        neededForUsers = true;
+      };
+
       # This is the actual specification of the secrets.
       OLLAMA_API_KEY = {
         owner = "${username}";
@@ -274,15 +282,21 @@
     "flakes"
   ];
 
-  users.users.${username} = {
-    isNormalUser = true;
-    description = "${username}";
-    extraGroups = [
-      "networkmanager"
-      "wheel"
-      "docker"
-    ];
-    linger = true;
+  users = {
+    # declarative user management, contents of the user and group files
+    # will simply be replaced on system activation.
+    mutableUsers = false;
+    users.${username} = {
+      isNormalUser = true;
+      description = "${username}";
+      extraGroups = [
+        "networkmanager"
+        "wheel"
+        "docker"
+      ];
+      hashedPasswordFile = config.sops.secrets.mlwp_password.path;
+      linger = true;
+    };
   };
 
   #  Enable the Unfree licenses required for proprietary GPU acceleration hooks
@@ -322,7 +336,22 @@
     # desktop as floating windows.
     # Disable desktop manager / display manager modules
 
-    xserver.enable = false;
+    # Enable X11 and KDE Plasma 6
+    xserver = {
+      enable = true;
+      xkb.layout = "us";
+    };
+
+    desktopManager.plasma6.enable = true;
+
+    # Enable XRDP on port 3390 to avoid conflicting with Windows RDP (3389)
+    xrdp = {
+      enable = true;
+      port = 3390;
+      defaultWindowManager = "startplasma-x11";
+      openFirewall = true;
+    };
+
     greetd.enable = false;
 
     # Enable X11 and Plasma 6

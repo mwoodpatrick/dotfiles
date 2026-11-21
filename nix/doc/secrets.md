@@ -868,3 +868,141 @@ blog.gitguardian.com
 
 https://github.com/getsops/sops
 https://blog.gitguardian.com/a-comprehensive-guide-to-sops/
+
+# Setting passwords using sops
+
+To set your NixOS user password declaratively with `hashedPasswordFile` using **sops-nix** and **age**, generate a password hash, encrypt it into a SOPS file, mark the secret with `neededForUsers = true`, and pass its runtime path to `users.users.<name>.hashedPasswordFile`.
+
+### 1. Generate a Password Hash
+
+NixOS's `hashedPasswordFile` expects a standard `crypt(3)` password hash (such as SHA-512 `$6$...` or yescrypt `$y$...`), **not** a plaintext password. Generate one using `mkpasswd`:
+
+```bash
+nix-shell -p mkpasswd --run "mkpasswd -m sha-512"
+
+```
+
+*(Enter your desired password when prompted and copy the resulting `$6$...` string.)*
+
+---
+
+### 2. Store the Hash in Your SOPS Secrets File
+
+Assuming you already have `.sops.yaml` configured with your `age` recipient keys (both your admin key and the NixOS host key, such as `/var/lib/sops-nix/key.txt` or an SSH host key):
+
+1. Open your system secrets file with `sops`:
+
+
+```bash
+nix-shell -p sops --run "sops secrets/system.yaml"
+
+```
+
+
+2. Add a key containing the hash string from Step 1 (quote it so YAML preserves `$` characters verbatim):
+```yaml
+user_password: "$6$rounds=4096$saltsaltsalt$hashedpasswordstring..."
+
+```
+
+
+3. Save and exit so SOPS encrypts the value in place, then stage the file if using Nix Flakes (`git add secrets/system.yaml`).
+
+
+
+---
+
+### 3. Configure `sops-nix` and `hashedPasswordFile` in NixOS
+
+In your NixOS configuration (`configuration.nix`):
+
+* Set **`neededForUsers = true`** on the secret so `sops-nix` decrypts it early during system activation *before* NixOS creates/updates user accounts (decrypted to `/run/secrets-for-users/<name>`).
+
+
+* Set **`users.mutableUsers = false`** (recommended for declarative user management) so NixOS overwrites `/etc/shadow` with your declared password hash rather than ignoring it after initial user creation.
+
+
+* Point **`hashedPasswordFile`** at `config.sops.secrets.user_password.path`.
+
+
+
+```nix
+{ config, ... }:
+
+{
+  sops = {
+    defaultSopsFile = ./secrets/secrets.yaml ; # Possibly use system.yaml in future to seperate user secrets from system secrets
+    age.keyFile = "/mnt/wsl/projects/git/dotfiles/nix/wsl/sops/age/keyFile.txt";
+    # Or if deriving from your SSH host key instead:
+    # age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+
+    secrets = {
+      mlwp_password = {
+        neededForUsers = true;
+      };
+    };
+  };
+
+  users.mutableUsers = false;
+
+  users.users.${username} = {
+    isNormalUser = true;
+    extraGroups = [ "wheel" ];
+    hashedPasswordFile = config.sops.secrets.user_password.path;
+  };
+
+ users = {
+    # declarative user management, contents of the user and group files 
+    # will simply be replaced on system activation.
+    mutableUsers = false; 
+    users.${username} = {
+      isNormalUser = true;
+      description = "Mark's user";
+      extraGroups = [
+        "networkmanager"
+        "wheel"
+        "docker"
+      ];
+      hashedPasswordFile = config.sops.secrets.mlwp_password.path;
+      linger = true;
+    };
+  };
+}
+
+```
+
+
+---
+
+### 4. Apply and Verify
+
+1. Rebuild your system:
+
+
+```bash
+sudo nixos-rebuild switch --flake .#<your-host>
+
+```
+
+
+2. Verify that the password hash was decrypted and applied:
+* Check that the decrypted secret file exists (readable only by `root`):
+
+
+
+```bash
+sudo ls -l /run/secrets-for-users/user_password
+
+```
+
+* Test password authentication (for example with `su - $USER` from another shell or `sudo -k && sudo true`).
+
+### Common Pitfalls
+
+* **Forgetting `neededForUsers = true`:** Standard `sops.secrets` are decrypted *after* user creation, causing `nixos-rebuild` to fail because the file path does not exist yet when `users` activation runs.
+
+
+* **Leaving `users.mutableUsers = true` (the default):** If your user already exists on the machine, NixOS will not update an existing user's password from `hashedPasswordFile` unless `users.mutableUsers = false;` is set.
+
+
+* **Trailing newlines or plaintext passwords:** Ensure `user_password` in YAML holds the `$6$...` hash string (not plaintext) and contains no extra whitespace/newlines.
