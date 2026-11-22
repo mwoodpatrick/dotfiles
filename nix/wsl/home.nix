@@ -97,6 +97,20 @@ in
   home.packages =
     with pkgs;
     lib.unique [
+      (firefox.override {
+        extraPolicies = {
+          # Optional: remove the 3rdparty policy if you don't need native messaging hosts
+          "3rdparty" = null;
+
+          ExtensionSettings = {
+            # Allow manual installation from addons.mozilla.org (or use "normal_installed" / "force_installed" with install_url to auto-install)
+            "nordpassStandalone@nordsecurity.com" = {
+              installation_mode = "normal_installed";
+              install_url = "https://addons.mozilla.org/firefox/downloads/latest/nordpass-password-manager/latest.xpi";
+            };
+          };
+        };
+      })
       # [adwaita](https://gnome.pages.gitlab.gnome.org/libadwaita/)
       # Building blocks for modern adaptive GNOME applications.
       adwaita-icon-theme # a modern theme used by many apps
@@ -115,7 +129,6 @@ in
       unstable.elan # Install latest Lean theorem prover.
       fd # Fast user directory scanner dependency
       file # Provides the core `file` utility binary
-      firefox
       fortune
       fzf
       gemini-cli
