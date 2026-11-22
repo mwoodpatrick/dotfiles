@@ -11,7 +11,7 @@ result
 flake-lock.pub
 
 # exclude the keyfile
-nixos-wsl/nixos/sops/age/keyFile.txt
+nix/wsl/sops
 
 # Ignore all runtime and cache data inside VSCodium
 VSCodium/*

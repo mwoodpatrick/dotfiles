@@ -94,271 +94,274 @@ in
   home.stateVersion = "26.05";
 
   # Installs tools directly inside the user's execution profile path
-  home.packages = with pkgs;  lib.unique [
-    # [adwaita](https://gnome.pages.gitlab.gnome.org/libadwaita/)
-    # Building blocks for modern adaptive GNOME applications.
-    adwaita-icon-theme # a modern theme used by many apps
-    aider-chat
-    atool
-    shellcheck # Required backend linter utilized by the Bash LSP
-    black # Python formatters & linters
-    unstable.bun
-    btop
-    bubblewrap # Sandboxing toolkit utility used for security boundaries
-    chafa
-    clang-tools
-    unstable.claude-code
-    codex
-    cowsay
-    unstable.elan # Install latest Lean theorem prover.
-    fd # Fast user directory scanner dependency
-    fzf
-    file # Provides the core `file` utility binary
-    fortune
-    gemini-cli
-    git
-    gh # GitHub official CLI engine
-    ghostty
-    # [default-icon-theme](https://www.freedesktop.org/wiki/Software/icon-theme)
-    # icon-theme contains the standard also references the default icon theme called hicolor.
-    hicolor-icon-theme # contains the fallback “hicolor” icons
-    httpie
-    htop
-    isort # Python formatters & linters
-    jq # Essential CLI JSON processor
-    kitty
-    lua5_1
-    luarocks
-    lazygit
-    lmstudio
-    lua-language-server
-    lsof
-    lswt
-    mesa-demos # [Collection of demos and test programs for OpenGL and Mesa](https://github.com/mirror/mesa-demos)
-    neovide
-    unstable.neovim
-    nerdfix
-    nodejs_26
-    nil # fast, lightweight nix language server
-    nixd # nix langiage server with deep-introspection features
-    nixfmt
-    # inputs.nix-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
-    # inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.default
-    ni
-    adwaita-icon-theme # a modern theme used by many apps
-    aider-chat
-    atool
-    shellcheck # Required backend linter utilized by the Bash LSP
-    black # Python formatters & linters
-    btop
-    bubblewrap # Sandboxing toolkit utility used for security boundaries
-    chafa
-    unstable.claude-code
-    codex
-    cowsay
-    unstable.elan # Install latest Lean theorem prover.
-    fd # Fast user directory scanner dependency
-    fzf
-    file # Provides the core `file` utility binary
-    fortune
-    gemini-cli
-    git
-    gh # GitHub official CLI engine
-    ghostty
-    hicolor-icon-theme # contains the fallback “hicolor” icons
-    httpie
-    htop
-    isort # Python formatters & linters
-    jq # Essential CLI JSON processor
-    kitty
-    lua5_1
-    luarocks
-    lazygit
-    lmstudio
-    lua-language-server
-    lsof
-    lswt
-    mesa-demos # [Collection of demos and test programs for OpenGL and Mesa](https://github.com/mirror/mesa-demos)
-    neovide
-    unstable.neovim
-    nerdfix
-    nodejs_26
-    nil # fast, lightweight nix language server
-    nixd # nix langiage server with deep-introspection features
-    nixfmt
-    # inputs.nix-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
-    # inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.default
-    ni
-    adwaita-icon-theme # a modern theme used by many apps
-    aider-chat
-    atool
-    shellcheck # Required backend linter utilized by the Bash LSP
-    black # Python formatters & linters
-    btop
-    bubblewrap # Sandboxing toolkit utility used for security boundaries
-    chafa
-    unstable.claude-code
-    codex
-    cowsay
-    unstable.elan # Install latest Lean theorem prover.
-    fd # Fast user directory scanner dependency
-    fzf
-    file # Provides the core `file` utility binary
-    fortune
-    gemini-cli
-    git
-    gh # GitHub official CLI engine
-    ghostty
-    hicolor-icon-theme # contains the fallback “hicolor” icons
-    httpie
-    htop
-    isort # Python formatters & linters
-    jq # Essential CLI JSON processor
-    kitty
-    lua5_1
-    luarocks
-    lazygit
-    lmstudio
-    lua-language-server
-    lsof
-    lswt
-    mesa-demos # [Collection of demos and test programs for OpenGL and Mesa](https://github.com/mirror/mesa-demos)
-    neovide
-    unstable.neovim
-    nerdfix
-    nodejs_26
-    nil # fast, lightweight nix language server
-    nixd # nix langiage server with deep-introspection features
-    nixfmt
-    # inputs.nix-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
-    # inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.default
-    ni
-    adwaita-icon-theme # a modern theme used by many apps
-    aider-chat
-    atool
-    shellcheck # Required backend linter utilized by the Bash LSP
-    black # Python formatters & linters
-    btop
-    bubblewrap # Sandboxing toolkit utility used for security boundaries
-    chafa
-    unstable.claude-code
-    codex
-    cowsay
-    unstable.elan # Install latest Lean theorem prover.
-    fd # Fast user directory scanner dependency
-    fzf
-    file # Provides the core `file` utility binary
-    fortune
-    gedit
-    gemini-cli
-    git
-    gh # GitHub official CLI engine
-    ghostty
-    hicolor-icon-theme # contains the fallback “hicolor” icons
-    httpie
-    htop
-    isort # Python formatters & linters
-    jq # Essential CLI JSON processor
-    kitty
-    lua5_1
-    luarocks
-    lazygit
-    lmstudio
-    lua-language-server
-    lsof
-    lswt
-    mesa-demos # [Collection of demos and test programs for OpenGL and Mesa](https://github.com/mirror/mesa-demos)
-    neovide
-    unstable.neovim
-    nerdfix
-    nodejs_26
-    nil # fast, lightweight nix language server
-    nixd # nix langiage server with deep-introspection features
-    nixfmt
-    # inputs.nix-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
-    # inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.default
-    nix-ld
-    nix-index # locate the package providing a certain file in nixpkgs
-    obsidian
-    unstable.ollama
-    ponysay
-    python3Packages.openai
-    # opencode
-    # Local OpenCode build via flake input:
-    # OpenCode CLI target
-    # inputs.opencode.packages.${pkgs.stdenv.hostPlatform.system}.opencode
-    # inputs.opencode.packages.${pkgs.stdenv.hostPlatform.system}.opencode-desktop
-    # OpenCode Desktop (Electron/GUI) target
-    # inputs.opencode.packages.${pkgs.system}.desktop
-    # unstable.opencode # Official Nixpkgs unstable derivation
-    # (pkgs.opencode.override {
-    # npmDepsHash = "sha256-prx9dX7kUvs/E3zopkaPk5LXh3xJAy5sZeum/W8L7cA=";
-    # })
-    # (pkgs.opencode.overrideAttrs (oldAttrs: {
-    # npmDeps = oldAttrs.npmDeps.overrideAttrs (_: {
-    # outputHash = "sha256-prx9dX7kUvs/E3zopkaPk5LXh3xJAy5sZeum/W8L7cA=";
-    # });
-    # }))
-    # (unstable.opencode.overrideAttrs (oldAttrs: {
-    # npmDeps = oldAttrs.passthru.npmDeps.overrideAttrs (_: {
-    # outputHash = "sha256-prx9dX7kUvs/E3zopkaPk5LXh3xJAy5sZeum/W8L7cA=";
-    # });
-    # }))
-    # unstable.opencode-desktop
-    # opencode-desktop
-    pandoc
-    patchelf # Small utility to modify the dynamic linker and RPATH of ELF executables.
-    pnpm
-    prettier # Web/JavaScript formatters
-    prettierd
-    (python314.withPackages (ps: [
-      ps.firecrawl-py
-      ps.matplotlib
-      ps.numpy
-      ps.ollama
-      ps.pandas
-      ps.requests
-    ]))
-    pyright
-    ranger
-    librsvg # Small library to render SVG images to Cairo surfaces
-    resvg # SVG rendering library.
-    ripgrep # Optimal regex finder for tools like Telescope/Nvim
-    rustup # Includes cargo, rustc, etc.
-    shfmt # bash formatter
-    slirp4netns # User-space network engine for rootless sandboxes
-    sqlite # Provides both the CLI utility and sqlite3 libraries
-    stylua
-    imagemagick
-    tmux
-    trash-cli
-    tree-sitter
-    typescript-language-server
-    ueberzugpp
-    unstable.warp-terminal
-    unzip
-    viu
-    vscode-langservers-extracted
-    unstable.vscodium-fhs
-    wayland
-    wayland-utils
-    waylevel
-    wl-clipboard
-    wmctrl
-    wezterm
-    xclock
-    xdg-utils
-    xdotool
-    xlsfonts
-    xprop
-    xwininfo
-    yarn
-    yq-go # Provides a reliable YAML processor/parser
-    # Migrated from configuration.nix
-    # inputs.claude-code-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
-    unstable.zed-editor
-    tinywl
-  ];
+  home.packages =
+    with pkgs;
+    lib.unique [
+      # [adwaita](https://gnome.pages.gitlab.gnome.org/libadwaita/)
+      # Building blocks for modern adaptive GNOME applications.
+      adwaita-icon-theme # a modern theme used by many apps
+      aider-chat
+      atool
+      shellcheck # Required backend linter utilized by the Bash LSP
+      black # Python formatters & linters
+      unstable.bun
+      btop
+      bubblewrap # Sandboxing toolkit utility used for security boundaries
+      chafa
+      clang-tools
+      unstable.claude-code
+      codex
+      cowsay
+      unstable.elan # Install latest Lean theorem prover.
+      fd # Fast user directory scanner dependency
+      file # Provides the core `file` utility binary
+      firefox
+      fortune
+      fzf
+      gemini-cli
+      git
+      gh # GitHub official CLI engine
+      ghostty
+      # [default-icon-theme](https://www.freedesktop.org/wiki/Software/icon-theme)
+      # icon-theme contains the standard also references the default icon theme called hicolor.
+      hicolor-icon-theme # contains the fallback “hicolor” icons
+      httpie
+      htop
+      isort # Python formatters & linters
+      jq # Essential CLI JSON processor
+      kitty
+      lua5_1
+      luarocks
+      lazygit
+      lmstudio
+      lua-language-server
+      lsof
+      lswt
+      mesa-demos # [Collection of demos and test programs for OpenGL and Mesa](https://github.com/mirror/mesa-demos)
+      neovide
+      unstable.neovim
+      nerdfix
+      nodejs_26
+      nil # fast, lightweight nix language server
+      nixd # nix langiage server with deep-introspection features
+      nixfmt
+      # inputs.nix-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
+      # inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.default
+      ni
+      adwaita-icon-theme # a modern theme used by many apps
+      aider-chat
+      atool
+      shellcheck # Required backend linter utilized by the Bash LSP
+      black # Python formatters & linters
+      btop
+      bubblewrap # Sandboxing toolkit utility used for security boundaries
+      chafa
+      unstable.claude-code
+      codex
+      cowsay
+      unstable.elan # Install latest Lean theorem prover.
+      fd # Fast user directory scanner dependency
+      fzf
+      file # Provides the core `file` utility binary
+      fortune
+      gemini-cli
+      git
+      gh # GitHub official CLI engine
+      ghostty
+      hicolor-icon-theme # contains the fallback “hicolor” icons
+      httpie
+      htop
+      isort # Python formatters & linters
+      jq # Essential CLI JSON processor
+      kitty
+      lua5_1
+      luarocks
+      lazygit
+      lmstudio
+      lua-language-server
+      lsof
+      lswt
+      mesa-demos # [Collection of demos and test programs for OpenGL and Mesa](https://github.com/mirror/mesa-demos)
+      neovide
+      unstable.neovim
+      nerdfix
+      nodejs_26
+      nil # fast, lightweight nix language server
+      nixd # nix langiage server with deep-introspection features
+      nixfmt
+      # inputs.nix-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
+      # inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.default
+      ni
+      adwaita-icon-theme # a modern theme used by many apps
+      aider-chat
+      atool
+      shellcheck # Required backend linter utilized by the Bash LSP
+      black # Python formatters & linters
+      btop
+      bubblewrap # Sandboxing toolkit utility used for security boundaries
+      chafa
+      unstable.claude-code
+      codex
+      cowsay
+      unstable.elan # Install latest Lean theorem prover.
+      fd # Fast user directory scanner dependency
+      fzf
+      file # Provides the core `file` utility binary
+      fortune
+      gemini-cli
+      git
+      gh # GitHub official CLI engine
+      ghostty
+      hicolor-icon-theme # contains the fallback “hicolor” icons
+      httpie
+      htop
+      isort # Python formatters & linters
+      jq # Essential CLI JSON processor
+      kitty
+      lua5_1
+      luarocks
+      lazygit
+      lmstudio
+      lua-language-server
+      lsof
+      lswt
+      mesa-demos # [Collection of demos and test programs for OpenGL and Mesa](https://github.com/mirror/mesa-demos)
+      neovide
+      unstable.neovim
+      nerdfix
+      nodejs_26
+      nil # fast, lightweight nix language server
+      nixd # nix langiage server with deep-introspection features
+      nixfmt
+      # inputs.nix-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
+      # inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.default
+      ni
+      adwaita-icon-theme # a modern theme used by many apps
+      aider-chat
+      atool
+      shellcheck # Required backend linter utilized by the Bash LSP
+      black # Python formatters & linters
+      btop
+      bubblewrap # Sandboxing toolkit utility used for security boundaries
+      chafa
+      unstable.claude-code
+      codex
+      cowsay
+      unstable.elan # Install latest Lean theorem prover.
+      fd # Fast user directory scanner dependency
+      fzf
+      file # Provides the core `file` utility binary
+      fortune
+      gedit
+      gemini-cli
+      git
+      gh # GitHub official CLI engine
+      ghostty
+      hicolor-icon-theme # contains the fallback “hicolor” icons
+      httpie
+      htop
+      isort # Python formatters & linters
+      jq # Essential CLI JSON processor
+      kitty
+      lua5_1
+      luarocks
+      lazygit
+      lmstudio
+      lua-language-server
+      lsof
+      lswt
+      mesa-demos # [Collection of demos and test programs for OpenGL and Mesa](https://github.com/mirror/mesa-demos)
+      neovide
+      unstable.neovim
+      nerdfix
+      nodejs_26
+      nil # fast, lightweight nix language server
+      nixd # nix langiage server with deep-introspection features
+      nixfmt
+      # inputs.nix-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
+      # inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.default
+      nix-ld
+      nix-index # locate the package providing a certain file in nixpkgs
+      obsidian
+      unstable.ollama
+      ponysay
+      python3Packages.openai
+      # opencode
+      # Local OpenCode build via flake input:
+      # OpenCode CLI target
+      # inputs.opencode.packages.${pkgs.stdenv.hostPlatform.system}.opencode
+      # inputs.opencode.packages.${pkgs.stdenv.hostPlatform.system}.opencode-desktop
+      # OpenCode Desktop (Electron/GUI) target
+      # inputs.opencode.packages.${pkgs.system}.desktop
+      # unstable.opencode # Official Nixpkgs unstable derivation
+      # (pkgs.opencode.override {
+      # npmDepsHash = "sha256-prx9dX7kUvs/E3zopkaPk5LXh3xJAy5sZeum/W8L7cA=";
+      # })
+      # (pkgs.opencode.overrideAttrs (oldAttrs: {
+      # npmDeps = oldAttrs.npmDeps.overrideAttrs (_: {
+      # outputHash = "sha256-prx9dX7kUvs/E3zopkaPk5LXh3xJAy5sZeum/W8L7cA=";
+      # });
+      # }))
+      # (unstable.opencode.overrideAttrs (oldAttrs: {
+      # npmDeps = oldAttrs.passthru.npmDeps.overrideAttrs (_: {
+      # outputHash = "sha256-prx9dX7kUvs/E3zopkaPk5LXh3xJAy5sZeum/W8L7cA=";
+      # });
+      # }))
+      # unstable.opencode-desktop
+      # opencode-desktop
+      pandoc
+      patchelf # Small utility to modify the dynamic linker and RPATH of ELF executables.
+      pnpm
+      prettier # Web/JavaScript formatters
+      prettierd
+      (python314.withPackages (ps: [
+        ps.firecrawl-py
+        ps.matplotlib
+        ps.numpy
+        ps.ollama
+        ps.pandas
+        ps.requests
+      ]))
+      pyright
+      ranger
+      librsvg # Small library to render SVG images to Cairo surfaces
+      resvg # SVG rendering library.
+      ripgrep # Optimal regex finder for tools like Telescope/Nvim
+      rustup # Includes cargo, rustc, etc.
+      shfmt # bash formatter
+      slirp4netns # User-space network engine for rootless sandboxes
+      sqlite # Provides both the CLI utility and sqlite3 libraries
+      stylua
+      imagemagick
+      tmux
+      trash-cli
+      tree-sitter
+      typescript-language-server
+      ueberzugpp
+      unstable.warp-terminal
+      unzip
+      viu
+      vscode-langservers-extracted
+      unstable.vscodium-fhs
+      wayland
+      wayland-utils
+      waylevel
+      wl-clipboard
+      wmctrl
+      wezterm
+      xclock
+      xdg-utils
+      xdotool
+      xlsfonts
+      xprop
+      xwininfo
+      yarn
+      yq-go # Provides a reliable YAML processor/parser
+      # Migrated from configuration.nix
+      # inputs.claude-code-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
+      unstable.zed-editor
+      tinywl
+    ];
 
   programs.home-manager.enable = true;
 
@@ -417,215 +420,5 @@ in
       # Environment variables or path scripts
       export PATH="$HOME/.local/bin:$PATH"
     '';
-  };
-
-  # [Visual Studio Code](https://nixos.wiki/wiki/Visual_Studio_Code)
-  programs.vscode = {
-    enable = true;
-    package = unstable.vscode;
-    # Install the core Neovim extension
-    profiles.default.extensions = with pkgs.vscode-extensions; [
-      asvetliakov.vscode-neovim
-      dracula-theme.theme-dracula
-    ];
-    # Force VS Code to recognize your Nix-managed Neovim
-    profiles.default.userSettings = {
-      # Use the absolute path provided by the Nix profile
-      "vscode-neovim.neovimExecutablePaths.linux" = "${unstable.neovim}/bin/nvim";
-
-      # Optional: Disable default VS Code keybindings that conflict with Neovim
-      "vim.useCtrlKeys" = true;
-      "vim.hlsearch" = true;
-    };
-  };
-
-  # [Firefox](https://wiki.nixos.org/wiki/Firefox)
-  programs.firefox = {
-    enable = true;
-    configPath = "${xdg_data}/mozilla/firefox"; # force profile location
-    languagePacks = [ "en-US" ];
-
-    policies = {
-      # Updates & Background Services
-      AppAutoUpdate = false;
-      BackgroundAppUpdate = false;
-
-      # Feature Disabling
-      # DisableBuiltinPDFViewer = true;
-      # DisableFirefoxStudies = true;
-      # DisableFirefoxAccounts = true;
-      # DisableFirefoxScreenshots = true;
-      # DisableForgetButton = true;
-      # DisableMasterPasswordCreation = true;
-      # DisableProfileImport = true;
-      # DisableProfileRefresh = true;
-      # DisableSetDesktopBackground = true;
-      # DisablePocket = true;
-      DisableTelemetry = true;
-      # DisableFormHistory = true;
-      # DisablePasswordReveal = true;
-
-      # Access Restrictions
-      # BlockAboutConfig = false;
-      # BlockAboutProfiles = true;
-      # BlockAboutSupport = true;
-
-      # UI and Behavior
-      DisplayMenuBar = "never";
-      DontCheckDefaultBrowser = true;
-      HardwareAcceleration = false;
-      # OfferToSaveLogins = false;
-      DefaultDownloadDirectory = "${home}/Downloads";
-
-      # Extensions
-      ExtensionSettings =
-        let
-          moz = short: "https://addons.mozilla.org/firefox/downloads/latest/${short}/latest.xpi";
-        in
-        {
-          "*".installation_mode = "blocked";
-
-          "uBlock0@raymondhill.net" = {
-            install_url = moz "ublock-origin";
-            installation_mode = "force_installed";
-            updates_disabled = true;
-          };
-
-          "{f3b4b962-34b4-4935-9eee-45b0bce58279}" = {
-            install_url = moz "animated-purple-moon-lake";
-            installation_mode = "force_installed";
-            updates_disabled = true;
-          };
-
-          "{73a6fe31-595d-460b-a920-fcc0f8843232}" = {
-            install_url = moz "noscript";
-            installation_mode = "force_installed";
-            updates_disabled = true;
-          };
-
-          # NordPass – password manager
-          "nordpass@mozilla.org" = {
-            install_url = moz "nordpass";
-            installation_mode = "force_installed";
-            updates_disabled = false;
-          };
-        };
-
-      # Extension configuration
-      "3rdparty".Extensions = {
-        "uBlock0@raymondhill.net".adminSettings = {
-          userSettings = rec {
-            uiTheme = "dark";
-            uiAccentCustom = true;
-            uiAccentCustom0 = "#8300ff";
-            cloudStorageEnabled = mkForce false;
-
-            importedLists = [
-              "https://filters.adtidy.org/extension/ublock/filters/3.txt"
-              "https://github.com/DandelionSprout/adfilt/raw/master/LegitimateURLShortener.txt"
-            ];
-
-            externalLists = lib.concatStringsSep "\n" importedLists;
-          };
-
-          selectedFilterLists = [
-            "CZE-0"
-            "adguard-generic"
-            "adguard-annoyance"
-            "adguard-social"
-            "adguard-spyware-url"
-            "easylist"
-            "easyprivacy"
-            "https://github.com/DandelionSprout/adfilt/raw/master/LegitimateURLShortener.txt"
-            "plowe-0"
-            "ublock-abuse"
-            "ublock-badware"
-            "ublock-filters"
-            "ublock-privacy"
-            "ublock-quick-fixes"
-            "ublock-unbreak"
-            "urlhaus-1"
-          ];
-        };
-      };
-    };
-
-    # Firefox profile = a complete, isolated user data store for the browser.
-    # Profiles let you have separate sets of bookmarks, extensions, preferences, etc.
-    profiles = {
-      default = {
-        id = 0;
-        search = {
-          force = true;
-          default = "ddg";
-          privateDefault = "ddg";
-
-          engines = {
-            "Nix Packages" = {
-              urls = [
-                {
-                  template = "https://search.nixos.org/packages";
-                  params = [
-                    {
-                      name = "channel";
-                      value = "unstable";
-                    }
-                    {
-                      name = "query";
-                      value = "{searchTerms}";
-                    }
-                  ];
-                }
-              ];
-              icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
-              definedAliases = [ "@np" ];
-            };
-
-            "Nix Options" = {
-              urls = [
-                {
-                  template = "https://search.nixos.org/options";
-                  params = [
-                    {
-                      name = "channel";
-                      value = "unstable";
-                    }
-                    {
-                      name = "query";
-                      value = "{searchTerms}";
-                    }
-                  ];
-                }
-              ];
-              icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
-              definedAliases = [ "@no" ];
-            };
-
-            "NixOS Wiki" = {
-              urls = [
-                {
-                  template = "https://wiki.nixos.org/w/index.php";
-                  params = [
-                    {
-                      name = "search";
-                      value = "{searchTerms}";
-                    }
-                  ];
-                }
-              ];
-              icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
-              definedAliases = [ "@nw" ];
-            };
-          };
-        };
-      };
-      "work" = {
-        id = 1;
-        path = "/home/${username}/config/.mozilla/firefox/work";
-        settings = {
-          "privacy.resistFingerprinting" = true;
-        };
-      };
-    };
   };
 }
