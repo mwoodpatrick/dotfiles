@@ -1,6 +1,28 @@
 # Desktop
 
-Running **KDE Plasma 6** on **NixOS-WSL** works best by pairing NixOS's declarative `services.desktopManager.plasma6` module with **XRDP** (so you get a full, isolated KDE desktop window via Windows Remote Desktop Connection without conflicting with WSLg's built-in Wayland compositor).
+# Startup
+
+On startup/login the following files are processed:
+
+- ~/.bash_profile (which sources ~/.profile and .bashrc)
+- ~/.profile  which sources /nix/store/<hash>-hm-session-vars.sh/etc/profile.d/hm-session-vars.sh" sets PATH env var to export PATH="$HOME/.local/bin:$PATH". Currently these sessions files set the XDG env vars need to review this
+- ~/.bashrc which sources $XDG_CONFIG_HOME/bash/init.bash
+
+export LOCALE_ARCHIVE_2_27="/nix/store/7c57qdfwri1vx6ywbadk30wplcmxb06q-glibc-locales-2.42-103/lib/locale/locale-archive"
+export NIX_XDG_DESKTOP_PORTAL_DIR="/etc/profiles/per-user/mwoodpatrick/share/xdg-desktop-portal/portals"
+export OLLAMA_API_KEY_FILE="/run/secrets/OLLAMA_API_KEY"
+export OLLAMA_HOST="http://localhost:11434"
+export STARSHIP_CONFIG="/mnt/wsl/projects/git/dotfiles/starship.toml"
+export XDG_BIN_HOME="/home/mwoodpatrick/.local/bin"
+export XDG_CACHE_HOME="/home/mwoodpatrick/.cache"
+export XDG_CONFIG_HOME="/mnt/wsl/projects/git/dotfiles"
+export XDG_DATA_HOME="/mnt/wsl/projects/data"
+export XDG_STATE_HOME="/home/mwoodpatrick/.local/state"
+
+
+# KDE
+
+Running **KDE Plasma 6** on **NixOS-WSL** works best by pairing NixOS's declarative `services.desktopManager.plasma6` module with **XRDP** (so you get a full, isolated KDE desktop window via Windows Remote Desktop Connection without conflicting with WSLg's built-in Wayland compositor). Currently this is using an X11 server, I need to look into Wayland support. We current set GDK_BACKEND=x11: Explicitly tells GTK4 to connect to XRDP's X11 display rather than looking for a Wayland socket. We also set LIBGL_ALWAYS_SOFTWARE=1: Forces Mesa's llvmpipe software OpenGL renderer if /dev/dxg hardware acceleration is not exposed to the Xorg XRDP session.
 
 If you only want individual KDE apps (like Dolphin, Kate, or Konsole) appearing as native Windows windows via WSLg, you do not need XRDP at all—only the packages. Below are both setups.
 
@@ -214,3 +236,51 @@ dbus-run-session -- kwin_wayland --xwayland --exit-with-session startplasma-wayl
 ---
 
 For a walkthrough of setting up KDE Plasma 6 in NixOS on WSL2, see [How To install KDE 6 via NixOS and Windows 11 - WSL](https://www.youtube.com/watch?v=OptlWSuKHSw).
+
+# Nested Wayland server
+
+**No, you cannot use `startplasma-wayland` directly as an XRDP session backend.** Standard XRDP (`xorgxrdp`) speaks only the **X11** display protocol and cannot host a native Wayland compositor (`kwin_wayland`) directly.
+
+### Why `startplasma-wayland` Fails with XRDP
+
+* **Xorg-Only Backend:** XRDP's session manager (`xrdp-sesman`) starts an X11 server (`Xorg` using the `xorgxrdp` driver) and executes your window manager inside it.
+* **Compositor Mismatch:** `startplasma-wayland` attempts to initialize `kwin_wayland` directly on bare-metal DRM/KMS hardware (or a parent Wayland compositor). When invoked from XRDP's X11 session, it fails to acquire a DRM device or Wayland socket and terminates immediately (resulting in a black screen or instant RDP disconnect).
+
+---
+
+### Working Alternatives for Wayland Access on NixOS / WSL-2
+
+Depending on what you need Wayland for, choose one of these two approaches:
+
+#### 1. Run a Nested Wayland Compositor Inside Your `startplasma-x11` XRDP Session
+
+If you want to keep your full KDE Plasma desktop over XRDP (`defaultWindowManager = "startplasma-x11"`) while running or testing Wayland applications (such as `tinywl` or a Wayland client) inside it:
+
+* Launch a nested Wayland compositor inside your Plasma X11 terminal:
+* **Nested KWin Wayland window:**
+
+
+
+```bash
+dbus-run-session kwin_wayland --x11
+
+```
+
+* **Or Weston / TinyWL inside X11:**
+
+```bash
+weston
+
+```
+
+* **Verification:** Inside that nested compositor window, `WAYLAND_DISPLAY` (e.g., `wayland-0` or `wayland-1`) is exported, allowing native Wayland apps to connect while XRDP continues streaming the outer X11 Plasma desktop.
+
+#### 2. Use WSLg Directly for Native Wayland (Without XRDP)
+
+If you are on NixOS in WSL-2 and do not strictly need the full KDE Plasma desktop shell:
+
+* Run Wayland applications directly from your standard WSL terminal (`wsl.exe` or Windows Terminal) rather than inside XRDP.
+* Windows 11's built-in **WSLg** (Weston) automatically provides both `WAYLAND_DISPLAY=wayland-0` and `DISPLAY=:0` with Direct3D12 GPU acceleration, rendering Wayland windows directly alongside your Windows desktop.
+
+
+* **Verification:** Run `echo $WAYLAND_DISPLAY` in your standard WSL terminal; it should output `wayland-0`.

@@ -3,8 +3,17 @@
 # https://ryanstutorials.net/bash-scripting-tutorial/
 # https://linuxhint.com/category/bash-programming/
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc) for examples
+# sourced from ~/.bashrc which is source from  ~/.bashrc_profile (which also source ~/.profile)
 
-# If not running interactively, don't do anything
+# Capture environment for debugging
+function dump_env {
+    return 0 # disable for now
+    local which=$1
+    local FILE_TS=$(date +"%Y-%m-%d__%H-%M-%S")
+    local d=${XDG_DATA_HOME:-$HOME}/bash/debug
+    local f=$d/${FILE_TS}_${which}_env.txt
+    mkdir -p $d && env >$f && echo "environment saved to $f"
+}
 
 # Check if the script is being sourced or executed directly
 function caller() {
@@ -38,12 +47,16 @@ function update_prompt() {
     fi
 }
 
+# If not running interactively, don't do anything
+
 case $- in
 *i*) ;;
 *) [[ "${BASH_SOURCE[0]}" == "$0" ]] && exit 0 || return ;;
 esac
 
 interactive=1
+# export TZ=America/Los_Angeles
+dump_env pre
 
 # ensure LD_LIBRARY_PATH is unset so that the dynamic linker (ld.so) uses the
 # binary's embedded RUNPATH which specifes the shared libraries that the binary
@@ -65,8 +78,7 @@ export DOTFILES=$(dirname "$(dirname "$SCRIPT_PATH")")
 # replace directory name variables with their actual values during tab completion
 shopt -s direxpand
 
-export TZ=America/Los_Angeles
-export DISPLAY="${DISPLAY:-$(uname -n):0}"
+# export DISPLAY="${DISPLAY:-$(uname -n):0}"
 export HOSTNAME=$(hostname --fqdn)
 export ZED_ALLOW_EMULATED_GPU=1
 
@@ -89,12 +101,6 @@ shopt -s checkwinsize
 case "$TERM" in
 xterm* | rxvt* | screen* | tmux*) color_prompt=yes ;;
 esac
-
-# make systemd autostart Dunst properly whenever Kitty queries it, inject those variables
-# into the systemd user manager
-if [ -n "$WAYLAND_DISPLAY" ] || [ -n "$DISPLAY" ]; then
-    systemctl --user import-environment DISPLAY WAYLAND_DISPLAY XDG_RUNTIME_DIR 2>/dev/null
-fi
 
 # update lean
 [[ -z "$LEAN_UPDATED" ]] && {
@@ -409,6 +415,12 @@ Linux | linux-gnu)
     export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus"
     export DONT_PROMPT_WSL_INSTALL="1"
 
+    # make systemd autostart Dunst properly whenever Kitty queries it, inject those variables
+    # into the systemd user manager
+    # if [ -n "$WAYLAND_DISPLAY" ] || [ -n "$DISPLAY" ]; then
+    #    systemctl --user import-environment DISPLAY WAYLAND_DISPLAY XDG_RUNTIME_DIR 2>/dev/null
+    # fi
+
     # WSL injects the following display environment variables by default into every user session:
     # WAYLAND_DISPLAY="wayland-0"
     # DISPLAY=":0"
@@ -418,8 +430,8 @@ Linux | linux-gnu)
     # WAYLAND_DISPLAY = ""
 
     # Direct GTK and Qt to prefer native Wayland over XWayland
-    export GDK_BACKEND="wayland,x11"
-    export QT_QPA_PLATFORM="wayland;xcb"
+    # export GDK_BACKEND="wayland,x11"
+    # export QT_QPA_PLATFORM="wayland;xcb"
 
     # Commit to perlbrew
     # use perlbrew use 5.20.1-007 to switch version
@@ -504,3 +516,4 @@ mount_drive "/mnt/g" "G:"
 # echo "finished init.bash"
 # enable direnv, this should be the last line in the file
 eval "$(direnv hook bash)"
+dump_env post

@@ -12,6 +12,7 @@ let
   projects_root = "/mnt/wsl/projects";
   git_root = "${projects_root}/git";
   xdg_data = "${projects_root}/data";
+  xdg_state = "${projects_root}/state";
   browser = "firefox.desktop"; # Or "chromium-browser.desktop", "brave-browser.desktop"
   inherit (lib) mkForce;
 in
@@ -25,6 +26,7 @@ in
       OLLAMA_HOST = "http://localhost:11434";
       OLLAMA_API_KEY_FILE = "/run/secrets/OLLAMA_API_KEY";
       XDG_DATA_HOME = mkForce "${xdg_data}";
+      XDG_STATE_HOME = mkForce "${xdg_state}";
     };
   };
 

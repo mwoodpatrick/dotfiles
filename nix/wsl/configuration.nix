@@ -23,6 +23,8 @@
     # <nixos-wsl/modules>
   ];
 
+  time.timeZone = "America/Los_Angeles";
+
   # [NixOS-WSL](https://nix-community.github.io/NixOS-WSL)
   # Core architecture switches mapping the guest VM parameters
   wsl = {
@@ -345,10 +347,19 @@
     desktopManager.plasma6.enable = true;
 
     # Enable XRDP on port 3390 to avoid conflicting with Windows RDP (3389)
+    # Standard XRDP (xorgxrdp) speaks only the X11 display protocol and cannot 
+    # host a native Wayland compositor (kwin_wayland) directly.
+    # Explicitly tells GTK4 to connect to XRDP's X11 display rather than 
+    # looking for a Wayland socket.
     xrdp = {
       enable = true;
+      defaultWindowManager = "${pkgs.writeShellScript "xrdp-plasma-x11" ''
+        unset WAYLAND_DISPLAY
+        export GDK_BACKEND=x11
+        export QT_QPA_PLATFORM=xcb
+        exec startplasma-x11
+      ''}";
       port = 3390;
-      defaultWindowManager = "startplasma-x11";
       openFirewall = true;
     };
 
