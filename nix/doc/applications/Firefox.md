@@ -1,4 +1,118 @@
-[Firefox](https://wiki.nixos.org/wiki/Firefox)
+[Firefox](https://www.firefox.com/en-US/)
+[Firefox addons](https://addons.mozilla.org/en-US/firefox/)
+[NixOs Firefox](https://wiki.nixos.org/wiki/Firefox)
+
+Firefox profiles are stored locally per user on each host machine and are not shared across different computers.**
+
+To find the exact location of your active Firefox configuration files—which include your user profile preferences (`prefs.js` / `user.js`), the profile registry (`profiles.ini`), and any system-wide Enterprise Policy files (`policies.json`)—use Firefox's built-in diagnostics pages or check the standard OS paths below.
+
+---
+
+### 1. Find Your User Profile Config (`prefs.js` & `user.js`)
+
+prefs.js (main storage)
+- This is the primary file where Firefox saves all modified preferences.
+- It is automatically created and updated by Firefox.
+- It is a plain text file.
+
+user.js (optional overrides)
+- This file does not exist by default.
+- If created manually, Firefox will apply its settings at startup, overriding values in prefs.js.
+
+Your active Firefox profile directory stores your personal settings (`prefs.js`), custom overrides (`user.js`), and UI CSS (`chrome/userChrome.css`).
+
+1. Open a new tab in Firefox and navigate to:
+```text
+about:profiles
+
+```
+
+
+2. Locate the profile labeled **"This is the profile in use and it cannot be deleted."**
+3. Look at the **Root Directory** row and click **Open Directory** (or copy the path).
+* *Verification:* Inside that folder, you will see `prefs.js` (and `user.js` if created), confirming you have the active profile directory.
+
+
+
+*(Alternatively, visit `about:support` and look for the **Profile Directory** row under **Application Basics**.)*
+
+#### Default Base Directories by OS (Where `profiles.ini` Lives)
+
+If Firefox isn't running, check `profiles.ini` in the base Firefox folder to see which profile directory is active:
+
+| OS / Environment | Base Directory (`profiles.ini`) |
+| --- | --- |
+| **Linux / NixOS** | `~/.mozilla/firefox/` (or `~/.config/mozilla/firefox/` if XDG migration is active) |
+| **Windows** | `%APPDATA%\Mozilla\Firefox\` (`C:\Users\<User>\AppData\Roaming\Mozilla\Firefox\`) |
+| **macOS** | `~/Library/Application Support/Firefox/` |
+| **Linux Flatpak** | `~/.var/app/org.mozilla.firefox/.mozilla/firefox/` |
+| **Linux Snap** | `~/snap/firefox/common/.mozilla/firefox/` |
+
+---
+
+### 2. Find System-Wide / Enterprise Policy Config (`policies.json`)
+
+If you are looking for administrative or declarative system-level Firefox configuration (such as `policies.json` or NixOS `programs.firefox.policies`):
+
+1. Open a new tab in Firefox and navigate to:
+```text
+about:policies
+
+```
+
+
+* *Verification:* If the **Active** tab lists active policies, Firefox is loading an OS-level policy file or registry key.
+
+
+
+
+2. Check the standard locations for your OS:
+* **NixOS:** Managed declaratively via `programs.firefox.policies` in your NixOS or Home Manager configuration, which generates `/etc/firefox/policies/policies.json` (symlinked into `/nix/store/...`).
+
+
+* **Standard Linux:** `/etc/firefox/policies/policies.json` or `/usr/lib/firefox/distribution/policies.json`.
+
+
+* **Windows:** `C:\Program Files\Mozilla Firefox\distribution\policies.json` (or Registry keys under `HKLM\SOFTWARE\Policies\Mozilla\Firefox`).
+
+
+* **macOS:** `/Applications/Firefox.app/Contents/Resources/distribution/policies.json` or MDM profiles under **System Settings → Privacy & Security → Profiles**.
+
+
+
+
+
+---
+
+### 3. Quick CLI Lookup (Linux / NixOS)
+
+To print the exact active profile path directly in your terminal without opening Firefox:
+
+```bash
+grep -E '^(Name|Path|Default)=' ~/.mozilla/firefox/profiles.ini 2>/dev/null || grep -E '^(Name|Path|Default)=' ~/.config/mozilla/firefox/profiles.ini
+
+```
+
+However, depending on what you mean by "shared between hosts" (sharing data via the cloud vs. pointing multiple machines or dual-boot OSes to the exact same profile directory), there are two ways people share them—and one major pitfall to avoid.
+
+---
+
+### 1. Official Syncing Across Hosts (Recommended): Mozilla Account
+
+If you want your bookmarks, history, open tabs, passwords, and add-ons shared across multiple computers or operating systems (e.g., Windows, Linux, WSL, macOS):
+
+* Sign into a **Mozilla Account** (`Settings → Sync`) on each host.
+* Firefox encrypts and syncs your profile data across all hosts safely without file locking conflicts or version mismatches.
+
+---
+
+### 2. Sharing a Profile Folder Over Network Storage or Dual-Boot (Risky)
+
+You *can* point Firefox on multiple hosts (or a Windows + Linux/WSL dual-boot setup) to the same profile directory on a network share (NFS/SMB) or shared drive using `firefox -P` or `profiles.ini`, **but doing so carries strict limitations**:
+
+* **Never Run Concurrently (File Locking & Corruption):** Firefox places a lock file (`parent.lock` on Windows, `.parentlock` on Linux) inside the profile folder while open. Opening the same profile directory simultaneously on two hosts will either be blocked by the lock or corrupt the SQLite databases (`places.sqlite`, `cookies.sqlite`, `favicons.sqlite`).
+* **Version Mismatches Trigger Downgrade Protection:** If Host A updates Firefox to a newer version and opens the shared profile, Host B (running an older version) will refuse to open it with *"Using an older version of Firefox can corrupt bookmarks and browsing history"* unless launched with `--allow-downgrade`.
+* **OS-Specific Paths & Extensions:** Hardcoded local file paths (such as download directories or Native Messaging host manifests for password managers) inside `prefs.js` will break when moving the same raw directory between Windows (`C:\...`) and Linux (`/home/...`).
 
 On **NixOS running in WSL2**, Firefox stores its runtime profiles, user preferences, and crash/diagnostic logs inside your Linux home directory (just like standard Linux), while declarative NixOS or Home Manager configurations live in `/etc/nixos` or your flake directory and compile into `/nix/store`.
 
