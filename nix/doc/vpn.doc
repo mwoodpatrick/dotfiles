@@ -1,0 +1,221 @@
+The error **"Hmmm… can't reach this page — It looks like [www.bing.com](https://www.google.com/search?q=https%3A%2F%2Fwww.bing.com) closed the connection"** (`ERR_CONNECTION_CLOSED`) while running NordVPN means your browser is reaching the network, but the TLS/HTTPS handshake is being abruptly dropped—most commonly by **NordVPN's Threat Protection Pro (Web Protection)**, a **VPN protocol/MTU packet-size mismatch**, or **leftover firewall/VPN drivers** from another security suite (such as Norton 360).
+
+Work through these steps in order from the quickest toggle to deeper network fixes:
+
+1. **Switch the VPN Protocol in NordVPN:** 1 min.
+If you are using **NordLynx** (WireGuard) on a network with strict packet inspection or smaller MTU limits, HTTPS handshakes frequently get dropped mid-connection.
+
+1. Open the **NordVPN** app and go to **Settings** (gear icon in the bottom-left).
+2. Select **Connection** (or **Auto-connect** / **VPN protocol**).
+3. Change **VPN protocol** from *Automatic* or *NordLynx* to **OpenVPN (TCP)** (if OpenVPN TCP works, you can also test **OpenVPN (UDP)** for faster speeds).
+4. Reconnect to a VPN server and refresh `[www.bing.com](https://www.bing.com)` in Edge/Chrome.
+*Verification:* The page loads normally without throwing `ERR_CONNECTION_CLOSED`.
+
+
+2. **Temporarily Disable Threat Protection Pro (Web Protection):** 1 min.
+NordVPN's **Threat Protection Pro** acts as a local HTTPS filtering proxy to block trackers and malicious domains; when its local certificate or filtering engine glitches, browsers report that the remote site "closed the connection."
+
+1. In the **NordVPN** app, click the **Shield icon** (**Threat Protection**) in the left sidebar.
+2. Toggle off **Web Protection** (or pause **Threat Protection Pro**).
+3. Reload the failing web page in your browser.
+*Verification:* If pages load immediately with Web Protection paused, restart your browser (or reinstall/repair the Threat Protection certificate in NordVPN **Settings → Threat Protection**) before re-enabling it.
+
+
+3. **Check for Conflicting Security Software or Browser Proxies:** 2 min.
+Running a second VPN, firewall, or leftover background service (for example, if you recently migrated from another security suite) can intercept and reset VPN-tunneled sockets.
+
+1. Ensure no other VPN app or third-party firewall/web-shield is running simultaneously.
+
+
+2. In Windows, press **Win + I** to open **Settings → Network & internet → Proxy**, and confirm **Use a proxy server** is turned **Off** (unless you intentionally configured a manual proxy).
+3. Test opening `[www.bing.com](https://www.bing.com)` in an **InPrivate / Incognito** window to rule out a conflicting browser extension (such as a separate VPN or ad-blocker extension).
+*Verification:* Confirm the proxy toggle is Off and test whether the page loads in an InPrivate window.
+
+
+4. **Flush DNS and Reset NordVPN Network Adapters:** 3 min.
+If only certain sites fail or the connection drops across all servers, clear stale DNS entries and reinitialize NordVPN's virtual network adapter:
+
+1. In the **NordVPN** app, go to **Settings → General** (or **Diagnostics**) and click **Run Diagnostics → Reset network** (or **Flush DNS**).
+2. Alternatively, open **Windows Terminal / Command Prompt** as Administrator and run `ipconfig /flushdns`.
+3. Disconnect and reconnect to a different NordVPN server location.
+*Verification:* Open a browser tab and navigate to `[www.bing.com](https://www.bing.com)` and another HTTPS site; both should resolve and complete their TLS connections cleanly.
+
+
+---
+
+### If You Are Browsing Inside WSL2 While NordVPN Runs on Windows
+
+If this error happens in a Linux browser running inside **WSL2** while NordVPN is active on the Windows host, WSL2's virtual NAT interface often experiences **MTU packet fragmentation** over VPN tunnels (causing TCP connections to hang or reset right after the TLS ClientHello). Lowering the MTU inside WSL2 (`sudo ip link set dev eth0 mtu 1350`) or enabling `networkingMode=mirrored` in `%USERPROFILE%\.wslconfig` resolves the dropped HTTPS connections.
+
+[See here](https://gemini.google.com/app/a19427523e916eef)
+[Auti renewal](https://support.nordvpn.com/hc/en-us/articles/19556844985489-How-to-cancel-auto-renewal-for-your-NordVPN-subscription?_gl=1%2Avbhlqu%2A_gcl_au%2AMTg0MTA2ODEyOS4xNzk1NDM4OTU0%2AFPAU%2AMTg0MTA2ODEyOS4xNzk1NDM4OTU0%2A_ga%2ANjI3ODQwNzcuMTc5NTQzODk1NA..%2A_ga_LEXMJ1N516%2AczE3OTU0Mzg5NTMkbzEkZzEkdDE3OTU0NDEwNzMkajYwJGwwJGgyMDM1OTQxMjYwJGRGMmc0aUNpRUw0RjNJT0tnY1EtdC1HQUVZVWZKTk5nRFhB&nv_tri=TC_7587717356709215_1745168286073&nv_trs=1795438953077_1795441073835_6_88)
+
+**Windows 11 does not have simple one-click toggles** in its Settings app equivalent to Android’s **Always-on VPN** and **Block connections without VPN**.
+
+In Windows 11, those two functions are split across either **your VPN client’s built-in settings** (the standard approach for personal use, such as with NordVPN) or **Windows Defender Firewall rules / Enterprise Always On VPN profiles** (if you want OS-level enforcement without relying on a third-party app).
+
+---
+
+### 1. Equivalent to Android’s "Always-On VPN"
+
+* **Option A: In Your VPN App (Recommended for Personal Use)**
+Commercial VPN apps on Windows (like NordVPN, Proton VPN, or Mullvad) implement this directly inside their desktop client:
+
+
+* **Auto-connect:** Automatically connects whenever Windows boots or joins an untrusted Wi-Fi/Ethernet network.
+* **Launch at Windows startup:** Ensures the VPN background service starts before you open a browser.
+
+
+* **Option B: Windows Built-in "Always On VPN" (Enterprise / PowerShell Only)**
+Windows 11 includes an enterprise feature literally named **Always On VPN (AOVPN)**, which supports both **User Tunnels** (connects at login) and **Device Tunnels** (connects at boot before login).
+* **Limitation:** It only works with Windows' native VPN protocols (**IKEv2** or **SSTP**) and cannot be enabled via a simple UI switch—it requires deploying an XML profile via PowerShell (`Add-VpnConnection` / `Set-VpnConnection -AlwaysOn $true`) or Microsoft Intune. It does not work with third-party WireGuard/OpenVPN apps.
+
+
+
+---
+
+### 2. Equivalent to Android’s "Block Connections Without VPN"
+
+Android’s **Block connections without VPN** is a system-level **Kill Switch**. Because Windows 11’s `Settings > Network & internet > VPN` menu has no built-in kill switch toggle, you have two ways to achieve it:
+
+* **Option A: App-Level Kill Switch (Easiest)**
+Enable the **Internet Kill Switch** inside your VPN desktop app (for example, in NordVPN: **Settings → Kill Switch → Internet Kill Switch**). Under the hood, the VPN client uses the **Windows Filtering Platform (WFP)** to block all non-VPN network interfaces if the tunnel drops or before it connects.
+* **Option B: OS-Level Enforcement via Windows Defender Firewall (True System Lock)**
+If you want Windows itself to block traffic even if the VPN app crashes or isn't running, you can enforce it directly in **Windows Defender Firewall with Advanced Security** (`wf.msc`):
+1. Set your VPN network adapter's profile to **Private** (or **Domain**), and keep your physical Wi-Fi/Ethernet adapter set to **Public**.
+2. Open **Windows Defender Firewall with Advanced Security** (`Win + R` → `wf.msc`).
+3. Click **Windows Defender Firewall Properties** in the center pane.
+4. Select the **Public Profile** tab, set **Outbound connections** to **Block**, and click **OK**.
+5. *(Optional)* Add a single outbound allow rule on the Public profile strictly for your VPN client’s executable and your VPN server's IP/port so the tunnel can establish initially.
+
+
+
+---
+
+### Summary Comparison
+
+| Android Feature | Windows 11 Consumer Equivalent | Windows 11 Native OS Equivalent |
+| --- | --- | --- |
+| **Always-on VPN**
+
+ | VPN App: **Auto-connect** + **Start with Windows** | PowerShell / Intune **Always On VPN** profile (IKEv2/SSTP only) |
+| **Block connections without VPN**
+
+ | VPN App: **Internet Kill Switch** (uses Windows Filtering Platform) | **Windows Defender Firewall**: Block outbound connections on the **Public** network profile |
+
+Are you trying to lock down a specific commercial VPN client (such as NordVPN) on Windows 11, or set up a custom WireGuard/OpenVPN tunnel?
+
+# VPN on WSL-Distros
+
+**No, you do not need to run a separate VPN inside your WSL distributions.**
+
+When a VPN is active on Windows 11, WSL 1 and WSL 2 both route their outbound network traffic through the Windows host's networking stack—meaning your WSL distributions automatically inherit the Windows VPN tunnel. Running a second VPN client inside WSL would create double-encapsulation overhead and typically causes routing conflicts or complete network loss.
+
+### How to Verify WSL Is Using Your Windows VPN
+
+Run the following command inside your WSL terminal (both with the Windows VPN disconnected and connected) to confirm your public IP changes to match the VPN server:
+
+```bash
+curl -s https://ifconfig.me && echo ""
+
+```
+
+*Verification:* The returned IP address matches your Windows VPN exit IP rather than your local ISP address.
+
+---
+
+### Common WSL2 + VPN Issues & Fixes
+
+While WSL routes through the Windows VPN by default, WSL2's virtualized NAT network adapter frequently encounters DNS, routing, or packet-size issues when certain VPNs (such as NordVPN, Cisco AnyConnect, or GlobalProtect) are active. If your WSL distribution loses internet access, fails to resolve domains, or hangs on HTTPS requests while the Windows VPN is on, apply these fixes:
+
+1. **Enable Mirrored Networking & DNS Tunneling (Recommended on Windows 11)**
+Add these settings to `%USERPROFILE%\.wslconfig` on Windows so WSL2 mirrors Windows' network interfaces and forwards DNS queries through the host instead of a separate NAT switch:
+```ini
+[wsl2]
+networkingMode=mirrored
+dnsTunneling=true
+autoProxy=true
+
+```
+
+
+Restart WSL from PowerShell (`wsl --shutdown`) and reopen your distribution.
+*Verification:* `curl -I [https://example.com](https://example.com)` succeeds inside WSL while the Windows VPN is connected.
+2. **Fix Hanging HTTPS / TLS Connections (MTU Mismatch)**
+If `ping` works by IP address inside WSL2, but `curl`, `git clone`, or browsers time out or drop connections (similar to `ERR_CONNECTION_CLOSED`), the VPN's packet overhead is causing MTU fragmentation across WSL2's virtual adapter. Lower the MTU on WSL2's interface:
+
+
+```bash
+sudo ip link set dev eth0 mtu 1350
+
+```
+
+
+*(If you use NixOS on WSL2, you can set this declaratively with `networking.interfaces.eth0.mtu = 1350;`).*
+*Verification:* Previously hanging HTTPS downloads or `git` operations complete immediately.
+3. **Check Split Tunneling Exclusions**
+If your Windows VPN uses **split tunneling** and excludes system processes or `wsl.exe` / `vmmemWSL`, WSL traffic will bypass the tunnel. Ensure WSL processes are not excluded if you want all Linux traffic routed through the VPN.
+
+[See here](https://gemini.google.com/app/b8beb643cc174081)
+
+# Issues with WSL Distros
+
+Issues accessing `[https://www.bbc.com/news/videos/cm3wgdnex92xo](https://www.bbc.com/news/videos/cm3wgdnex92xo)` from a NixOS WSL-2 instance while NordVPN is active typically stem from **WSL-2's virtual NAT interface dropping/fragmenting packets over the VPN tunnel (MTU mismatch)**, **DNS leakage/resolution failures**, or **BBC's VPN IP/region filtering** (depending on whether the page fails to connect vs. loads with a geographic/proxy block).
+
+First, isolate whether this is a WSL-2 networking issue or a BBC VPN block by testing the URL in a **Windows browser** on the same host while NordVPN is connected.
+
+### Case A: It Works on Windows, But Fails/Hangs in NixOS WSL-2
+
+This is caused by WSL-2's virtualized NAT network adapter conflicting with NordVPN's tunnel overhead (MTU packet fragmentation) or DNS routing.
+
+1. **Enable Mirrored Networking and DNS Tunneling in Windows:** 2 min.
+Open `%USERPROFILE%\.wslconfig` on Windows (e.g., via PowerShell `notepad $env:USERPROFILE\.wslconfig`) and add or update the `[wsl2]` section:
+
+```ini
+[wsl2]
+networkingMode=mirrored
+dnsTunneling=true
+autoProxy=true
+
+```
+
+Then restart WSL from PowerShell using `wsl --shutdown` and reopen NixOS.
+*Verification:* Run `curl -I [https://www.bbc.com](https://www.bbc.com)` inside NixOS; it should return HTTP headers immediately rather than hanging or timing out.
+
+
+2. **Clamp the WSL-2 Interface MTU (If Connection Still Drops/Hangs):** 3 min.
+If TLS handshakes still stall or reset (`ERR_CONNECTION_CLOSED`) over NordVPN's NordLynx/OpenVPN encapsulation, lower the MTU on your WSL interface. Test it immediately with `sudo ip link set dev eth0 mtu 1350` (replace `eth0` with your active interface name from `ip link`, as mirrored mode exposes your Windows adapter name). To make this permanent in `/etc/nixos/configuration.nix`:
+
+```nix
+networking.interfaces.eth0.mtu = 1350;
+
+```
+
+Apply with `sudo nixos-rebuild switch`.
+*Verification:* Run `curl -I [https://www.bbc.com/news/videos/cm3wgdnex92xo](https://www.bbc.com/news/videos/cm3wgdnex92xo)` and confirm a `200 OK` response without TLS timeouts.
+
+
+3. **Verify NixOS /etc/resolv.conf Is Not Overridden:** 1 min.
+Ensure your NixOS-WSL configuration has not disabled WSL's automatic DNS generation (e.g., `wsl.wslConf.network.generateResolvConf = false;` or hardcoded `networking.nameservers`). Under NordVPN, external DNS queries bypassed outside the tunnel can fail or trigger BBC geo-mismatch checks.
+*Verification:* Run `cat /etc/resolv.conf` and confirm it points to WSL's DNS tunnel resolver (such as `10.255.255.254` in mirrored mode) rather than a public IP like `8.8.8.8`.
+
+
+---
+
+### Case B: It Fails on Both Windows and NixOS (or Loads With a BBC Playback Error)
+
+If the page loads in your browser or `curl`, but the BBC video player refuses to play or returns a `403 Forbidden` / region error:
+
+* **BBC VPN IP Blocklist:** BBC actively blocks known VPN datacenter IP ranges. Switch to a different NordVPN server location (for example, a different UK city like Manchester, Glasgow, or Edinburgh if accessing UK-restricted news video, or a different US/local server if the clip is globally available).
+* **NordVPN Threat Protection Pro / Web Protection:** NordVPN's built-in tracker/ad blocker (`Threat Protection Pro`) can interfere with BBC's media manifest and analytics scripts (`emp.bbci.co.uk`). Temporarily toggle off **Web Protection** in the NordVPN Windows app and reload the page.
+
+That error happened because Markdown link formatting (`[url](url)`) was accidentally copied into the terminal—Bash interprets unquoted parentheses `(` and `)` as subshell syntax.
+
+Run the plain URL without brackets or parentheses:
+
+```bash
+curl -I https://www.bbc.com/news/videos/cm3wgdnex92xo
+
+```
+
+[See](https://gemini.google.com/app/e48601449634d946)

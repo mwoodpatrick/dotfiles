@@ -261,6 +261,7 @@
   };
 
   networking.hostName = "${hostName}";
+  networking.interfaces.eth0.mtu = 1350;
 
   # Ensure the systemd user manager is properly configured to linger
   # This allows systemd to manage user services even when you aren't logged in
