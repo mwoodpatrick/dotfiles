@@ -219,3 +219,46 @@ curl -I https://www.bbc.com/news/videos/cm3wgdnex92xo
 ```
 
 [See](https://gemini.google.com/app/e48601449634d946)
+
+Lowering the **MTU (Maximum Transmission Unit)** shrinks the maximum size (in bytes) of each individual network packet that your NixOS WSL-2 interface is allowed to send before splitting data into smaller pieces.
+
+This fixes the issue by preventing **VPN encapsulation overhead** from making packets too large for the network path—a failure mode known as **MTU blackholing**.
+
+### What Happens Without the Fix (The "Black Hole")
+
+1. **Default Packet Size (1500 bytes):** Standard Ethernet and WSL-2's virtual network adapter (`eth0`) default to an MTU of **1500 bytes**. Small packets like `ping` or initial TCP `SYN` handshakes are tiny (~60 bytes), so they pass through fine.
+
+
+2. **TLS Handshake & Data Packets Hit the Limit:** When `curl` or a browser starts an HTTPS/TLS connection to `bbc.com`, it sends full-sized **1500-byte** packets (such as TLS certificates and ClientHello extensions).
+
+
+3. **NordVPN Adds Header Overhead:** Windows wraps that 1500-byte packet inside an encrypted VPN tunnel (NordLynx/WireGuard adds ~60–80 bytes of headers), inflating the total outer packet to **~1560–1580 bytes**.
+4. **Silent Packet Drops:** Your physical router or ISP rejects packets larger than 1500 bytes. Because TLS packets set the **"Don't Fragment" (DF)** flag—and WSL-2's virtual NAT switch often blocks or drops the `ICMP Fragmentation Needed` error messages meant to tell Linux to shrink its packets—the packets are silently discarded. Your connection hangs or resets (`ERR_CONNECTION_CLOSED`).
+
+
+
+### What Setting `mtu 1350` Changes
+
+* **Caps Inner Payload Size:** By setting WSL-2's `eth0` MTU to **1350 bytes**, Linux's TCP/IP stack automatically negotiates a smaller **Maximum Segment Size (MSS)** of ~1310 bytes during the TCP handshake.
+* **Leaves Room for VPN Headers:** Even after NordVPN adds its ~60–80 bytes of encryption and routing headers on the Windows side, the final outer packet is only **~1410–1430 bytes**—safely below the 1500-byte internet limit.
+* **No Fragmentation Needed:** Every packet travels end-to-end without needing to be split or relying on blocked ICMP error messages.
+
+---
+
+### Making the Change Permanent in NixOS
+
+Running `sudo ip link set dev eth0 mtu 1350` only lasts until WSL restarts. To make it persist across reboots on NixOS-WSL, add this to `/etc/nixos/configuration.nix` and rebuild:
+
+```nix
+networking.interfaces.eth0.mtu = 1350;
+
+```
+
+Then apply it:
+
+```bash
+sudo nixos-rebuild switch
+
+```
+
+*Verification:* Restart WSL (`wsl --shutdown` in PowerShell) or reopen your NixOS terminal, then run `ip link show eth0` and confirm `mtu 1350` is listed on the interface.
