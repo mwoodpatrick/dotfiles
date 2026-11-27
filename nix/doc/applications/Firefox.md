@@ -1,4 +1,4 @@
-[Firefox](https://www.firefox.com/en-US/)
+# [Firefox](https://www.firefox.com/en-US/)
 
 The support page contains technical information that might be useful when you’re trying to solve a problem. 
 If you are looking for answers to common questions about Firefox, check out the [support website](https://support.mozilla.org/1/firefox/159.0/Linux/en-US/)
@@ -8,7 +8,7 @@ Useful links:
 [Firefox addons](https://addons.mozilla.org/en-US/firefox/)
 [NixOs Firefox](https://wiki.nixos.org/wiki/Firefox)
 
-= Firefox XDG Migration
+## Firefox XDG Migration
 
 Starting with **Firefox 147** (released January 2026), Firefox on Linux supports the **XDG Base Directory Specification**—moving profile and configuration storage from `~/.mozilla/firefox` to `$XDG_CONFIG_HOME/mozilla/firefox` (defaulting to `~/.config/mozilla/firefox`).
 
@@ -72,7 +72,7 @@ sudo nixos-rebuild switch # or home-manager switch
 
 *Verification:* Launch Firefox, open `about:profiles` (or `about:support`), and confirm **Root Directory** / **Profile Directory** now resolves under `/home/<user>/.config/mozilla/firefox/...` with all bookmarks, extensions, and Sync state intact.
 
-= Firefox profiles
+# Firefox profiles
 
 Firefox profiles are stored locally per user on each host machine and are not shared across different computers.**
 
@@ -119,7 +119,7 @@ If you use Firefox on other computers or mobile devices, clear their local bookm
 
 To find the exact location of your active Firefox configuration files—which include your user profile preferences (`prefs.js` / `user.js`), the profile registry (`profiles.ini`), and any system-wide Enterprise Policy files (`policies.json`)
 
-= Erasing Bookmarks
+# Erasing Bookmarks
 
 You can erase all bookmarks in a Firefox profile either directly through the **Library window** inside Firefox (recommended, as it cleanly propagates to Firefox Sync if signed in) or by deleting the underlying **`places.sqlite`** database file on disk while Firefox is closed.
 
