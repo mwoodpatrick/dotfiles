@@ -2,13 +2,13 @@
   config,
   lib,
   pkgs,
-  inputs,
+  # inputs,
   unstable,
   username,
   ...
 }:
 let
-  home = config.home.homeDirectory;
+  # home = config.home.homeDirectory;
   projects_root = "/mnt/wsl/projects";
   git_root = "${projects_root}/git";
   xdg_data = "${projects_root}/data";
@@ -154,6 +154,7 @@ in
       lswt
       mesa-demos # [Collection of demos and test programs for OpenGL and Mesa](https://github.com/mirror/mesa-demos)
       neovide
+      nordpass
       unstable.neovim
       nerdfix
       nodejs_26

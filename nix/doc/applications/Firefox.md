@@ -1,23 +1,80 @@
 [Firefox](https://www.firefox.com/en-US/)
+
+The support page contains technical information that might be useful when you’re trying to solve a problem. 
+If you are looking for answers to common questions about Firefox, check out the [support website](https://support.mozilla.org/1/firefox/159.0/Linux/en-US/)
+
+Useful links:
+
 [Firefox addons](https://addons.mozilla.org/en-US/firefox/)
 [NixOs Firefox](https://wiki.nixos.org/wiki/Firefox)
 
-Firefox profiles are stored locally per user on each host machine and are not shared across different computers.**
+= Firefox XDG Migration
 
-To find the exact location of your active Firefox configuration files—which include your user profile preferences (`prefs.js` / `user.js`), the profile registry (`profiles.ini`), and any system-wide Enterprise Policy files (`policies.json`)—use Firefox's built-in diagnostics pages or check the standard OS paths below.
+Starting with **Firefox 147** (released January 2026), Firefox on Linux supports the **XDG Base Directory Specification**—moving profile and configuration storage from `~/.mozilla/firefox` to `$XDG_CONFIG_HOME/mozilla/firefox` (defaulting to `~/.config/mozilla/firefox`).
+
+However, **Firefox does not migrate existing profiles automatically**: if `~/.mozilla` already exists on disk, Firefox continues using the legacy path so existing setups do not break.
 
 ---
 
-### 1. Find Your User Profile Config (`prefs.js` & `user.js`)
+### 1. What Changes in the XDG Layout
 
-prefs.js (main storage)
-- This is the primary file where Firefox saves all modified preferences.
-- It is automatically created and updated by Firefox.
-- It is a plain text file.
+* **Profiles & Configs:** Move from `~/.mozilla/firefox/` to `$XDG_CONFIG_HOME/mozilla/firefox/` (`~/.config/mozilla/firefox/`).
+* **Cache:** Continues using `$XDG_CACHE_HOME/mozilla/firefox/` (`~/.cache/mozilla/firefox/`).
+* **Native Messaging Hosts (Important Caveat):** Upstream Firefox still reads native messaging manifests (used by password managers like NordPass or KeePassXC) from `~/.mozilla/native-messaging-hosts/`. Do not delete `~/.mozilla/native-messaging-hosts` if you rely on browser-to-desktop extension bridges.
 
-user.js (optional overrides)
-- This file does not exist by default.
-- If created manually, Firefox will apply its settings at startup, overriding values in prefs.js.
+---
+
+### 2. How to Migrate on NixOS / Home Manager
+
+Home Manager (`26.05` and unstable) defaults `programs.firefox.configPath` to `${config.xdg.configHome}/mozilla/firefox` (and emits a deprecation warning if your `home.stateVersion` still points to the legacy `.mozilla/firefox` path).
+
+1. **Close Firefox completely and back up your existing directory:**
+```bash
+pkill -f firefox
+cp -a ~/.mozilla/firefox ~/.mozilla-firefox.bak
+
+```
+
+
+*Verification:* Confirm `~/.mozilla-firefox.bak/profiles.ini` exists before moving anything.
+2. **Move the profile directory to the XDG config location:**
+```bash
+mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/mozilla"
+mv ~/.mozilla/firefox "${XDG_CONFIG_HOME:-$HOME/.config}/mozilla/firefox"
+
+```
+
+
+*Verification:* Confirm `~/.config/mozilla/firefox/profiles.ini` is in place and `~/.mozilla/firefox` is no longer present.
+3. **Keep `native-messaging-hosts` if used, and remove empty legacy folders:**
+* If `~/.mozilla/native-messaging-hosts` exists (for example, for NordPass), leave it in `~/.mozilla/`.
+* Otherwise, remove the empty `~/.mozilla` directory (`rmdir ~/.mozilla 2>/dev/null || true`) so Firefox does not fall back to legacy mode.
+
+
+4. **Update your Home Manager configuration (if you manage Firefox declaratively):**
+Set `programs.firefox.configPath` to the XDG path (or remove any legacy `".mozilla/firefox"` override):
+```nix
+programs.firefox = {
+  enable = true;
+  configPath = ".config/mozilla/firefox"; # Or "${config.xdg.configHome}/mozilla/firefox" on 26.05+
+};
+
+```
+
+
+*(Note: On some Home Manager revisions, passing an absolute path via `${config.xdg.configHome}` prepends `$HOME/` twice; using the relative string `".config/mozilla/firefox"` avoids that path-doubling bug.)*
+5. **Rebuild and verify in Firefox:**
+```bash
+sudo nixos-rebuild switch # or home-manager switch
+
+```
+
+
+*Verification:* Launch Firefox, open `about:profiles` (or `about:support`), and confirm **Root Directory** / **Profile Directory** now resolves under `/home/<user>/.config/mozilla/firefox/...` with all bookmarks, extensions, and Sync state intact.
+
+= Firefox profiles
+
+Firefox profiles are stored locally per user on each host machine and are not shared across different computers.**
 
 Your active Firefox profile directory stores your personal settings (`prefs.js`), custom overrides (`user.js`), and UI CSS (`chrome/userChrome.css`).
 
@@ -32,21 +89,107 @@ about:profiles
 3. Look at the **Root Directory** row and click **Open Directory** (or copy the path).
 * *Verification:* Inside that folder, you will see `prefs.js` (and `user.js` if created), confirming you have the active profile directory.
 
+# Syncing profiles
+
+Firefox Sync merges local and cloud bookmarks by default rather than overwriting one with the other. To replace the bookmarks stored in your Mozilla Account with your current local set without merging old cloud items back in, back up your local bookmarks, wipe the encrypted Sync data on Mozilla's servers, and re-upload your local set.
+
+1. **Back Up Your Current Local Bookmarks:** 1 min.
+Press Ctrl + Shift + O (or Cmd + Shift + O on macOS) to open the Firefox Library window, click Import and Backup at the top, and select Backup... to save a .jsonlz4 file to your computer.
+*Verification:* Confirm the dated bookmarks-YYYY-MM-DD.jsonlz4 file exists in your chosen folder.
 
 
-*(Alternatively, visit `about:support` and look for the **Profile Directory** row under **Application Basics**.)*
+2. **Sign Out of Sync on This Profile:** 1 min.
+Open Settings, go to Sync (or navigate to about:preferences#sync), and click Sign Out... so Firefox does not pull down existing cloud bookmarks before you wipe them. Leave the checkbox to delete local data unchecked so your current bookmarks stay intact.
+*Verification:* The Sync settings page displays a Sign in prompt instead of your email address.
+
+
+3. **Wipe Server-Side Sync Data via Password Reset:** 2 min.
+Visit accounts.mozilla.com in a browser tab, sign in, open Security, and click Change next to Password to set a new password. Because Mozilla encrypts Sync data using keys derived from your password, changing it permanently invalidates and clears all stored Sync data on the server.
+*Verification:* Mozilla confirms your password has been updated and signs out active Sync sessions on your other devices.
+
+
+4. **Verify Local Bookmarks and Re-Sync:** 2 min.
+Open the Library window (Ctrl + Shift + O) and check that only your desired bookmarks are present (if anything was altered, restore your .jsonlz4 file via Import and Backup - Restore - Choose File...). Return to Settings - Sync, sign in with your new password, ensure Bookmarks is checked, and click Sync Now from the toolbar Account menu.
+*Verification:* Reopen Ctrl + Shift + O after Sync finishes and confirm your exact bookmark set remains intact with no old cloud folders added back.
+
+
+If you use Firefox on other computers or mobile devices, clear their local bookmarks or reinstall/reset their profile before signing them back into your Mozilla Account so they pull the fresh bookmark tree from the cloud rather than pushing cached bookmarks back up.
+
+
+
+To find the exact location of your active Firefox configuration files—which include your user profile preferences (`prefs.js` / `user.js`), the profile registry (`profiles.ini`), and any system-wide Enterprise Policy files (`policies.json`)
+
+= Erasing Bookmarks
+
+You can erase all bookmarks in a Firefox profile either directly through the **Library window** inside Firefox (recommended, as it cleanly propagates to Firefox Sync if signed in) or by deleting the underlying **`places.sqlite`** database file on disk while Firefox is closed.
+
+(Optional: Before erasing, back up your bookmarks via **Ctrl + Shift + O** → **Import and Backup** → **Backup...** to save a `.jsonlz4` file.)
+
+---
+
+### Method 1: Erase Bookmarks via the Firefox Library (Recommended)
+
+This removes all bookmarks from the active profile without touching your browsing history, saved passwords, or add-ons.
+
+1. **Open the Firefox Library:** 10 sec.
+Launch Firefox in the target profile and press **Ctrl + Shift + O** (or **Cmd + Shift + O** on macOS) to open the Library window.
+
+
+2. **Clear Each Root Bookmark Folder:** 30 sec.
+In the left-hand sidebar, select **Bookmarks Toolbar**, click inside the right pane, press **Ctrl + A** (or **Cmd + A**) to select all items, and press **Delete**. Repeat this for **Bookmarks Menu**, **Other Bookmarks**, and **Mobile Bookmarks** (if present).
+*Verification:* Every root bookmark folder displays an empty right-hand pane.
+
+
+3. **Push Deletions to Sync (If Signed In):** 10 sec.
+If this profile is signed into a Mozilla Account, click your **Account icon** in the top-right toolbar and select **Sync Now** so the deletions overwrite your synced cloud bookmarks rather than re-downloading them.
+*Verification:* Restart Firefox, press **Ctrl + Shift + O**, and confirm all bookmark folders remain empty.
+
+
+---
+
+### Method 2: Delete `places.sqlite` on Disk (Also Clears History)
+
+If you want to wipe the profile's bookmark database directly from the filesystem (note: `places.sqlite` stores **both** bookmarks and browsing history):
+
+1. **Locate the Target Profile Directory:** 30 sec.
+Open Firefox, navigate to `about:profiles`, and click **Open Directory** next to **Root Directory** for the profile you want to clear (or copy the folder path).
+*Verification:* The directory contains `places.sqlite` and a `bookmarkbackups` folder.
+
+
+2. **Close Firefox Completely:** 10 sec.
+Quit all open Firefox windows for that profile so SQLite flushes its write-ahead log (`places.sqlite-wal`) and releases the file lock.
+*Verification:* The `parent.lock` (Windows) or `.parentlock` (Linux/macOS) file disappears from the profile directory.
+
+
+3. **Remove the Database Files:** 20 sec.
+Delete `places.sqlite` (along with `places.sqlite-wal` and `places.sqlite-shm`, if present) from that profile folder. Optionally clear the `bookmarkbackups/` subfolder if you do not want Firefox auto-restoring from a snapshot.
+*Verification:* Relaunch Firefox in that profile and press **Ctrl + Shift + O**; Firefox generates a fresh empty database with only the default starter folders.
+
+---
+
+### 1. Find Your User Profile Config (`prefs.js` & `user.js`)
+
+prefs.js (main storage)
+- This is the primary file where Firefox saves all modified preferences.
+- It is automatically created and updated by Firefox.
+- It is a plain text file.
+
+user.js (optional overrides)
+- This file does not exist by default.
+- If created manually, Firefox will apply its settings at startup, overriding values in prefs.js.
+
 
 #### Default Base Directories by OS (Where `profiles.ini` Lives)
 
 If Firefox isn't running, check `profiles.ini` in the base Firefox folder to see which profile directory is active:
 
-| OS / Environment | Base Directory (`profiles.ini`) |
-| --- | --- |
-| **Linux / NixOS** | `~/.mozilla/firefox/` (or `~/.config/mozilla/firefox/` if XDG migration is active) |
-| **Windows** | `%APPDATA%\Mozilla\Firefox\` (`C:\Users\<User>\AppData\Roaming\Mozilla\Firefox\`) |
-| **macOS** | `~/Library/Application Support/Firefox/` |
-| **Linux Flatpak** | `~/.var/app/org.mozilla.firefox/.mozilla/firefox/` |
-| **Linux Snap** | `~/snap/firefox/common/.mozilla/firefox/` |
+ | OS / Environment | Base Directory (`profiles.ini`) |
+  |------------------|----------------------------------|
+  | Linux / NixOS    | `~/.mozilla/firefox/` (or `~/.config/mozilla/firefox/` if XDG migration is active) |
+  | Windows          | `%APPDATA%\Mozilla\Firefox\` |
+  | macOS            | `~/Library/Application Support/Firefox/` |
+  | Linux Flatpak   | `~/.var/app/org.mozilla.firefox/.mozilla/firefox/` |
+  | Linux Snap      | `~/snap/firefox/common/.mozilla/firefox/` |
 
 ---
 
