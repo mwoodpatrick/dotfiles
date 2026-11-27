@@ -6,6 +6,8 @@ Thumbs.db
 *.swp
 *.swo
 
+NordPass
+
 # Nix / Flakes
 result
 flake-lock.pub
