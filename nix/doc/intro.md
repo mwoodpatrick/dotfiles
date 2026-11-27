@@ -415,4 +415,22 @@ This ensures that when OpenCode edits `.lean`, `.c`, or `.nix` files via ACP, op
 3. **Verify both adapters:** Open a `.lean` file in a `direnv`-enabled repo, press `<leader>ac` to verify `opencode (ACP)` connects, and highlight a proof block with `<leader>ap` to confirm local Ollama streams the tactic inline.
 
 
+The target release date for **NixOS 26.11 ("Zokor")** is **Monday, November 30, 2026** (08:00 UTC).
 
+### Nix 26.11 Current Release Status
+
+* **Release Branch Created:** The `release-26.11` branch was officially branched off from `master` on **November 24, 2026**, and beta/release channels are now being built by Hydra.
+* **Final Freeze & Zero Hydra Failures (ZHF):** Between now and November 30, only backported bugfixes and release-blocker patches are landing in `release-26.11` as maintainers wrap up the Zero Hydra Failures campaign and release notes.
+* **Support Window:** Once released on November 30, 2026, NixOS 26.11 will receive bugfixes and security updates for seven months (through the end of June 2027), while NixOS 26.05 ("Yarara") will reach end-of-life around December 31, 2026.
+
+The official release schedule, branch-off status, and target November 30, 2026 release date for NixOS 26.11 ("Zokor") are tracked in the following official GitHub and NixOS Discourse threads:
+
+GitHub Release Schedule Tracking Issue (Canonical Calendar): https://github.com/NixOS/nixpkgs/issues/567567
+
+NixOS Discourse Release Announcement & Status Thread: https://discourse.nixos.org/t/let-s-have-a-great-26-11-release-cycle/80323
+
+Zero Hydra Failures (ZHF) Tracking Issue: https://github.com/NixOS/nixpkgs/issues/584347
+
+Feature Freeze & Release Blockers Issue: https://github.com/NixOS/nixpkgs/issues/567960
+
+NixOS Channel Status Page (to monitor nixos-26.11 channel updates): https://channels.nixos.org/
