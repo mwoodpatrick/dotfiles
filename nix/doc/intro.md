@@ -434,3 +434,91 @@ Zero Hydra Failures (ZHF) Tracking Issue: https://github.com/NixOS/nixpkgs/issue
 Feature Freeze & Release Blockers Issue: https://github.com/NixOS/nixpkgs/issues/567960
 
 NixOS Channel Status Page (to monitor nixos-26.11 channel updates): https://channels.nixos.org/
+
+# NixOS & AI
+
+Combining **NixOS** and **AI** bridges declarative, reproducible system architecture with fast-moving local inference, model development, and autonomous coding agents. Because Nix isolates dependencies in `/nix/store` rather than relying on a standard Filesystem Hierarchy Standard (`FHS`), integrating AI tools requires specific declarative patterns—and offers distinct advantages over traditional distributions.
+
+---
+
+### 1. Local LLM Inference & GPU Acceleration
+
+NixOS natively manages NVIDIA CUDA, AMD ROCm, and Vulkan toolchains declaratively at the OS level, eliminating driver-library mismatches.
+
+* **Declarative Services:** Packages like `ollama`, `llama-cpp`, `vllm`, and `open-webui` run as systemd services with hardware acceleration enabled via `services.ollama.acceleration = "cuda"` (or `"rocm"`).
+* **Binary Caches:** Compiling CUDA-enabled derivations from source takes hours. Configuring community binary caches (`nix-community.cachix.org` or `cuda-maintainers.cachix.org`) pulls pre-built GPU binaries directly.
+* **WSL-2 Passthrough:** On NixOS-WSL, GPU acceleration works by exposing the Windows host's `/usr/lib/wsl/lib` drivers (`libcuda.so`) into the Nix environment's `LD_LIBRARY_PATH` without installing Linux kernel modules.
+
+```nix
+# Example NixOS module for local CUDA-accelerated inference
+{ pkgs, ... }: {
+  nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.cudaSupport = true;
+
+  services.ollama = {
+    enable = true;
+    acceleration = "cuda";
+  };
+}
+
+```
+
+---
+
+### 2. AI Coding Agents & Sandboxed Workflows
+
+Nix's deterministic dependency graphs solve two major problems for terminal-based AI agents (such as **OpenCode**, **Claude Code**, **Aider**, **Hermes**, and editor integrations like **CodeCompanion.nvim**):
+
+* **Deterministic Toolchains:** Wrapping a repository in a `flake.nix` (`devShells`) guarantees that both human developers and AI agents invoke identical compiler, linter, and test-runner versions.
+* **Zero-Risk System Mutations:** When an AI agent edits `configuration.nix` or flake inputs, `nixos-rebuild test` or `nix flake check` validates the build safely, while NixOS generations allow instant rollback if an agent introduces a regression.
+* **Filesystem & Process Sandboxing:** Tools like `bubblewrap` (`bwrap`) or lightweight `microvm.nix` instances restrict an agent's read/write access strictly to the project directory and explicit Nix store paths, preventing unauthorized edits to `~/.ssh`, `~/.gnupg`, or `.git` internals.
+* **Daily-Updated Agent Flakes:** Community repositories like `numtide/llm-agents.nix` track rapidly updating CLI agents and Model Context Protocol (MCP) servers daily, providing pre-packaged Nix derivations before they land in `nixpkgs-unstable`.
+
+---
+
+### 3. Python ML Ecosystems on NixOS
+
+Because pre-compiled Python wheels from PyPI expect dynamic linkers at `/lib64/ld-linux-x86-64.so.2`, raw `pip install` commands fail on NixOS unless bridged:
+
+| Approach | Mechanism | Best Use Case |
+| --- | --- | --- |
+| **Pure Nix (`pkgs.python3Packages`)** | Uses `torch-bin`, `transformers`, and `jax` packaged in Nixpkgs. | Production reproducibility and long-term stability. |
+| **`uv` + `nix-ld` / `buildFHSEnv**` | Enables `programs.nix-ld.enable = true` so standard `uv` or `venv` wheels find Nix-provided C++/CUDA libraries. | Rapid prototyping with bleeding-edge GitHub research repos. |
+| **`uv2nix`** | Translates `uv.lock` files directly into pure Nix derivations while reusing pre-built binary wheels. | Combining lockfile speed with declarative flake builds. |
+
+---
+
+### 4. Key Ecosystem Resources & References
+
+* **NixOS Official Wiki — CUDA & Machine Learning:** [wiki.nixos.org/wiki/CUDA](https://wiki.nixos.org/wiki/CUDA)
+* **`numtide/llm-agents.nix` (AI CLI Agents & MCP Packages):** [github.com/numtide/llm-agents.nix](https://github.com/numtide/llm-agents.nix)
+* **`nix-community` Binary Cache:** [app.cachix.org/cache/nix-community](https://app.cachix.org/cache/nix-community)
+* **`uv2nix` (Declarative Python Wheel Packaging):** [github.com/pyproject-nix/uv2nix](https://github.com/pyproject-nix/uv2nix)
+
+Are you looking to configure a specific local inference setup, package a custom AI agent/MCP server in a flake, or set up a sandboxed environment for AI-assisted coding?
+
+[See here](https://gemini.google.com/app/fb5463cc8fd9264c)
+
+# KDE Best terminal emulator
+
+**Konsole** is the best overall GUI terminal for KDE Plasma, though GPU-accelerated alternatives like **kitty**, **WezTerm**, and **Ghostty** are stronger choices if you prioritize raw rendering speed, cross-platform dotfiles, or built-in multiplexing.
+
+| Terminal | Rendering | Config Format | Key Strengths on KDE | Best For |
+| --- | --- | --- | --- | --- |
+| **Konsole** | CPU (Qt) | GUI / INI profiles | Native Breeze theming, KPart embedding in Dolphin/Kate, split panes, SSH bookmarks, activity/silence alerts | Deepest KDE Plasma integration and GUI-driven customization |
+| **Yakuake** | CPU (Qt) | GUI (Konsole KPart) | Quake-style drop-down terminal triggered by a global hotkey (`F12`), shares Konsole profiles | Instant toggleable terminal access anywhere on your KDE desktop |
+| **kitty** | GPU (OpenGL) | Plain text (`kitty.conf`) | Extremely fast throughput, built-in tabs/splits, Kitty graphics/keyboard protocols, kittens | High-speed rendering and rich TUI/image workflows without `tmux` |
+| **WezTerm** | GPU (WebGPU/OpenGL) | Lua (`wezterm.lua`) | Programmable Lua config, built-in SSH/serial/multiplexer, cross-platform (Linux/Windows/macOS) | Identical config across Linux/KDE and Windows/WSL2 setups |
+| **Ghostty** | GPU (OpenGL) | Plain text (`config`) | Fast Zig core, native splits/tabs, broad protocol support (GTK4 UI on Linux) | Modern, zero-bloat GPU speed with sensible defaults |
+| **Alacritty** | GPU (OpenGL) | TOML (`alacritty.toml`) | Lowest input latency and minimal footprint; delegates tabs/splits to `tmux` or KWin | Minimalists already using `tmux` or Neovim workflows |
+
+### Quick Recommendations by Use Case
+
+* **Native KDE Integration (Default Choice):** Stick with **Konsole** (`kdePackages.konsole` on NixOS). It embeds directly inside Dolphin (`F4`) and Kate, follows Plasma color schemes and fractional Wayland scaling out of the box, and includes built-in split views, profile switching, and command completion notifications. *(Note: If you run Plasma via XRDP without GPU acceleration, Konsole's Qt rendering also avoids OpenGL/Vulkan fallback overhead.)*
+
+
+* **Drop-Down Workflow:** Pair Konsole with **Yakuake** (`kdePackages.yakuake`)—it embeds Konsole's engine into a top-of-screen slide-down drawer.
+* **Cross-Platform / Nix Dotfiles & GPU Speed:** Use **WezTerm** or **kitty**. Both are declarative via plain-text/Lua files (easy to manage in Home Manager and share across hosts), support inline image protocols, and render large compiler or log outputs noticeably faster than Konsole.
+* **One to Watch:** KDE developer Eike Hein recently announced **Kwi**, an experimental KDE/Qt terminal built on `libghostty` that combines Ghostty's GPU-accelerated rendering with native KDE HIG/Plasma color-scheme integration.
+
+Are you optimizing for native KDE/XRDP compatibility or declarative configuration across multiple machines?
