@@ -74,7 +74,7 @@ sudo nixos-rebuild switch # or home-manager switch
 
 # Firefox profiles
 
-Firefox profiles are stored locally per user on each host machine and are not shared across different computers.**
+Firefox profiles are stored locally per user on each host machine and are not shared across different computers.
 
 Your active Firefox profile directory stores your personal settings (`prefs.js`), custom overrides (`user.js`), and UI CSS (`chrome/userChrome.css`).
 
@@ -334,8 +334,6 @@ Firefox does **not** write a continuous general-purpose `firefox.log` file to `/
 * If launched from your WSL terminal, errors print directly to your terminal.
 * If launched via a desktop/WSLg launcher under systemd, check the user journal:
 
-
-
 ```bash
 journalctl --user -e | grep -i firefox
 
@@ -541,3 +539,55 @@ If `about:policies` shows active policies even though you removed `extraPolicies
 
 * Check if `/etc/firefox/policies/policies.json` exists on your system and remove or update it.
 * Ensure you aren't launching a different Firefox binary on your `PATH` (run `which firefox` and `readlink -f $(which firefox)` to verify which `/nix/store` derivation is running).
+
+# Backing up Bookmarks to GitHub
+
+For a **Firefox bookmarks JSON backup** (~1.3 MB), committing it directly to a **private** GitHub repository—after formatting it for clean line-by-line diffs—is the cleanest and most practical approach.
+
+### 1. Always Use a Private Repository
+
+Firefox bookmark backups contain your complete browsing history of saved URLs, internal/local network links, and personal folder structure. Make sure the GitHub repository visibility is set to **Private**.
+
+### 2. Pretty-Print the JSON Before Committing (Crucial for Diffs & Repo Size)
+
+Firefox exports `.json` backups (via **Ctrl+Shift+O → Import and Backup → Export Bookmarks to HTML / Backup...** or converted from `.jsonlz4`) as a **single minified line**.
+
+* **Why this matters:** If you commit a 1.3 MB single-line JSON file repeatedly, every tiny bookmark addition forces Git to store an entire new 1.3 MB blob in history and makes `git diff` unreadable.
+* **The fix:** Format the file with `jq` before committing so each bookmark field sits on its own line. Git will then store tiny delta patches (a few hundred bytes per backup) and show exact added/removed URLs in `git diff`:
+```bash
+jq . bookmarks-backup.json > bookmarks.json
+
+```
+
+
+(If you are pulling directly from Firefox's automatic `bookmarkbackups/*.jsonlz4` snapshots, decompress and pretty-print in one step using `lz4jsoncat` + `jq`, or export `.json` manually from Firefox's Library window.)
+
+
+
+### 3. Overwrite a Single Canonical Filename (Don't Commit Dated Copies)
+
+Instead of committing `bookmarks-2026-11-28.json`, `bookmarks-2026-12-05.json`, etc. (which duplicates 1.3 MB across separate files on every backup):
+
+* Save every new backup to the **same filename** (e.g., `bookmarks.json`) and commit over it.
+* Git's commit history already tracks timestamps and lets you check out any historical snapshot cleanly.
+
+### 4. Recommended Automation Script
+
+You can wrap the export/format/commit flow in a quick script whenever you update your backup:
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Format exported Firefox bookmarks JSON for clean Git diffs
+jq . "$1" > bookmarks.json
+
+git add bookmarks.json
+git commit -m "Update Firefox bookmarks backup ($(date +%Y-%m-%d))"
+git push
+
+```
+
+(Note: If you ever want automated, bidirectional bookmark syncing directly into a Git repo without manual exports, the **Floccus** Firefox extension supports syncing your native bookmark tree directly to a GitHub repository via personal access token.)
+
+
