@@ -8,6 +8,192 @@ Useful links:
 [Firefox addons](https://addons.mozilla.org/en-US/firefox/)
 [NixOs Firefox](https://wiki.nixos.org/wiki/Firefox)
 
+# Preferances versus Configuration
+
+In Firefox, **preferences** and **configuration** operate at different layers: **preferences** (`prefs.js` / `user.js` / `about:config`) are runtime key-value settings stored inside a specific user profile, whereas **configuration** is the broader umbrella of application-wide files, enterprise policies (`policies.json`), AutoConfig scripts (`mozilla.cfg`), profile metadata (`profiles.ini`), and—in Nix—the declarative NixOS/Home Manager options that generate them.
+
+---
+
+### Side-by-Side Comparison
+
+| Dimension | Preferences (`about:config` / `prefs.js` / `user.js`) | Configuration (Policies, AutoConfig, Profile & Nix Setup) |
+| --- | --- | --- |
+| **Scope** | **Per-profile** (only affects a single Firefox profile, such as `<id>.default-release`). | **Browser-wide or profile-structural** (applies across all profiles, or defines how profiles and packages are wired up). |
+| **Mechanism** | Simple `user_pref("key", value);` JavaScript statements read by Firefox's Preferences Service. | JSON enterprise schemas (`policies.json`), privileged JS (`mozilla.cfg`), INI registries (`profiles.ini`), SQLite/JSON state, and Nix wrappers. |
+| **Enforcement** | **User-mutable:** Users can change values in `about:config` or Settings (`about:preferences`) unless locked via AutoConfig. (`user.js` re-applies defaults on startup.) | **Administrative / Structural:** Enterprise policies (`policies.json`) and `lockPref()` in `mozilla.cfg` lock settings so users cannot override them in the UI. |
+| **Where It Lives on Disk** | Inside the profile directory (`~/.config/mozilla/firefox/<profile>/prefs.js` and `user.js`). | Across `/nix/store/<hash>-firefox/lib/firefox/distribution/policies.json`, `mozilla.cfg`, `~/.config/mozilla/firefox/profiles.ini`, and `.nix` modules.
+
+ |
+| **Nix / Home Manager Mapping** | `programs.firefox.profiles.<name>.settings` (generates `user.js`) or a portable `user.js` dotfile.
+
+ | `programs.firefox.policies`, `pkgs.firefox.override { extraPolicies = ...; }`, `nativeMessagingHosts`, `profiles`, `bookmarks`, and `extensions`.
+
+ |
+
+---
+
+### How the Layers Interact in Firefox (Lowest to Highest Precedence)
+
+When Firefox starts, it evaluates preferences and configuration in a strict hierarchy:
+
+1. **Built-in Defaults (`omni.ja`):** Firefox's shipped default values for every `about:config` flag.
+2. **Profile Preferences (`prefs.js`):** Stores everything you change interactively in `about:preferences` or `about:config`, plus internal browser state (window positions, last update timestamps).
+
+
+3. **User Override Preferences (`user.js`):** An optional file inside your profile folder. On every startup, Firefox copies all `user_pref(...)` entries from `user.js` into `prefs.js`, overwriting manual `about:config` changes from the previous session (though you can still toggle them temporarily during a running session).
+
+
+4. **AutoConfig (`mozilla.cfg` / `autoconfig.js`):** Application-level configuration placed in Firefox's installation directory (`defaults/pref/`). Unlike `user.js`, AutoConfig can call `lockPref("...", ...)` to gray out and lock specific `about:config` keys across all profiles.
+5. **Enterprise Policies (`policies.json`):** High-level administrative configuration (`DisableTelemetry`, `ExtensionSettings`, `Bookmarks`, `Preferences`) compiled into `/nix/store/.../lib/firefox/distribution/policies.json`. Policies take precedence over user preferences and enforce restrictions (such as blocking or force-installing extensions) that `user.js` cannot express.
+
+
+
+---
+
+### Practical Rule of Thumb (Especially on Nix)
+
+* **Use Preferences (`user.js` / `profiles.<name>.settings`)** for internal Gecko/UI behavior flags that have `about:config` keys—such as `sidebar.verticalTabs = true`, `toolkit.legacyUserProfileCustomizations.stylesheets = true`, or Wayland/VA-API flags.
+
+
+* **Use Configuration (`policies.json` / `extraPolicies` / `programs.firefox`)** for structural or administrative rules that `about:config` alone cannot control—such as installing/unblocking extensions (`ExtensionSettings`), registering `nativeMessagingHosts`, disabling telemetry/Pocket globally, or defining profiles and bookmarks.
+
+# Local versus shared configuration
+
+On Windows, Firefox splits every profile into two directories (shown in `about:profiles`): the **Root Directory** stores permanent, portable user data (bookmarks, passwords, preferences, extensions), while the **Local Directory** stores machine-specific, disposable caches and temporary files that should not be backed up or synced across machines.
+
+---
+
+### Side-by-Side Comparison
+
+| Attribute | Root Directory | Local Directory |
+| --- | --- | --- |
+| **Default Windows Path** | `%APPDATA%\Mozilla\Firefox\Profiles\<id>.<name>` (`C:\Users\<User>\AppData\Roaming\...`) | `%LOCALAPPDATA%\Mozilla\Firefox\Profiles\<id>.<name>` (`C:\Users\<User>\AppData\Local\...`) |
+| **Purpose** | Persistent user profile data, settings, and state. | Temporary caches, offline storage, and rebuildable indexes. |
+| **Windows Roaming / Backup** | **Included** in Windows Roaming User Profiles and profile backups. | **Excluded** from Windows Roaming User Profiles (stays strictly local to that PC). |
+| **Safe to Delete?** | **No** — deleting it wipes bookmarks, saved logins, extensions, and `about:config` preferences. | **Yes** — Firefox automatically recreates caches and thumbnails on the next launch. |
+| **Linux / XDG Equivalent** | `~/.config/mozilla/firefox/<id>.<name>` (or `~/.mozilla/firefox/...`)
+
+ | `~/.cache/mozilla/firefox/<id>.<name>`
+
+ |
+
+---
+
+### What Lives Inside Each Directory
+
+* **Root Directory (`AppData\Roaming\...`)**
+* **Bookmarks & History:** `places.sqlite`, `favicons.sqlite`, and automatic backups in `bookmarkbackups\`.
+* **Preferences & Policies:** `prefs.js`, `user.js`, `containers.json`, `handlers.json`, and `search.json.mozlz4`.
+* **Passwords & Security:** `logins.json`, `key4.db`, `cert9.db`, and `permissions.sqlite`.
+* **Extensions & Session State:** `extensions\`, `extensions.json`, `extension-settings.json`, `cookies.sqlite`, and `sessionstore.jsonlz4`.
+
+
+* **Local Directory (`AppData\Local\...`)**
+* **Disk & HTTP Caches:** `cache2\` (cached web pages, scripts, images).
+* **Compiled Startup & Shader Caches:** `startupCache\`, `shader-cache\`.
+* **Thumbnails & Temporary Assets:** `thumbnails\` (New Tab page previews) and `safebrowsing\` (Safe Browsing threat lists, which Firefox re-downloads automatically).
+
+
+
+---
+
+### Practical Implications on Windows
+
+* **Migrating or Backing Up a Profile:** Copy the **Root Directory** (`%APPDATA%\Mozilla\Firefox\Profiles\...`). Skipping the **Local Directory** avoids copying gigabytes of disposable `cache2\` files without losing any settings or data.
+* **Custom Profiles (`about:profiles`):** If you create a custom profile folder outside `AppData` (for example, on another drive), Firefox sets both the Root Directory and Local Directory to that same custom path unless you explicitly override them.
+
+**Yes.** On Linux, Firefox enforces the exact same split between persistent profile data (**Root Directory**) and disposable caches (**Local Directory**) using the XDG Base Directory paths (or `~/.mozilla` for legacy profiles).
+
+### Linux vs. Windows Profile Path Mapping
+
+| Role in `about:profiles` | Windows Path | Modern Linux Path (Firefox 147+) | Legacy Linux Path (Pre-147 or existing `~/.mozilla`) |
+| --- | --- | --- | --- |
+| **Root Directory** (Persistent settings, bookmarks, extensions, passwords) | `%APPDATA%\Mozilla\Firefox\Profiles\<id>.<name>` | `$XDG_CONFIG_HOME/mozilla/firefox/<id>.<name>` (defaults to `~/.config/mozilla/firefox/<id>.<name>`) | `~/.mozilla/firefox/<id>.<name>` |
+| **Local Directory** (Disposable HTTP/disk caches, shader cache, thumbnails) | `%LOCALAPPDATA%\Mozilla\Firefox\Profiles\<id>.<name>` | `$XDG_CACHE_HOME/mozilla/firefox/<id>.<name>` (defaults to `~/.cache/mozilla/firefox/<id>.<name>`) | `~/.cache/mozilla/firefox/<id>.<name>`
+
+ |
+
+---
+
+### How It Works on Linux
+
+* **Root Directory (`~/.config/mozilla/firefox/` or `~/.mozilla/firefox/`):** Stores `profiles.ini`, `places.sqlite` (bookmarks/history), `prefs.js`, `user.js`, `logins.json`, `key4.db`, and installed `extensions/`. Note that Linux calls this **Root Directory** (for your personal profile) rather than "shared" across OS users—each Linux user gets their own isolated profile under their own `$HOME`.
+
+
+* **Local Directory (`~/.cache/mozilla/firefox/`):** Stores `cache2/`, `startupCache/`, `shader-cache/`, and `thumbnails/`. Even on older Linux setups where the Root Directory lived in `~/.mozilla/firefox/`, Firefox still placed the Local Directory under `~/.cache/mozilla/firefox/` so backup tools excluding `~/.cache` wouldn't back up disposable browser caches.
+
+
+* **Legacy Compatibility Rule:** If `~/.mozilla` already exists in your Linux home directory when Firefox launches, Firefox keeps your Root Directory in `~/.mozilla/firefox/` rather than migrating it to `~/.config/mozilla/firefox/`.
+
+
+
+You can verify both exact paths on your Linux system anytime by opening `about:profiles` in Firefox's address bar.
+
+# About Firefox
+
+Firefox exposes its built-in `about:<name>` pages dynamically inside the browser itself at **`about:about`**, while Mozilla documents the underlying protocol architecture and registration rules in the **Firefox Source Tree Documentation**.
+
+---
+
+### 1. Where `about:<name>` URLs Are Listed & Documented
+
+* **Live In-Browser Index (`about:about`):** Typing `about:about` into the Firefox address bar generates a clickable list of every `about:` page registered in your exact Firefox build and version (excluding pages that require query parameters or are marked `HIDE_FROM_ABOUTABOUT` in source).
+* **Official Protocol & Internal URL Docs:** Mozilla documents how internal schemes (`about:`, `chrome://`, `resource://`, `moz-src:///`) work and how `nsIAboutModule` registers new `about:` handlers in the **Firefox Source Docs** (`firefox-source-docs.mozilla.org/toolkit/internal-urls.html` and `networking/url_parsers.html`).
+* **Exact Source Code Registry (Searchfox):** Every built-in `about:` handler is registered in `nsAboutRedirector.cpp` (for `browser/` and `toolkit/` modules) and component `.manifest` / `Components.conf` files—searchable directly on `searchfox.org` by searching `aboutRedirector` or `nsIAboutModule`.
+
+---
+
+### 2. Common Supported `about:<name>` URLs by Category
+
+| Category | URL | What It Shows / Controls |
+| --- | --- | --- |
+| **Directory & Info** | `about:about` | Master list of all available `about:` URLs in your current build. |
+|  | `about:support` | Troubleshooting info: profile folder paths, graphics/GPU status, add-on IDs, and modified prefs. |
+|  | `about:buildconfig` | Compiler flags, target architecture, and build options used to compile that Firefox binary. |
+| **Settings & Policies** | `about:preferences` | Main Settings UI (supports hash anchors like `about:preferences#privacy` or `#sync`). |
+|  | `about:config` | Raw preference editor (`prefs.js` / `user.js` flags). |
+|  | `about:policies` | Active enterprise policies (`policies.json`), schema documentation, and policy parse errors. |
+| **Profiles, Add-ons & Sync** | `about:profiles` | Manage user profiles, inspect Root vs. Local directory paths, and launch/restart profiles. |
+|  | `about:addons` | Add-ons Manager for extensions, themes, and plugins (`Ctrl+Shift+A`). |
+|  | `about:sync-log` | Local Firefox Sync diagnostic and error logs. |
+| **Performance & Diagnostics** | `about:processes` | Live per-tab, per-extension, and GPU/utility process CPU and memory monitor. |
+|  | `about:memory` | Detailed RAM breakdown per process and manual garbage-collection / memory-minimization triggers. |
+|  | `about:performance` | Legacy/summary task manager for tab and add-on energy/resource impact. |
+|  | `about:crashes` | Submitted and unsubmitted crash report IDs and links to `Crash Reports/` dumps. |
+|  | `about:logging` | Live UI to toggle `MOZ_LOG` modules and capture HTTP/Gecko logs without restarting from a terminal. |
+| **Networking & Storage** | `about:networking` | Active HTTP/HTTP3 connections, DNS cache, WebSockets, and network logging. |
+|  | `about:cache` | Inspect disk and memory cache statistics and entries (`cache2`). |
+|  | `about:serviceworkers` | View and unregister active Service Workers. |
+|  | `about:webrtc` | Live WebRTC peer connection stats and ICE/SDP logs. |
+| **Debugging & Internals** | `about:debugging` | Inspect and debug temporary WebExtensions, workers, and remote targets. |
+|  | `about:telemetry` | Raw telemetry pings and scalar/histogram metrics collected locally. |
+|  | `about:studies` | Active and historical Normandy/Nimbus experiments. |
+|  | `about:url-classifier` | Safe Browsing / tracking-protection list update status. |
+| **Built-in Utilities** | `about:blank` / `about:newtab` | Blank page and default New Tab / Firefox Home view. |
+|  | `about:downloads` | Full-tab Downloads manager view. |
+|  | `about:logins` | Built-in Firefox Password Manager (`logins.json` / `key4.db`). |
+|  | `about:certificate` | Inspect TLS/X.509 certificate chains (accepts `?cert=...` query params). |
+|  | `about:robots` / `about:mozilla` | Classic Mozilla Easter eggs. |
+
+
+# Firefox documentation
+
+Mozilla splits Firefox's official online documentation across several specialized portals depending on whether you are configuring enterprise policies, inspecting Firefox's internal architecture, developing extensions, or troubleshooting the browser as an end user:
+
+| Documentation Portal | Official URL | What It Covers |
+| --- | --- | --- |
+| **Firefox Admin & Enterprise Docs** | [firefox-admin-docs.mozilla.org](https://firefox-admin-docs.mozilla.org/reference/policies/) | Authoritative reference for `policies.json` (`ExtensionSettings`, `Bookmarks`, `Preferences`, `3rdparty`), GPO/Intune schemas, and deployment guides (replaces the legacy `mozilla.github.io/policy-templates` site). |
+| **Firefox Source Tree Docs** | [firefox-source-docs.mozilla.org](https://firefox-source-docs.mozilla.org/) | Internal architecture, startup/profile layout, `about:` URL handlers, command-line parameters, Gecko/front-end internals, and build documentation. |
+| **MDN Web Docs (Extensions & Web APIs)** | `developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions` | WebExtensions APIs, manifest schemas, Native Messaging host protocols, and web platform standards. |
+| **Mozilla Support (SUMO)** | `support.mozilla.org` | End-user guides, profile backup/migration instructions, Firefox Sync troubleshooting, and release notes. |
+| **Searchfox (Live Source Index)** | `searchfox.org` | Cross-referenced, searchable live source code for `mozilla-firefox/firefox` (useful for looking up exact `about:config` defaults in `all.js` or policy schemas in `policies-schema.json`). |
+
+### Most Useful Entry Points for Nix & Configuration Work
+
+* **Policy Reference (for `extraPolicies` / `programs.firefox.policies`):** [https://firefox-admin-docs.mozilla.org/reference/policies/](https://firefox-admin-docs.mozilla.org/reference/policies/)
+* **Firefox Front-end & Startup Internals:** [https://firefox-source-docs.mozilla.org/browser/index.html](https://firefox-source-docs.mozilla.org/browser/index.html)
+* **In-Browser Offline Policy Reference:** Open `about:policies#documentation` directly inside Firefox to browse the exact policy schema supported by your installed Firefox version.
+
 ## Firefox XDG Migration
 
 Starting with **Firefox 147** (released January 2026), Firefox on Linux supports the **XDG Base Directory Specification**—moving profile and configuration storage from `~/.mozilla/firefox` to `$XDG_CONFIG_HOME/mozilla/firefox` (defaulting to `~/.config/mozilla/firefox`).
